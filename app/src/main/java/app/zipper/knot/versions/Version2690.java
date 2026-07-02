@@ -161,7 +161,6 @@ public class Version2690 {
         "jp.naver.line.android.activity.chathistory.ChatHistoryActivity";
     v.chatHeader.fieldChatConfigChatId = "k61.a";
     v.chatHeader.fieldChatConfigIsMuted = "i61.a";
-    v.chatHeader.fieldChatConfigCategory = "";
     v.chatHeader.fieldChatConfigType = "ta1.s0";
     v.chatHeader.fieldAppInfoVersion = "hl1.n";
     v.chatHeader.fieldAppInfoPkg = "p21.a";

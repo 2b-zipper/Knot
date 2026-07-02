@@ -338,7 +338,6 @@ public class LineVersion {
       public String chatHistoryActivity = "";
       public String fieldChatConfigChatId = "";
       public String fieldChatConfigIsMuted = "";
-      public String fieldChatConfigCategory = "";
       public String fieldChatConfigType = "";
       public String fieldAppInfoVersion = "";
       public String fieldAppInfoPkg = "";
@@ -472,6 +471,7 @@ public class LineVersion {
   static {
     VERSION_TABLE.put("26.8.0", app.zipper.knot.versions.Version2680.create());
     VERSION_TABLE.put("26.9.0", app.zipper.knot.versions.Version2690.create());
+    VERSION_TABLE.put("26.10.0", app.zipper.knot.versions.Version26100.create());
   }
 
   private static volatile Config cachedConfig = null;

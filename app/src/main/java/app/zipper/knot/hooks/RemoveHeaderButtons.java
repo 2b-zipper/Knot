@@ -23,7 +23,8 @@ public class RemoveHeaderButtons implements BaseHook {
     if (!config.removeAiFriendsButton.enabled
         && !config.removeSearchBarAgentIButton.enabled
         && !config.removeOpenChatButton.enabled
-        && !config.removeAlbumButton.enabled) return;
+        && !config.removeAlbumButton.enabled
+        && !config.removeCalendarButton.enabled) return;
 
     if (config.removeSearchBarAgentIButton.enabled) {
       hookHomeSearchBarAiButton(cfg, lpparam.classLoader);
@@ -38,6 +39,7 @@ public class RemoveHeaderButtons implements BaseHook {
     final Object aiFriend = firstAvailableValueOf(iconTypeCls, "AI_FRIEND", "AI_FRIENDS");
     Object album = safeValueOf(iconTypeCls, "ALBUM");
     Object openChat = safeValueOf(iconTypeCls, "OPEN_CHAT");
+    Object calendar = safeValueOf(iconTypeCls, "CALENDAR");
 
     if (config.removeSearchBarAgentIButton.enabled) {
       hookSearchBarAiButton(cfg, cls);
@@ -58,9 +60,10 @@ public class RemoveHeaderButtons implements BaseHook {
         chain -> {
           Object result = chain.proceed();
           if (Main.options.removeAiFriendsButton.enabled
-              || Main.options.removeOpenChatButton.enabled) {
+              || Main.options.removeOpenChatButton.enabled
+              || Main.options.removeCalendarButton.enabled) {
             try {
-              patchState(chain.getThisObject(), cfg, aiFriend, album, openChat);
+              patchState(chain.getThisObject(), cfg, aiFriend, album, openChat, calendar);
             } catch (Exception e) {
               Knot.log("Knot: RemoveHeaderButtons constructor error: " + e);
             }
@@ -74,11 +77,12 @@ public class RemoveHeaderButtons implements BaseHook {
         chain -> {
           Object result = chain.proceed();
           if (!Main.options.removeAiFriendsButton.enabled
-              && !Main.options.removeOpenChatButton.enabled) return result;
+              && !Main.options.removeOpenChatButton.enabled
+              && !Main.options.removeCalendarButton.enabled) return result;
           List<?> list = (List<?>) result;
           if (list == null || list.isEmpty()) return result;
           try {
-            return filterButtons(list, cfg, aiFriend, album, openChat);
+            return filterButtons(list, cfg, aiFriend, album, openChat, calendar);
           } catch (Exception e) {
             Knot.log("Knot: RemoveHeaderButtons createEndButtons error: " + e);
             return result;
@@ -87,43 +91,58 @@ public class RemoveHeaderButtons implements BaseHook {
   }
 
   private static void patchState(
-      Object instance, LineVersion.Config cfg, Object aiFriend, Object album, Object openChat)
+      Object instance,
+      LineVersion.Config cfg,
+      Object aiFriend,
+      Object album,
+      Object openChat,
+      Object calendar)
       throws Exception {
     Object iconState = Reflect.getObjectField(instance, cfg.talkTabHeader.iconListStateField);
     List<?> icons = (List<?>) Reflect.callMethod(iconState, "getValue");
     if (icons != null)
-      Reflect.callMethod(iconState, "setValue", filterIcons(icons, aiFriend, album, openChat));
+      Reflect.callMethod(
+          iconState, "setValue", filterIcons(icons, aiFriend, album, openChat, calendar));
 
     Object btnState = Reflect.getObjectField(instance, cfg.talkTabHeader.buttonListStateField);
     List<?> buttons = (List<?>) Reflect.callMethod(btnState, "getValue");
     if (buttons != null)
       Reflect.callMethod(
-          btnState, "setValue", filterButtons(buttons, cfg, aiFriend, album, openChat));
+          btnState, "setValue", filterButtons(buttons, cfg, aiFriend, album, openChat, calendar));
   }
 
   private static List<Object> filterIcons(
-      List<?> icons, Object aiFriend, Object album, Object openChat) {
+      List<?> icons, Object aiFriend, Object album, Object openChat, Object calendar) {
     boolean removeAi = Main.options.removeAiFriendsButton.enabled;
     boolean removeOc = Main.options.removeOpenChatButton.enabled;
+    boolean removeCal = Main.options.removeCalendarButton.enabled;
     List<Object> out = new ArrayList<>();
     for (Object icon : icons) {
       if (removeAi && (icon == aiFriend || icon == album)) continue;
       if (removeOc && icon == openChat) continue;
+      if (removeCal && icon == calendar) continue;
       out.add(icon);
     }
     return out;
   }
 
   private static List<Object> filterButtons(
-      List<?> buttons, LineVersion.Config cfg, Object aiFriend, Object album, Object openChat)
+      List<?> buttons,
+      LineVersion.Config cfg,
+      Object aiFriend,
+      Object album,
+      Object openChat,
+      Object calendar)
       throws Exception {
     boolean removeAi = Main.options.removeAiFriendsButton.enabled;
     boolean removeOc = Main.options.removeOpenChatButton.enabled;
+    boolean removeCal = Main.options.removeCalendarButton.enabled;
     List<Object> out = new ArrayList<>();
     for (Object btn : buttons) {
       Object type = Reflect.getObjectField(btn, cfg.talkTabHeader.iconTypeFieldInButton);
       if (removeAi && (type == aiFriend || type == album)) continue;
       if (removeOc && type == openChat) continue;
+      if (removeCal && type == calendar) continue;
       out.add(btn);
     }
     return out;

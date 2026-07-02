@@ -136,7 +136,11 @@ public class Main extends XposedModule {
           || options.extendTabClickArea.enabled) {
         applyHook(new RemoveTabs(), lpparam);
       }
-      if (options.removeAiFriendsButton.enabled || options.removeOpenChatButton.enabled) {
+      if (options.removeAiFriendsButton.enabled
+          || options.removeOpenChatButton.enabled
+          || options.removeAlbumButton.enabled
+          || options.removeCalendarButton.enabled
+          || options.removeSearchBarAgentIButton.enabled) {
         applyHook(new RemoveHeaderButtons(), lpparam);
       }
       if (options.useCustomFont.enabled) {

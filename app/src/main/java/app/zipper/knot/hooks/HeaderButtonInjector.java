@@ -37,10 +37,6 @@ public class HeaderButtonInjector implements BaseHook {
       ctorParams.add(View.class);
       ctorParams.add(config.chatHeader.fieldChatConfigChatId);
       ctorParams.add(config.chatHeader.fieldChatConfigIsMuted);
-      if (config.chatHeader.fieldChatConfigCategory != null
-          && !config.chatHeader.fieldChatConfigCategory.isEmpty()) {
-        ctorParams.add(config.chatHeader.fieldChatConfigCategory);
-      }
       ctorParams.add(config.chatHeader.fieldChatConfigType);
       ctorParams.add(headerHelperClass);
       ctorParams.add(config.chatHeader.fieldAppInfoVersion);

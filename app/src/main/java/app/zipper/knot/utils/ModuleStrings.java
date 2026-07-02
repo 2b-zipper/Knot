@@ -157,6 +157,8 @@ public class ModuleStrings {
       "トークタブ/ホームタブの検索バー右側にある「Agent i」ボタンと、トークルーム内の「+」メニューにある「トークルームのAgent iを表示」トグルをまとめて非表示にします。";
   public static final String OPT_REMOVE_OPEN_CHAT_BUTTON_LABEL = "オープンチャットボタンを非表示";
   public static final String OPT_REMOVE_OPEN_CHAT_BUTTON_DESC = "トークタブ右上の「オープンチャット」ボタンを非表示にします。";
+  public static final String OPT_REMOVE_CALENDAR_BUTTON_LABEL = "カレンダーボタンを非表示";
+  public static final String OPT_REMOVE_CALENDAR_BUTTON_DESC = "トークタブ右上の「カレンダー」ボタンを非表示にします。";
   public static final String OPT_REMOVE_ALBUM_BUTTON_LABEL = "アルバムボタンを非表示(サブ端末用)";
   public static final String OPT_REMOVE_ALBUM_BUTTON_DESC = "サブ端末のトークタブ右上に表示される「アルバム」ボタンを非表示にします。";
 
