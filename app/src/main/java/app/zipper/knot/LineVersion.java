@@ -214,8 +214,6 @@ public class LineVersion {
 
     public static class ReadReceipt {
       public String readReceiptManagerClass = "";
-      public String readReceiptQueueClass = "";
-      public String methodEnqueueReadReceipt = "";
       public String methodSendReadReceipt = "";
       public String methodExecuteReadReceiptAsync = "";
       public String methodReadAll = "";
@@ -472,11 +470,6 @@ public class LineVersion {
   private static final Map<String, Config> VERSION_TABLE = new HashMap<>();
 
   static {
-    VERSION_TABLE.put("26.6.0", app.zipper.knot.versions.Version2660.create());
-    VERSION_TABLE.put("26.6.1", app.zipper.knot.versions.Version2661.create());
-    VERSION_TABLE.put("26.6.2", app.zipper.knot.versions.Version2662.create());
-    VERSION_TABLE.put("26.7.0", app.zipper.knot.versions.Version2670.create());
-    VERSION_TABLE.put("26.7.1", app.zipper.knot.versions.Version2671.create());
     VERSION_TABLE.put("26.8.0", app.zipper.knot.versions.Version2680.create());
     VERSION_TABLE.put("26.9.0", app.zipper.knot.versions.Version2690.create());
   }

@@ -77,8 +77,6 @@ public class Version2680 {
     v.chatListMoreMenu.methodAddItem = "a";
 
     v.readReceipt.readReceiptManagerClass = "gw2.e";
-    v.readReceipt.readReceiptQueueClass = "bw7.b";
-    v.readReceipt.methodEnqueueReadReceipt = "c";
     v.readReceipt.methodSendReadReceipt = "d";
     v.readReceipt.methodExecuteReadReceiptAsync = "e";
     v.readReceipt.methodReadAll = "c";

@@ -32,7 +32,6 @@ public class ReadReceiptHandler implements BaseHook {
     ClassLoader cl = lpparam.classLoader;
 
     hookOperationForHistory(cfg, cl);
-    hookReadQueue(cfg, cl);
     hookThriftReadReceipt(cfg, cl, config);
     hookReadReceiptManager(cfg, cl, config);
   }
@@ -58,33 +57,6 @@ public class ReadReceiptHandler implements BaseHook {
                   (String) Reflect.getObjectField(op, cfg.unsend.operationParam2Field),
                   (String) Reflect.getObjectField(op, cfg.unsend.operationParam3Field),
                   Reflect.getLongField(op, cfg.unsend.operationCreatedTimeField));
-            } catch (Throwable ignored) {
-            }
-            return result;
-          });
-    } catch (Throwable ignored) {
-    }
-  }
-
-  private void hookReadQueue(LineVersion.Config cfg, ClassLoader cl) {
-    if (cfg.readReceipt.readReceiptQueueClass.isEmpty()) return;
-    try {
-      Knot.hookAll(
-          Reflect.findClass(cfg.readReceipt.readReceiptQueueClass, cl),
-          cfg.readReceipt.methodEnqueueReadReceipt,
-          chain -> {
-            Object result = chain.proceed();
-            if (!recordingEnabled()) return result;
-            try {
-              Class<?>[] types = ((Method) chain.getExecutable()).getParameterTypes();
-              if (types.length != 5 || types[0] != long.class || types[1] != String.class) {
-                return result;
-              }
-              recordReadEvent(
-                  (String) chain.getArg(1),
-                  (String) chain.getArg(2),
-                  String.valueOf((long) chain.getArg(3)),
-                  (long) chain.getArg(0));
             } catch (Throwable ignored) {
             }
             return result;

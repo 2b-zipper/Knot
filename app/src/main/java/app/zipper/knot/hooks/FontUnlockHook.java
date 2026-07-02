@@ -270,8 +270,6 @@ public class FontUnlockHook implements BaseHook {
               if (res != null) Reflect.setObjectField(res, cfg.font.fieldTypeface, customTypeface);
               return res;
             });
-
-
   }
 
   private void initTypeface() {
