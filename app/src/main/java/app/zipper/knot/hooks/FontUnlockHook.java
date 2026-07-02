@@ -271,18 +271,7 @@ public class FontUnlockHook implements BaseHook {
               return res;
             });
 
-    try {
-      Knot.module
-          .hook(
-              Reflect.findMethodExact(
-                  cfg.font.fontSettingsClass,
-                  lpparam.classLoader,
-                  cfg.font.methodGetFontSettings,
-                  int.class,
-                  cfg.font.fontInjectedClass))
-          .intercept(chain -> customTypeface);
-    } catch (Throwable ignored) {
-    }
+
   }
 
   private void initTypeface() {

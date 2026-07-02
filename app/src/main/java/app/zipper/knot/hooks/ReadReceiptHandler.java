@@ -35,7 +35,6 @@ public class ReadReceiptHandler implements BaseHook {
     hookReadQueue(cfg, cl);
     hookThriftReadReceipt(cfg, cl, config);
     hookReadReceiptManager(cfg, cl, config);
-    hookBadgeClear(cfg, cl, config);
   }
 
   private void hookOperationForHistory(LineVersion.Config cfg, ClassLoader cl) {
@@ -200,25 +199,6 @@ public class ReadReceiptHandler implements BaseHook {
             } finally {
               if (isNoArg) isBulkReading = false;
             }
-          });
-    } catch (Throwable ignored) {
-    }
-  }
-
-  private void hookBadgeClear(LineVersion.Config cfg, ClassLoader cl, KnotConfig config) {
-    if (cfg.readReceipt.badgeClearClass.isEmpty()) return;
-    try {
-      Knot.hookAll(
-          Reflect.findClass(cfg.readReceipt.badgeClearClass, cl),
-          "e",
-          chain -> {
-            if (!isPreventActive(config) || isBulkReading) return chain.proceed();
-
-            Class<?>[] params = ((Method) chain.getExecutable()).getParameterTypes();
-            if (params.length == 1 && params[0] == String.class && isLocalReadContext()) {
-              return null;
-            }
-            return chain.proceed();
           });
     } catch (Throwable ignored) {
     }

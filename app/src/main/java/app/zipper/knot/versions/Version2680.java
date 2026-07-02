@@ -83,7 +83,6 @@ public class Version2680 {
     v.readReceipt.methodExecuteReadReceiptAsync = "e";
     v.readReceipt.methodReadAll = "c";
     v.readReceipt.operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
-    v.readReceipt.badgeClearClass = "pu2.r";
     v.readReceipt.longPressReadClass = "rr1";
 
     v.unsend.notifiedReadMessageHandlerClass = "p08.ae$a";
@@ -172,7 +171,6 @@ public class Version2680 {
 
     v.font.fontConfigClass = "e7.n";
     v.font.fontManagerClass = "e7.m";
-    v.font.fontSettingsClass = "lb4.e";
     v.font.fontCallbackClass = "e7.n$c";
     v.font.fontInjectedClass = "nb4.k";
     v.font.methodGetFontConfig = "a";

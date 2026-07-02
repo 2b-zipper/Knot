@@ -220,7 +220,6 @@ public class LineVersion {
       public String methodExecuteReadReceiptAsync = "";
       public String methodReadAll = "";
       public String operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
-      public String badgeClearClass = "";
       public String longPressReadClass = "";
     }
 
@@ -351,7 +350,6 @@ public class LineVersion {
     public static class Font {
       public String fontConfigClass = "";
       public String fontManagerClass = "";
-      public String fontSettingsClass = "";
       public String fontCallbackClass = "";
       public String fontInjectedClass = "";
       public String methodGetFontConfig = "a";
