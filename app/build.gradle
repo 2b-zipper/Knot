@@ -12,7 +12,7 @@ android {
         minSdk 26
         targetSdk 35
         versionCode 11
-        versionName "2.3.0-rc5"
+        versionName "2.3.0-rc6"
         multiDexEnabled true
     }
 
