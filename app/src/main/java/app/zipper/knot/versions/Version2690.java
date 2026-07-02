@@ -230,7 +230,7 @@ public class Version2690 {
     v.notificationFix.firebaseMessagingHandleMethod = "c";
     v.notificationFix.firebaseWakefulStartClass = "ht.x0";
     v.notificationFix.firebaseWakefulStartMethod = "c";
-    v.notificationFix.firebaseCompletedTaskClass = "ln.n";
+    v.notificationFix.firebaseCompletedTaskClass = "sn.n";
     v.notificationFix.firebaseCompletedTaskMethod = "e";
     v.foregroundKeepAlive.serviceClass = "androidx.work.impl.foreground.SystemForegroundService";
     v.notificationFix.legyStreamingStateClass = "com.linecorp.legy.streaming.h$a";
@@ -276,7 +276,7 @@ public class Version2690 {
     v.imageQuality.qualityProfileMediumClass = "v08.a$b$b";
     v.imageQuality.methodGetMaxDimension = "a";
     v.imageQuality.methodGetQuality = "b";
-    v.imageQuality.imageUtilClass = "jp.naver.line.android.util.y0";
+    v.imageQuality.imageUtilClass = "jp.naver.line.android.util.c1";
 
     v.profile.g50fClass = "m60.g";
     v.profile.h13baClass = "t63.b";

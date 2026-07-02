@@ -276,7 +276,7 @@ public class Version2680 {
     v.imageQuality.qualityProfileMediumClass = "iy7.a$b$b";
     v.imageQuality.methodGetMaxDimension = "a";
     v.imageQuality.methodGetQuality = "b";
-    v.imageQuality.imageUtilClass = "jp.naver.line.android.util.y0";
+    v.imageQuality.imageUtilClass = "jp.naver.line.android.util.f1";
 
     v.profile.g50fClass = "f60.f";
     v.profile.h13baClass = "o43.b$a";
