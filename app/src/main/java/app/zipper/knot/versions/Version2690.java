@@ -220,7 +220,7 @@ public class Version2690 {
     v.notificationFix.firebaseRemoteMessageClass = "ht.j0";
     v.notificationFix.firebaseReceiverClass = "com.google.firebase.iid.FirebaseInstanceIdReceiver";
     v.notificationFix.firebaseReceiverMethod = "a";
-    v.notificationFix.firebaseReceiverEnvelopeClass = "al.a";
+    v.notificationFix.firebaseReceiverEnvelopeClass = "hl.a";
     v.notificationFix.firebaseReceiverIntentField = "f6301a";
     v.notificationFix.firebaseDispatcherClass = "ht.n";
     v.notificationFix.firebaseDispatcherAccessorMethod = "a";
