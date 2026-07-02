@@ -261,6 +261,7 @@ public class Version2690 {
     v.searchBarAgentI.homeTabTypeField = "b";
     v.searchBarAgentI.homeTabName = "HOME";
     v.searchBarAgentI.homeTabV2Name = "HOME_V2";
+    v.searchBarAgentI.chatTabName = "CHAT";
     v.searchBarAgentI.homeAiContainerId = 0x7f0b1658;
     v.searchBarAgentI.homeGuidelineId = 0x7f0b165a;
     v.searchBarAgentI.homeGuidelineEndDp = 55;

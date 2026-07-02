@@ -254,13 +254,14 @@ public class Version26100 {
     v.talkTabHeader.subDeviceAlbumButtonClass = "bt1.c$b";
 
     v.searchBarAgentI.talkVisibleMethod = "x";
-    v.searchBarAgentI.talkClickMethod = "t";
+    v.searchBarAgentI.talkClickMethod = "u";
     v.searchBarAgentI.homeSearchBarClass = "vr4.i";
     v.searchBarAgentI.homeRefreshMethod = "e";
     v.searchBarAgentI.homeRootViewField = "c";
     v.searchBarAgentI.homeTabTypeField = "b";
     v.searchBarAgentI.homeTabName = "HOME";
     v.searchBarAgentI.homeTabV2Name = "HOME_V2";
+    v.searchBarAgentI.chatTabName = "CHAT";
     v.searchBarAgentI.homeAiContainerId = 0x7f0b1673;
     v.searchBarAgentI.homeGuidelineId = 0x7f0b1675;
     v.searchBarAgentI.homeGuidelineEndDp = 55;

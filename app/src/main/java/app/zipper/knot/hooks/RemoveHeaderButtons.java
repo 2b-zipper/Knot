@@ -11,7 +11,11 @@ import app.zipper.knot.Reflect;
 import io.github.libxposed.api.XposedInterface;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
 public class RemoveHeaderButtons implements BaseHook {
 
@@ -47,12 +51,16 @@ public class RemoveHeaderButtons implements BaseHook {
 
     if (!cfg.talkTabHeader.subDeviceOpenChatButtonClass.isEmpty()) {
       hookSubDeviceHeaderButton(
-          cfg.talkTabHeader.subDeviceOpenChatButtonClass, lpparam.classLoader, "OPEN_CHAT");
+          cfg.talkTabHeader.subDeviceOpenChatButtonClass,
+          lpparam.classLoader,
+          () -> Main.options.removeOpenChatButton.enabled);
     }
 
     if (!cfg.talkTabHeader.subDeviceAlbumButtonClass.isEmpty()) {
       hookSubDeviceHeaderButton(
-          cfg.talkTabHeader.subDeviceAlbumButtonClass, lpparam.classLoader, "ALBUM");
+          cfg.talkTabHeader.subDeviceAlbumButtonClass,
+          lpparam.classLoader,
+          () -> Main.options.removeAlbumButton.enabled);
     }
 
     Knot.hookAllCtors(
@@ -63,87 +71,53 @@ public class RemoveHeaderButtons implements BaseHook {
               || Main.options.removeOpenChatButton.enabled
               || Main.options.removeCalendarButton.enabled) {
             try {
-              patchState(chain.getThisObject(), cfg, aiFriend, album, openChat, calendar);
+              patchState(
+                  chain.getThisObject(), cfg, hiddenTypes(aiFriend, album, openChat, calendar));
             } catch (Exception e) {
               Knot.log("Knot: RemoveHeaderButtons constructor error: " + e);
             }
           }
           return result;
         });
-
-    Knot.hookAll(
-        cls,
-        "createEndButtons",
-        chain -> {
-          Object result = chain.proceed();
-          if (!Main.options.removeAiFriendsButton.enabled
-              && !Main.options.removeOpenChatButton.enabled
-              && !Main.options.removeCalendarButton.enabled) return result;
-          List<?> list = (List<?>) result;
-          if (list == null || list.isEmpty()) return result;
-          try {
-            return filterButtons(list, cfg, aiFriend, album, openChat, calendar);
-          } catch (Exception e) {
-            Knot.log("Knot: RemoveHeaderButtons createEndButtons error: " + e);
-            return result;
-          }
-        });
   }
 
-  private static void patchState(
-      Object instance,
-      LineVersion.Config cfg,
-      Object aiFriend,
-      Object album,
-      Object openChat,
-      Object calendar)
-      throws Exception {
+  private static void patchState(Object instance, LineVersion.Config cfg, Set<Object> hiddenTypes) {
     Object iconState = Reflect.getObjectField(instance, cfg.talkTabHeader.iconListStateField);
     List<?> icons = (List<?>) Reflect.callMethod(iconState, "getValue");
-    if (icons != null)
-      Reflect.callMethod(
-          iconState, "setValue", filterIcons(icons, aiFriend, album, openChat, calendar));
+    if (icons != null) {
+      Reflect.callMethod(iconState, "setValue", filterByType(icons, icon -> icon, hiddenTypes));
+    }
 
     Object btnState = Reflect.getObjectField(instance, cfg.talkTabHeader.buttonListStateField);
     List<?> buttons = (List<?>) Reflect.callMethod(btnState, "getValue");
-    if (buttons != null)
-      Reflect.callMethod(
-          btnState, "setValue", filterButtons(buttons, cfg, aiFriend, album, openChat, calendar));
-  }
-
-  private static List<Object> filterIcons(
-      List<?> icons, Object aiFriend, Object album, Object openChat, Object calendar) {
-    boolean removeAi = Main.options.removeAiFriendsButton.enabled;
-    boolean removeOc = Main.options.removeOpenChatButton.enabled;
-    boolean removeCal = Main.options.removeCalendarButton.enabled;
-    List<Object> out = new ArrayList<>();
-    for (Object icon : icons) {
-      if (removeAi && (icon == aiFriend || icon == album)) continue;
-      if (removeOc && icon == openChat) continue;
-      if (removeCal && icon == calendar) continue;
-      out.add(icon);
+    if (buttons != null) {
+      Function<Object, Object> typeOfButton =
+          btn -> Reflect.getObjectField(btn, cfg.talkTabHeader.iconTypeFieldInButton);
+      Reflect.callMethod(btnState, "setValue", filterByType(buttons, typeOfButton, hiddenTypes));
     }
-    return out;
   }
 
-  private static List<Object> filterButtons(
-      List<?> buttons,
-      LineVersion.Config cfg,
-      Object aiFriend,
-      Object album,
-      Object openChat,
-      Object calendar)
-      throws Exception {
-    boolean removeAi = Main.options.removeAiFriendsButton.enabled;
-    boolean removeOc = Main.options.removeOpenChatButton.enabled;
-    boolean removeCal = Main.options.removeCalendarButton.enabled;
+  private static Set<Object> hiddenTypes(
+      Object aiFriend, Object album, Object openChat, Object calendar) {
+    Set<Object> hidden = new HashSet<>();
+    if (Main.options.removeAiFriendsButton.enabled) {
+      addIfPresent(hidden, aiFriend);
+      addIfPresent(hidden, album);
+    }
+    if (Main.options.removeOpenChatButton.enabled) addIfPresent(hidden, openChat);
+    if (Main.options.removeCalendarButton.enabled) addIfPresent(hidden, calendar);
+    return hidden;
+  }
+
+  private static void addIfPresent(Set<Object> set, Object value) {
+    if (value != null) set.add(value);
+  }
+
+  private static List<Object> filterByType(
+      List<?> items, Function<Object, Object> typeOf, Set<Object> hiddenTypes) {
     List<Object> out = new ArrayList<>();
-    for (Object btn : buttons) {
-      Object type = Reflect.getObjectField(btn, cfg.talkTabHeader.iconTypeFieldInButton);
-      if (removeAi && (type == aiFriend || type == album)) continue;
-      if (removeOc && type == openChat) continue;
-      if (removeCal && type == calendar) continue;
-      out.add(btn);
+    for (Object item : items) {
+      if (!hiddenTypes.contains(typeOf.apply(item))) out.add(item);
     }
     return out;
   }
@@ -165,53 +139,43 @@ public class RemoveHeaderButtons implements BaseHook {
   }
 
   private static void hookSearchBarAiButton(LineVersion.Config cfg, Class<?> cls) {
-    Method searchBarAiVisible =
-        findZeroArgMethod(cls, cfg.searchBarAgentI.talkVisibleMethod, boolean.class);
-    Method searchBarAiClick =
-        findZeroArgMethod(cls, cfg.searchBarAgentI.talkClickMethod, void.class);
+    Method visible = findZeroArgMethod(cls, cfg.searchBarAgentI.talkVisibleMethod, boolean.class);
+    Method click = findZeroArgMethod(cls, cfg.searchBarAgentI.talkClickMethod, void.class);
 
-    if (searchBarAiVisible != null) {
-      Knot.module
-          .hook(searchBarAiVisible)
-          .intercept(
-              chain -> {
-                if (Main.options.removeSearchBarAgentIButton.enabled) return false;
-                return chain.proceed();
-              });
-    } else {
+    if (visible == null) {
       Knot.log("Knot: RemoveHeaderButtons could not find search bar AI visibility method.");
     }
-
-    if (searchBarAiClick != null) {
-      Knot.module
-          .hook(searchBarAiClick)
-          .intercept(
-              chain -> {
-                if (Main.options.removeSearchBarAgentIButton.enabled) return null;
-                return chain.proceed();
-              });
+    if (click == null) {
+      Knot.log("Knot: RemoveHeaderButtons could not find search bar AI click method.");
     }
 
-    if (searchBarAiVisible != null || searchBarAiClick != null) {
+    hookWhenSearchBarAiDisabled(visible, false);
+    hookWhenSearchBarAiDisabled(click, null);
+
+    if (visible != null || click != null) {
       Knot.log("Knot: RemoveHeaderButtons hooked Talk search bar Agent i button.");
     }
   }
 
+  private static void hookWhenSearchBarAiDisabled(Method method, Object disabledResult) {
+    if (method == null) return;
+    Knot.module
+        .hook(method)
+        .intercept(
+            chain -> {
+              if (Main.options.removeSearchBarAgentIButton.enabled) return disabledResult;
+              return chain.proceed();
+            });
+  }
+
   private static void hookSubDeviceHeaderButton(
-      String className, ClassLoader classLoader, String type) {
+      String className, ClassLoader classLoader, BooleanSupplier shouldRemove) {
     try {
       Class<?> subCls = Reflect.findClass(className, classLoader);
       Knot.hookAll(
           subCls,
           "getVisibility",
-          chain -> {
-            boolean shouldRemove =
-                type.equals("OPEN_CHAT")
-                    ? Main.options.removeOpenChatButton.enabled
-                    : Main.options.removeAlbumButton.enabled;
-            if (shouldRemove) return View.GONE;
-            return chain.proceed();
-          });
+          chain -> shouldRemove.getAsBoolean() ? View.GONE : chain.proceed());
       Knot.log("Knot: RemoveHeaderButtons hooked sub-device button " + className);
     } catch (Throwable t) {
       Knot.log(
@@ -303,7 +267,7 @@ public class RemoveHeaderButtons implements BaseHook {
     String name = ((Enum<?>) tabType).name();
     return name.equals(cfg.searchBarAgentI.homeTabName)
         || name.equals(cfg.searchBarAgentI.homeTabV2Name)
-        || name.equals("CHAT");
+        || name.equals(cfg.searchBarAgentI.chatTabName);
   }
 
   private static int dpToPx(Context context, int dp) {

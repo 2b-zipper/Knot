@@ -450,6 +450,7 @@ public class LineVersion {
       public String homeTabTypeField = "";
       public String homeTabName = "";
       public String homeTabV2Name = "";
+      public String chatTabName = "";
       public int homeAiContainerId = 0;
       public int homeGuidelineId = 0;
       public int homeGuidelineEndDp = 0;
