@@ -387,6 +387,9 @@ public class LineVersion {
     public static class Notification {
       public String chatHistoryRequestClass = "";
       public String chatHistoryActivityLaunchActivityClass = "";
+      public String messageIdExtra = "line.message.id";
+      public String messageNotificationTag = "NOTIFICATION_TAG_MESSAGE";
+      public String chatNotificationTag = "jp.naver.line.android.notification.tag.chat";
     }
 
     public static class NotificationFix {
