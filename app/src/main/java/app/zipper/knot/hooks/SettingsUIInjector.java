@@ -7,8 +7,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,13 +18,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
@@ -41,6 +42,7 @@ import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleStrings;
 import java.io.File;
@@ -57,6 +59,10 @@ public class SettingsUIInjector implements BaseHook {
   private static volatile Object cachedSuccess = null;
 
   private static final String BRAND_TAG = "Knot";
+  private static final String[][] CONTRIBUTOR_SECTIONS = {
+    {ModuleStrings.ABOUT_SEC_DEVELOPERS, "2b-zipper", "Nich87"},
+    {ModuleStrings.ABOUT_SEC_CONTRIBUTORS, "atuy1219"},
+  };
 
   public static void openSettings(android.app.Activity activity) {
     SettingsUIInjector ui = instance;
@@ -75,6 +81,9 @@ public class SettingsUIInjector implements BaseHook {
   private volatile Activity dialogHost = null;
   private volatile boolean pendingRestart = false;
   private volatile KnotConfig.Category currentActiveCategory = null;
+  private volatile boolean aboutPageActive = false;
+  private volatile FrameLayout cachedPageContainer = null;
+  private volatile View aboutPageView = null;
   private volatile FrameLayout cachedItemHost = null;
   private volatile View cachedNavHeader = null;
   private volatile View cachedSearchView = null;
@@ -448,6 +457,7 @@ public class SettingsUIInjector implements BaseHook {
     try {
       Activity host = resolveActivity(ctx);
       if (host == null) return;
+      ContributorProfiles.prefetch(host, contributorHandles());
       LineTheme.invalidate();
       cacheUiConstants(host);
       SettingsStore.init(host);
@@ -459,7 +469,9 @@ public class SettingsUIInjector implements BaseHook {
           new Dialog(host, android.R.style.Theme_DeviceDefault_NoActionBar) {
             @Override
             public void onBackPressed() {
-              if (currentActiveCategory != null) {
+              if (aboutPageActive) {
+                closeAboutPage(host);
+              } else if (currentActiveCategory != null) {
                 switchPage(host, cachedToggle, cachedSuccess, null);
               } else {
                 initiateDialogClosure();
@@ -549,6 +561,9 @@ public class SettingsUIInjector implements BaseHook {
               settingsDialog = null;
               dialogHost = null;
               currentActiveCategory = null;
+              aboutPageActive = false;
+              cachedPageContainer = null;
+              aboutPageView = null;
               cachedItemHost = null;
               cachedNavHeader = null;
               cachedSearchView = null;
@@ -623,7 +638,7 @@ public class SettingsUIInjector implements BaseHook {
 
         LinearLayout settingsRoot = new LinearLayout(host);
         settingsRoot.setOrientation(LinearLayout.VERTICAL);
-        settingsRoot.setLayoutParams(viewLp);
+        settingsRoot.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
 
         final FrameLayout itemHost = new FrameLayout(host);
         itemHost.addView(renderSettingsItems(host, toggleType, statusEnum, null, false));
@@ -633,7 +648,11 @@ public class SettingsUIInjector implements BaseHook {
         setupSearchBox(host, isDark, settingsRoot, itemHost, toggleType, statusEnum);
 
         settingsRoot.addView(itemHost, new LinearLayout.LayoutParams(-1, -1));
-        viewParent.addView(settingsRoot, viewIndex, viewLp);
+
+        FrameLayout pageContainer = new FrameLayout(host);
+        pageContainer.addView(settingsRoot);
+        cachedPageContainer = pageContainer;
+        viewParent.addView(pageContainer, viewIndex, viewLp);
 
         hostContainer.setBackgroundColor(LineTheme.backgroundColor(host));
       }
@@ -1191,79 +1210,277 @@ public class SettingsUIInjector implements BaseHook {
           ModuleStrings.OPT_ABOUT_DESC,
           true,
           null,
-          v -> {
-            Context activeCtx = settingsDialog != null ? settingsDialog.getContext() : ctx;
-            int themeId = LineTheme.dialogTheme(activeCtx);
+          v -> openAboutPage(settingsDialog != null ? settingsDialog.getContext() : ctx));
+    } catch (Throwable ignored) {
+    }
+  }
 
-            LinearLayout layout = new LinearLayout(activeCtx);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setGravity(Gravity.CENTER_HORIZONTAL);
-            float density = activeCtx.getResources().getDisplayMetrics().density;
-            int p = (int) (24 * density);
-            layout.setPadding(p, p, p, p);
+  private void openAboutPage(Context ctx) {
+    if (cachedPageContainer == null || cachedItemHost == null || cachedNavHeader == null) return;
+    final View settingsPage = (View) cachedItemHost.getParent();
+    if (settingsPage == null) return;
+    aboutPageActive = true;
 
-            try {
-              Context modCtx =
-                  activeCtx.createPackageContext(
-                      "app.zipper.knot", Context.CONTEXT_IGNORE_SECURITY);
-              int resId =
-                  modCtx.getResources().getIdentifier("ic_knot", "drawable", "app.zipper.knot");
-              if (resId != 0) {
-                ImageView logo = new ImageView(activeCtx);
-                logo.setImageDrawable(modCtx.getDrawable(resId));
-                LinearLayout.LayoutParams lp =
-                    new LinearLayout.LayoutParams((int) (64 * density), (int) (64 * density));
-                lp.bottomMargin = (int) (16 * density);
-                logo.setLayoutParams(lp);
-                layout.addView(logo);
-              }
-            } catch (Throwable ignored) {
+    final View about = buildAboutPageView(ctx);
+    float width = cachedPageContainer.getWidth();
+    about.setTranslationX(width);
+    cachedPageContainer.addView(about, new FrameLayout.LayoutParams(-1, -1));
+    aboutPageView = about;
+
+    settingsPage
+        .animate()
+        .translationX(-width)
+        .setDuration(250)
+        .setInterpolator(new DecelerateInterpolator())
+        .start();
+    about
+        .animate()
+        .translationX(0)
+        .setDuration(250)
+        .setInterpolator(new DecelerateInterpolator())
+        .withEndAction(() -> settingsPage.setVisibility(View.GONE))
+        .start();
+
+    configureNavHeader(ctx, ModuleStrings.OPT_ABOUT_LABEL, v -> closeAboutPage(ctx));
+  }
+
+  private void closeAboutPage(Context ctx) {
+    if (!aboutPageActive || cachedPageContainer == null || cachedItemHost == null) return;
+    aboutPageActive = false;
+
+    final View settingsPage = (View) cachedItemHost.getParent();
+    final View about = aboutPageView;
+    aboutPageView = null;
+
+    float width = cachedPageContainer.getWidth();
+    if (settingsPage != null) {
+      settingsPage.setVisibility(View.VISIBLE);
+      settingsPage.setTranslationX(-width);
+      settingsPage
+          .animate()
+          .translationX(0)
+          .setDuration(250)
+          .setInterpolator(new DecelerateInterpolator())
+          .start();
+    }
+    if (about != null) {
+      about
+          .animate()
+          .translationX(width)
+          .setDuration(250)
+          .setInterpolator(new DecelerateInterpolator())
+          .withEndAction(() -> cachedPageContainer.removeView(about))
+          .start();
+    }
+
+    restoreMainHeader(ctx);
+  }
+
+  private void restoreMainHeader(Context ctx) {
+    String title =
+        (currentActiveCategory == null)
+            ? ModuleStrings.SETTINGS_TITLE
+            : currentActiveCategory.label;
+    configureNavHeader(
+        ctx,
+        title,
+        v -> {
+          if (currentActiveCategory != null) {
+            switchPage(ctx, cachedToggle, cachedSuccess, null);
+          } else {
+            initiateDialogClosure();
+          }
+        });
+  }
+
+  private void configureNavHeader(Context ctx, String title, View.OnClickListener back) {
+    LineVersion.Config currentCfg = LineVersion.get();
+    Reflect.callMethod(
+        cachedNavHeader, currentCfg.main.methodRefreshNavHeader, settingsDialog.getWindow());
+    Reflect.callMethod(cachedNavHeader, currentCfg.main.methodHeaderSetTitle, title);
+    Reflect.callMethod(cachedNavHeader, currentCfg.main.methodHeaderSetButtonListener, back);
+    cachedNavHeader.setBackgroundColor(LineTheme.backgroundColor(ctx));
+    LineTheme.tintTextAndIcons(cachedNavHeader, LineTheme.primaryTextColor(ctx));
+  }
+
+  private View buildAboutPageView(Context ctx) {
+    LayoutInflater infl = LayoutInflater.from(ctx);
+    float density = ctx.getResources().getDisplayMetrics().density;
+    int bg = LineTheme.backgroundColor(ctx);
+
+    ScrollView scroller = new ScrollView(ctx);
+    scroller.setBackgroundColor(bg);
+
+    LinearLayout root = new LinearLayout(ctx);
+    root.setOrientation(LinearLayout.VERTICAL);
+    root.setBackgroundColor(bg);
+    root.setPadding(0, 0, 0, (int) (64 * density));
+
+    LinearLayout hero = new LinearLayout(ctx);
+    hero.setOrientation(LinearLayout.VERTICAL);
+    hero.setGravity(Gravity.CENTER_HORIZONTAL);
+    hero.setPadding(
+        (int) (32 * density), (int) (32 * density), (int) (32 * density), (int) (28 * density));
+
+    try {
+      Context modCtx = ctx.createPackageContext("app.zipper.knot", Context.CONTEXT_IGNORE_SECURITY);
+      int resId = modCtx.getResources().getIdentifier("ic_knot", "drawable", "app.zipper.knot");
+      if (resId != 0) {
+        ImageView logo = new ImageView(ctx);
+        logo.setImageDrawable(modCtx.getDrawable(resId));
+        LinearLayout.LayoutParams lp =
+            new LinearLayout.LayoutParams((int) (84 * density), (int) (84 * density));
+        lp.bottomMargin = (int) (16 * density);
+        logo.setLayoutParams(lp);
+        hero.addView(logo);
+      }
+    } catch (Throwable ignored) {
+    }
+
+    TextView name = new TextView(ctx);
+    name.setText(BRAND_TAG);
+    name.setTextSize(26);
+    name.setTypeface(null, Typeface.BOLD);
+    name.setTextColor(LineTheme.primaryTextColor(ctx));
+    name.setGravity(Gravity.CENTER_HORIZONTAL);
+    hero.addView(name);
+
+    TextView ver = new TextView(ctx);
+    ver.setText("v" + BuildConfig.VERSION_NAME);
+    ver.setTextSize(13);
+    ver.setTextColor(LineTheme.secondaryTextColor(ctx));
+    ver.setGravity(Gravity.CENTER_HORIZONTAL);
+    LinearLayout.LayoutParams verLp = new LinearLayout.LayoutParams(-2, -2);
+    verLp.topMargin = (int) (4 * density);
+    ver.setLayoutParams(verLp);
+    hero.addView(ver);
+
+    TextView tagline = new TextView(ctx);
+    tagline.setText(ModuleStrings.ABOUT_TAGLINE);
+    tagline.setTextSize(13);
+    tagline.setTextColor(LineTheme.secondaryTextColor(ctx));
+    tagline.setGravity(Gravity.CENTER_HORIZONTAL);
+    LinearLayout.LayoutParams tagLp = new LinearLayout.LayoutParams(-2, -2);
+    tagLp.topMargin = (int) (10 * density);
+    tagline.setLayoutParams(tagLp);
+    hero.addView(tagline);
+
+    root.addView(hero);
+
+    for (String[] section : CONTRIBUTOR_SECTIONS) {
+      injectSectionHeader(infl, root, section[0]);
+      for (int i = 1; i < section.length; i++) {
+        injectContributorRow(infl, root, ctx, section[i]);
+      }
+    }
+
+    injectSectionHeader(infl, root, ModuleStrings.ABOUT_SEC_LINKS);
+    injectInfoRow(
+        infl,
+        root,
+        ctx,
+        ModuleStrings.ABOUT_LINK_REPO,
+        "github.com/2b-zipper/Knot",
+        true,
+        null,
+        v -> openUrl(ctx, "https://github.com/2b-zipper/Knot"));
+    injectInfoRow(
+        infl,
+        root,
+        ctx,
+        ModuleStrings.ABOUT_LINK_LICENSE,
+        ModuleStrings.ABOUT_LICENSE_VALUE,
+        true,
+        null,
+        v -> openUrl(ctx, "https://github.com/2b-zipper/Knot/blob/main/LICENSE"));
+
+    TextView disclaimer = new TextView(ctx);
+    disclaimer.setText(ModuleStrings.ABOUT_DISCLAIMER);
+    disclaimer.setTextSize(12);
+    disclaimer.setTextColor(LineTheme.secondaryTextColor(ctx));
+    disclaimer.setGravity(Gravity.CENTER_HORIZONTAL);
+    LinearLayout.LayoutParams discLp = new LinearLayout.LayoutParams(-1, -2);
+    discLp.topMargin = (int) (28 * density);
+    discLp.leftMargin = (int) (24 * density);
+    discLp.rightMargin = (int) (24 * density);
+    disclaimer.setLayoutParams(discLp);
+    root.addView(disclaimer);
+
+    scroller.addView(root);
+    return scroller;
+  }
+
+  private static String[] contributorHandles() {
+    List<String> handles = new ArrayList<>();
+    for (String[] section : CONTRIBUTOR_SECTIONS) {
+      for (int i = 1; i < section.length; i++) handles.add(section[i]);
+    }
+    return handles.toArray(new String[0]);
+  }
+
+  private void injectContributorRow(
+      LayoutInflater infl, LinearLayout parent, Context ctx, String handle) {
+    try {
+      String profileUrl = "https://github.com/" + handle;
+      float density = ctx.getResources().getDisplayMetrics().density;
+
+      LinearLayout wrapper = new LinearLayout(ctx);
+      wrapper.setOrientation(LinearLayout.HORIZONTAL);
+      wrapper.setGravity(Gravity.CENTER_VERTICAL);
+      wrapper.setOnClickListener(v -> openUrl(ctx, profileUrl));
+
+      int size = (int) (40 * density);
+      ImageView avatar = new ImageView(ctx);
+      LinearLayout.LayoutParams avatarLp = new LinearLayout.LayoutParams(size, size);
+      avatarLp.setMarginStart((int) (20 * density));
+      avatar.setLayoutParams(avatarLp);
+      avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
+      GradientDrawable placeholder = new GradientDrawable();
+      placeholder.setShape(GradientDrawable.OVAL);
+      placeholder.setColor(LineTheme.fieldColor(ctx));
+      avatar.setImageDrawable(placeholder);
+      avatar.setClipToOutline(true);
+      avatar.setOutlineProvider(
+          new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+              o.setOval(0, 0, v.getWidth(), v.getHeight());
             }
-
-            String fullText = String.format(ModuleStrings.ABOUT_CONTENT, BuildConfig.VERSION_NAME);
-            String[] lines = fullText.split("\n", 2);
-            String headerLine = lines[0];
-            String bodyText = lines.length > 1 ? lines[1] : "";
-
-            String titleStr = BRAND_TAG;
-            String verStr = headerLine.replace(BRAND_TAG, "").trim();
-
-            TextView title = new TextView(activeCtx);
-            title.setText(titleStr);
-            title.setTextSize(20);
-            title.setTypeface(null, Typeface.BOLD);
-            title.setTextColor(LineTheme.primaryTextColor(activeCtx));
-            title.setGravity(Gravity.CENTER_HORIZONTAL);
-            layout.addView(title);
-
-            TextView ver = new TextView(activeCtx);
-            ver.setText(verStr);
-            ver.setTextSize(12);
-            ver.setTextColor(LineTheme.secondaryTextColor(activeCtx));
-            ver.setGravity(Gravity.CENTER_HORIZONTAL);
-            LinearLayout.LayoutParams verLp = new LinearLayout.LayoutParams(-2, -2);
-            verLp.bottomMargin = (int) (24 * density);
-            ver.setLayoutParams(verLp);
-            layout.addView(ver);
-
-            TextView content = new TextView(activeCtx);
-            content.setText(bodyText);
-            content.setTextSize(14);
-            content.setTextColor(LineTheme.primaryTextColor(activeCtx));
-            content.setGravity(Gravity.CENTER_HORIZONTAL);
-            content.setLineSpacing(0, 1.2f);
-            content.setAutoLinkMask(Linkify.WEB_URLS);
-            content.setMovementMethod(LinkMovementMethod.getInstance());
-            content.setLinkTextColor(LineTheme.linkColor(activeCtx));
-            layout.addView(content);
-
-            LineTheme.applyDialogColors(
-                new AlertDialog.Builder(activeCtx, themeId)
-                    .setView(layout)
-                    .setPositiveButton(ModuleStrings.SETTINGS_YES, null)
-                    .show(),
-                activeCtx);
           });
+      wrapper.addView(avatar);
+
+      View row = injectInfoRow(infl, wrapper, ctx, handle, "@" + handle, true, null, null);
+      if (row == null) return;
+      row.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1f));
+      moveHighlightToWrapper(ctx, row, wrapper);
+
+      parent.addView(wrapper);
+      ContributorProfiles.loadAvatar(avatar, handle);
+      ContributorProfiles.loadDisplayName(handle, name -> LineTheme.setRowTitle(row, name));
+    } catch (Throwable ignored) {
+    }
+  }
+
+  private void moveHighlightToWrapper(Context ctx, View row, View wrapper) {
+    int containerId =
+        ctx.getResources().getIdentifier("setting_item_container", "id", "jp.naver.line.android");
+    View container = containerId != 0 ? row.findViewById(containerId) : null;
+    if (container != null) {
+      Drawable bg = container.getBackground();
+      container.setBackground(null);
+      if (bg != null && bg.getConstantState() != null) {
+        wrapper.setBackground(bg.getConstantState().newDrawable().mutate());
+        return;
+      }
+    }
+    applyNativeHighlight(wrapper, ctx);
+  }
+
+  private void openUrl(Context ctx, String url) {
+    try {
+      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      ctx.startActivity(intent);
     } catch (Throwable ignored) {
     }
   }

@@ -232,11 +232,13 @@ public class ModuleStrings {
 
   public static final String OPT_ABOUT_LABEL = "Knotについて";
   public static final String OPT_ABOUT_DESC = "バージョン情報など";
-  public static final String ABOUT_CONTENT =
-      "Knot v%s\n"
-          + "A brand-new Xposed module for LINE\n\n"
-          + "Developed by 2b-zipper, Nich87\n\n"
-          + "GitHub: https://github.com/2b-zipper/Knot\n"
-          + "License: GNU GPLv3\n\n"
-          + "⚠️ 使用は自己責任で行ってください。";
+  public static final String ABOUT_TAGLINE = "A brand-new Xposed module for LINE";
+  public static final String ABOUT_SEC_DEVELOPERS = "開発者";
+  public static final String ABOUT_SEC_CONTRIBUTORS = "コントリビュータ";
+  public static final String ABOUT_SEC_LINKS = "リンク";
+  public static final String ABOUT_LINK_REPO = "GitHubリポジトリ";
+  public static final String ABOUT_LINK_LICENSE = "ライセンス";
+  public static final String ABOUT_LICENSE_VALUE = "GNU GPLv3";
+  public static final String ABOUT_DISCLAIMER =
+      "このモジュールを使用したことによる不利益について、開発者は一切の責任を負いません。自己責任で使用してください。";
 }
