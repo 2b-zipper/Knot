@@ -105,7 +105,7 @@ public class KnotConfig {
   public final Item lineForegroundKeepAlive      = item("line_foreground_keep_alive",       OPT_LINE_FOREGROUND_KEEP_ALIVE_LABEL,       OPT_LINE_FOREGROUND_KEEP_ALIVE_DESC,       false, Category.NOTIFICATION, "");
   public final Item safeSettingsResources        = item("safe_settings_resources",          OPT_FIX_SETTINGS_TALK_CRASH_LABEL,          OPT_FIX_SETTINGS_TALK_CRASH_DESC,          true,  Category.SYSTEM,       "");
   public final Item spoofVersion                 = item("spoof_version",                    OPT_SPOOF_VERSION_LABEL,                    OPT_SPOOF_VERSION_DESC,                    false, Category.SYSTEM,       "");
-  public final Item fixBiometricAuth             = item("fix_biometric_auth",               OPT_FIX_BIOMETRIC_AUTH_LABEL,               OPT_FIX_BIOMETRIC_AUTH_DESC,               true, Category.SYSTEM,       "");
+  public final Item fixSignatureMismatch         = item("fix_signature_mismatch",           OPT_FIX_SIGNATURE_MISMATCH_LABEL,           OPT_FIX_SIGNATURE_MISMATCH_DESC,           true,  Category.SYSTEM,       "");
   // @formatter:on
 
   public final Item[] items = _reg.toArray(new Item[0]);

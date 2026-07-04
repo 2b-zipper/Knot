@@ -171,8 +171,8 @@ public class Main extends XposedModule {
       if (options.spoofVersion.enabled || options.spoofVersionUnsendOnly.enabled) {
         applyHook(new VersionSpoof(), lpparam);
       }
-      if (options.fixBiometricAuth.enabled) {
-        applyHook(new BiometricAuthFix(), lpparam);
+      if (options.fixSignatureMismatch.enabled) {
+        applyHook(new SignatureSpoofHook(), lpparam);
       }
     }
   }
