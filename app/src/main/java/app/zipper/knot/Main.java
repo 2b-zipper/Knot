@@ -117,6 +117,9 @@ public class Main extends XposedModule {
       if (options.useDefaultCamera.enabled) {
         applyHook(new UseDefaultCameraHook(), lpparam);
       }
+      if (options.muteCameraShutter.enabled) {
+        applyHook(new CameraShutterMuteHook(), lpparam);
+      }
       if (options.showProfileTimestamps.enabled) {
         applyHook(new ProfileTimestampsHook(), lpparam);
       }

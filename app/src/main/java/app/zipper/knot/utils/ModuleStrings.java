@@ -105,6 +105,9 @@ public class ModuleStrings {
   public static final String OPT_LONG_VIDEO_DESC = "動画送信時の5分の時間制限を解除し、長い動画を送信できるようにします。";
   public static final String OPT_USE_DEFAULT_CAMERA_LABEL = "標準カメラを使用";
   public static final String OPT_USE_DEFAULT_CAMERA_DESC = "LINE内蔵カメラの代わりに端末の標準カメラアプリを使用します。";
+  public static final String OPT_MUTE_CAMERA_SHUTTER_LABEL = "LINE内蔵カメラを無音化";
+  public static final String OPT_MUTE_CAMERA_SHUTTER_DESC =
+      "LINE内蔵カメラのシャッター音を無音にします。標準カメラ使用時は無効です。";
 
   public static final String OPT_SEARCH_BY_MEMBER_LABEL = "メンバーでトーク内検索";
   public static final String OPT_SEARCH_BY_MEMBER_DESC =

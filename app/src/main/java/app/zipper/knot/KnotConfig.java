@@ -31,6 +31,7 @@ public class KnotConfig {
     public String value = "";
     public final Category category;
     public final String section;
+    public String disabledWhenEnabledKey;
 
     Item(String key, String label, String desc, boolean def, Category cat, String sec) {
       this.key = key;
@@ -50,6 +51,19 @@ public class KnotConfig {
     return i;
   }
 
+  private Item item(
+      String key,
+      String label,
+      String desc,
+      boolean def,
+      Category cat,
+      String sec,
+      String disabledWhenEnabledKey) {
+    Item i = item(key, label, desc, def, cat, sec);
+    i.disabledWhenEnabledKey = disabledWhenEnabledKey;
+    return i;
+  }
+
   // @formatter:off
   public final Item preventMarkAsRead            = item("prevent_mark_as_read",             OPT_PREVENT_MARK_AS_READ_LABEL,             OPT_PREVENT_MARK_AS_READ_DESC,             false, Category.PRIVACY,      SEC_PRIVACY_READ);
   public final Item recordReadHistory            = item("record_read_history",              OPT_RECORD_READ_HISTORY_LABEL,              OPT_RECORD_READ_HISTORY_DESC,              false, Category.PRIVACY,      SEC_PRIVACY_READ);
@@ -59,6 +73,7 @@ public class KnotConfig {
   public final Item highQualityPhoto             = item("high_quality_photo",               OPT_HIGH_QUALITY_PHOTO_LABEL,               OPT_HIGH_QUALITY_PHOTO_DESC,               false, Category.CHAT,         SEC_CHAT_MEDIA);
   public final Item longVideo                    = item("long_video",                       OPT_LONG_VIDEO_LABEL,                       OPT_LONG_VIDEO_DESC,                       false, Category.CHAT,         SEC_CHAT_MEDIA);
   public final Item useDefaultCamera             = item("use_default_camera",               OPT_USE_DEFAULT_CAMERA_LABEL,               OPT_USE_DEFAULT_CAMERA_DESC,               false, Category.CHAT,         SEC_CHAT_MEDIA);
+  public final Item muteCameraShutter            = item("mute_camera_shutter",              OPT_MUTE_CAMERA_SHUTTER_LABEL,              OPT_MUTE_CAMERA_SHUTTER_DESC,              false, Category.CHAT,         SEC_CHAT_MEDIA, "use_default_camera");
   public final Item searchByMember               = item("search_by_member",                 OPT_SEARCH_BY_MEMBER_LABEL,                 OPT_SEARCH_BY_MEMBER_DESC,                 false, Category.CHAT,         SEC_CHAT_SEARCH);
   public final Item searchMin1Char               = item("search_min_1_char",                OPT_SEARCH_MIN_1_CHAR_LABEL,                OPT_SEARCH_MIN_1_CHAR_DESC,                false, Category.CHAT,         SEC_CHAT_SEARCH);
   public final Item showSecondsInChatTime        = item("show_seconds_in_chat_time",        OPT_SHOW_SECONDS_IN_CHAT_TIME_LABEL,        OPT_SHOW_SECONDS_IN_CHAT_TIME_DESC,        false, Category.CHAT,         SEC_CHAT_DISPLAY);
