@@ -162,6 +162,9 @@ public class Main extends XposedModule {
       if (options.removeNotificationMuteButton.enabled) {
         applyHook(new NotificationHook(), lpparam);
       }
+      if (options.stackMessageNotifications.enabled) {
+        applyHook(new StackMessageNotificationsHook(), lpparam);
+      }
       if (options.lineForegroundKeepAlive.enabled) {
         applyHook(new LineForegroundKeepAliveHook(), lpparam);
       }

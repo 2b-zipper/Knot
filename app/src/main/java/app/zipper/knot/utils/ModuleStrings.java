@@ -183,6 +183,10 @@ public class ModuleStrings {
   public static final String OPT_REACTION_NOTIFICATION_DESC =
       "メッセージについたリアクションを通知します。※アプリを開くと送信されます。フォアグラウンドサービス化している場合、LINEを起動していなくても通知が届きます。";
 
+  public static final String OPT_STACK_MESSAGE_NOTIFICATIONS_LABEL = "通知を上書きしない";
+  public static final String OPT_STACK_MESSAGE_NOTIFICATIONS_DESC =
+      "通知を上書きせず、最大7件まで一つの通知の中にまとめて表示します。";
+
   public static final String OPT_REMOVE_NOTIFICATION_MUTE_BUTTON_LABEL = "「通知をオフ」ボタンを非表示";
   public static final String OPT_REMOVE_NOTIFICATION_MUTE_BUTTON_DESC =
       "LINEの通知に表示される「通知をオフ」ボタンを削除します。";
