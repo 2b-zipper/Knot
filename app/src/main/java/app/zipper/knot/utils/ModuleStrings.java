@@ -105,6 +105,9 @@ public class ModuleStrings {
   public static final String OPT_LONG_VIDEO_DESC = "動画送信時の5分の時間制限を解除し、長い動画を送信できるようにします。";
   public static final String OPT_USE_DEFAULT_CAMERA_LABEL = "標準カメラを使用";
   public static final String OPT_USE_DEFAULT_CAMERA_DESC = "LINE内蔵カメラの代わりに端末の標準カメラアプリを使用します。";
+  public static final String OPT_MUTE_CAMERA_SHUTTER_LABEL = "LINE内蔵カメラを無音化";
+  public static final String OPT_MUTE_CAMERA_SHUTTER_DESC =
+      "LINE内蔵カメラのシャッター音を無音にします。標準カメラ使用時は無効です。";
 
   public static final String OPT_SEARCH_BY_MEMBER_LABEL = "メンバーでトーク内検索";
   public static final String OPT_SEARCH_BY_MEMBER_DESC =
@@ -206,8 +209,9 @@ public class ModuleStrings {
   public static final String OPT_SPOOF_VERSION_DESC =
       "常にアプリバージョンを15.12.2に偽装します。なにか特別な目的がない限り使用しないでください。";
 
-  public static final String OPT_FIX_BIOMETRIC_AUTH_LABEL = "生体認証を修正";
-  public static final String OPT_FIX_BIOMETRIC_AUTH_DESC = "パッチ済みのLINEで生体情報の連携ができない問題を修正します。";
+  public static final String OPT_FIX_SIGNATURE_MISMATCH_LABEL = "公式署名を偽装";
+  public static final String OPT_FIX_SIGNATURE_MISMATCH_DESC =
+      "パッチ済みのLINEで、フォントのダウンロードや生体認証の連携などに失敗する問題を回避します。";
 
   public static final String DESC_PATH_ROW = "モジュールの設定ファイルなどが保存されるディレクトリを選択します。";
   public static final String DESC_RESET_ROW = "すべてのモジュール設定をデフォルト状態に戻します。";

@@ -78,6 +78,7 @@ public class SettingsUIInjector implements BaseHook {
   private volatile FrameLayout cachedItemHost = null;
   private volatile View cachedNavHeader = null;
   private volatile View cachedSearchView = null;
+  private static final java.util.List<Runnable> uiUpdateCallbacks = new java.util.ArrayList<>();
 
   private static final KnotConfig.Category[] DISPLAY_CATEGORIES = {
     KnotConfig.Category.PRIVACY,
@@ -551,6 +552,7 @@ public class SettingsUIInjector implements BaseHook {
               cachedItemHost = null;
               cachedNavHeader = null;
               cachedSearchView = null;
+              uiUpdateCallbacks.clear();
             })
         .start();
   }
@@ -564,6 +566,7 @@ public class SettingsUIInjector implements BaseHook {
       hostContainer.setClickable(true);
       hostContainer.setFocusable(true);
       hostContainer.setPadding(0, 0, 0, 0);
+      uiUpdateCallbacks.clear();
 
       try {
         int composeHeaderId =
@@ -901,8 +904,35 @@ public class SettingsUIInjector implements BaseHook {
       Reflect.callMethod(row, currentCfg.settings.methodSetChecked, isEnabled);
       Reflect.callMethod(row, currentCfg.settings.methodSetDividerVisible, true);
 
+      Runnable updateUI =
+          () -> {
+            if (i.disabledWhenEnabledKey != null) {
+              boolean isDisabled = SettingsStore.get(i.disabledWhenEnabledKey, false);
+              row.setAlpha(isDisabled ? 0.5f : 1.0f);
+              if (isDisabled) {
+                Reflect.callMethod(row, currentCfg.settings.methodSetChecked, false);
+                if (SettingsStore.get(settingKey, false)) {
+                  SettingsStore.save(settingKey, false);
+                  for (KnotConfig.Item itm : Main.options.items) {
+                    if (itm.key.equals(settingKey)) {
+                      itm.enabled = false;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          };
+      uiUpdateCallbacks.add(updateUI);
+      updateUI.run();
+
       row.setOnClickListener(
           v -> {
+            if (i.disabledWhenEnabledKey != null
+                && SettingsStore.get(i.disabledWhenEnabledKey, false)) {
+              Reflect.callMethod(v, currentCfg.settings.methodSetChecked, false);
+              return;
+            }
             boolean newState = !SettingsStore.get(settingKey, i.enabled);
             Reflect.callMethod(v, currentCfg.settings.methodSetChecked, newState);
             for (KnotConfig.Item itm : Main.options.items) {
@@ -912,6 +942,11 @@ public class SettingsUIInjector implements BaseHook {
               }
             }
             SettingsStore.save(settingKey, newState);
+
+            for (Runnable r : uiUpdateCallbacks) {
+              r.run();
+            }
+
             pendingRestart = true;
             cachedSearchView = null;
           });

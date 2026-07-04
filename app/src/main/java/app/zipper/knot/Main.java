@@ -117,6 +117,9 @@ public class Main extends XposedModule {
       if (options.useDefaultCamera.enabled) {
         applyHook(new UseDefaultCameraHook(), lpparam);
       }
+      if (options.muteCameraShutter.enabled) {
+        applyHook(new CameraShutterMuteHook(), lpparam);
+      }
       if (options.showProfileTimestamps.enabled) {
         applyHook(new ProfileTimestampsHook(), lpparam);
       }
@@ -171,8 +174,8 @@ public class Main extends XposedModule {
       if (options.spoofVersion.enabled || options.spoofVersionUnsendOnly.enabled) {
         applyHook(new VersionSpoof(), lpparam);
       }
-      if (options.fixBiometricAuth.enabled) {
-        applyHook(new BiometricAuthFix(), lpparam);
+      if (options.fixSignatureMismatch.enabled) {
+        applyHook(new SignatureSpoofHook(), lpparam);
       }
     }
   }

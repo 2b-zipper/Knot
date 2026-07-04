@@ -50,7 +50,7 @@ public class Version2690 {
     v.settings.fieldDefaultHandler = "p";
     v.settings.fieldCommonHandler = "m";
     v.settings.methodSetDescription = "b";
-    v.settings.methodProxyGetItemType = "g";
+    v.settings.methodProxyGetItemType = "f";
     v.settings.methodSetTitleText = "setTitleText";
     v.settings.methodSetChecked = "setChecked";
     v.settings.methodSetItemType = "setItemType";
