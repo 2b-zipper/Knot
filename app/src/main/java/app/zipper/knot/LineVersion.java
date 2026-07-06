@@ -126,7 +126,6 @@ public class LineVersion {
     public static class Main {
       public String mainActivity = "";
       public String headerButton = "";
-      public String headerButtonInnerField = "";
       public String headerButtonTypeClass = "";
       public String slotFarLeft = "";
       public String headerInterfaceA = "";

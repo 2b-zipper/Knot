@@ -61,17 +61,6 @@ public class SettingsButtonLongPress implements BaseHook {
 
   private void attachInteractionHandler(View root) {
     if (root == null) return;
-    LineVersion.Config cfg = LineVersion.get();
-    if (root.getClass().getName().contains("HeaderButton")) {
-      try {
-        View inner = (View) Reflect.getObjectField(root, cfg.main.headerButtonInnerField);
-        if (inner != null) {
-          inner.setOnLongClickListener(interactionListener);
-          return;
-        }
-      } catch (Throwable ignored) {
-      }
-    }
     root.setOnLongClickListener(interactionListener);
   }
 

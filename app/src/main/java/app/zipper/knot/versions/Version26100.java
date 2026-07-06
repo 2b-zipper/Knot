@@ -8,7 +8,6 @@ public class Version26100 {
 
     v.main.mainActivity = "jp.naver.line.android.activity.main.MainActivity";
     v.main.headerButton = "jp.naver.line.android.common.view.header.HeaderButton";
-    v.main.headerButtonInnerField = "f186889a";
     v.main.headerButtonTypeClass = "x08.d";
     v.main.slotFarLeft = "FAR_LEFT";
     v.main.headerInterfaceA = "jp.naver.line.android.common.view.header.a";
