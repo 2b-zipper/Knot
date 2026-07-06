@@ -223,7 +223,10 @@ public class FcmFixHook implements BaseHook {
       Context appContext = context.getApplicationContext();
       Class<?> dispatcherClass = Reflect.findClass(fixCfg.firebaseDispatcherClass, cl);
       Object dispatcher =
-          Reflect.callStaticMethod(dispatcherClass, fixCfg.firebaseDispatcherAccessorMethod);
+          Reflect.getStaticObjectField(dispatcherClass, fixCfg.firebaseDispatcherSingletonField);
+      if (dispatcher == null) {
+        return false;
+      }
       Object queueObj = Reflect.getObjectField(dispatcher, fixCfg.firebaseDispatcherQueueField);
       if (!(queueObj instanceof Queue)) {
         Knot.log("Knot: Firebase direct-delivery queue unavailable");
@@ -356,12 +359,11 @@ public class FcmFixHook implements BaseHook {
             .hook(method)
             .intercept(
                 chain -> {
-                  Object result = chain.proceed();
                   if (isEnabled(config)) {
                     logVerbose("forced LINE FCM ownership validation pass");
                     return Boolean.TRUE;
                   }
-                  return result;
+                  return chain.proceed();
                 });
         break;
       }

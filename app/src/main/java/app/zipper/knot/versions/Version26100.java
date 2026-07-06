@@ -216,12 +216,12 @@ public class Version26100 {
     v.notificationFix.firebaseReceiverClass = "com.google.firebase.iid.FirebaseInstanceIdReceiver";
     v.notificationFix.firebaseReceiverMethod = "a";
     v.notificationFix.firebaseReceiverEnvelopeClass = "hl.a";
-    v.notificationFix.firebaseReceiverIntentField = "f156860a";
+    v.notificationFix.firebaseReceiverIntentField = "a";
     v.notificationFix.firebaseDispatcherClass = "ht.n";
-    v.notificationFix.firebaseDispatcherAccessorMethod = "a";
+    v.notificationFix.firebaseDispatcherSingletonField = "d";
     v.notificationFix.firebaseDispatcherMethod = "b";
-    v.notificationFix.firebaseDispatcherContextField = "f160660a";
-    v.notificationFix.firebaseDispatcherQueueField = "f160622d";
+    v.notificationFix.firebaseDispatcherContextField = "a";
+    v.notificationFix.firebaseDispatcherQueueField = "d";
     v.notificationFix.firebaseBindDeliveryClass = "ht.e1";
     v.notificationFix.firebaseBindDeliveryMethod = "b";
     v.notificationFix.firebaseMessagingServiceClass =

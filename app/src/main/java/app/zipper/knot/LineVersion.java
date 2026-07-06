@@ -404,7 +404,7 @@ public class LineVersion {
       public String firebaseReceiverEnvelopeClass = "";
       public String firebaseReceiverIntentField = "";
       public String firebaseDispatcherClass = "";
-      public String firebaseDispatcherAccessorMethod = "";
+      public String firebaseDispatcherSingletonField = "";
       public String firebaseDispatcherMethod = "";
       public String firebaseDispatcherContextField = "";
       public String firebaseDispatcherQueueField = "";
