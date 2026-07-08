@@ -299,7 +299,9 @@ public class SettingsUIInjector implements BaseHook {
                               .getIdentifier("ic_knot", "drawable", "app.zipper.knot");
 
                       if (resId != 0) {
+                        iconView.setImageTintList(null);
                         iconView.setImageDrawable(modCtx.getDrawable(resId));
+                        iconView.clearColorFilter();
                         iconView.setVisibility(android.view.View.VISIBLE);
 
                         float density =
