@@ -13,8 +13,13 @@ import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.ModuleStrings;
+import java.lang.reflect.Proxy;
 
 public class HeaderButtonInjector implements BaseHook {
+
+  private static final ThreadLocal<Boolean> sCreating = new ThreadLocal<>();
+  private Class<?> headerInterfaceAClass;
+  private ClassLoader classLoader;
 
   @Override
   public void hook(KnotConfig options, LoadParam lpparam) throws Throwable {
@@ -27,6 +32,8 @@ public class HeaderButtonInjector implements BaseHook {
       Class<?> headerHelperClass = Reflect.findClass(config.chat.headerHelper, lpparam.classLoader);
       Class<?> headerButtonTypeEnum =
           Reflect.findClass(config.main.headerButtonTypeClass, lpparam.classLoader);
+      headerInterfaceAClass = Reflect.findClass(config.main.headerInterfaceA, lpparam.classLoader);
+      classLoader = lpparam.classLoader;
       final Object slotFarLeft =
           Reflect.getStaticObjectField(headerButtonTypeEnum, config.main.slotFarLeft);
 
@@ -49,7 +56,20 @@ public class HeaderButtonInjector implements BaseHook {
               chain -> {
                 Object result = chain.proceed();
                 if (SettingsStore.get("record_read_history", false)) {
-                  injectButton(chain.getThisObject(), slotFarLeft, config);
+                  Object controller = chain.getThisObject();
+                  try {
+                    View headerView = (View) chain.getArgs().get(3);
+                    if (headerView != null) {
+                      headerView.addOnLayoutChangeListener(
+                          (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                            if (v.getVisibility() == View.VISIBLE) {
+                              scheduleInjectionWithRetry(v, controller, slotFarLeft, config, 0);
+                            }
+                          });
+                    }
+                  } catch (Throwable ignored) {
+                  }
+                  injectButton(controller, slotFarLeft, config);
                 }
                 return result;
               });
@@ -63,11 +83,29 @@ public class HeaderButtonInjector implements BaseHook {
                   config.main.headerInterfaceA))
           .intercept(
               chain -> {
-                if (slotFarLeft.equals(chain.getArg(0))
-                    && SettingsStore.get("record_read_history", false)) {
-                  return null;
+                Object result = chain.proceed();
+                if (SettingsStore.get("record_read_history", false)
+                    && !Boolean.TRUE.equals(sCreating.get())) {
+                  injectButton(chain.getThisObject(), slotFarLeft, config);
                 }
-                return chain.proceed();
+                return result;
+              });
+
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  headerControllerClass,
+                  config.main.methodSetHeaderButtonVisibility,
+                  headerButtonTypeEnum,
+                  int.class))
+          .intercept(
+              chain -> {
+                Object result = chain.proceed();
+                if (SettingsStore.get("record_read_history", false)
+                    && !Boolean.TRUE.equals(sCreating.get())) {
+                  injectButton(chain.getThisObject(), slotFarLeft, config);
+                }
+                return result;
               });
 
     } catch (Throwable t) {
@@ -75,7 +113,51 @@ public class HeaderButtonInjector implements BaseHook {
     }
   }
 
+  private void scheduleInjectionWithRetry(
+      View headerView, Object controller, Object slot, LineVersion.Config config, int attempt) {
+    if (attempt >= 5) return;
+    headerView.postDelayed(
+        () -> {
+          if (isInEditMode(controller, config)) {
+            scheduleInjectionWithRetry(headerView, controller, slot, config, attempt + 1);
+          } else {
+            injectButton(controller, slot, config);
+          }
+        },
+        200);
+  }
+
+  private static boolean isInEditMode(Object controller, LineVersion.Config config) {
+    try {
+      Activity activity =
+          (Activity) Reflect.getObjectField(controller, config.main.fieldChatActivity);
+      if (activity == null) return false;
+      int execBtnId =
+          activity
+              .getResources()
+              .getIdentifier(
+                  "chat_ui_edit_mode_bottom_execution_button", "id", activity.getPackageName());
+      if (execBtnId != 0) {
+        View execBtn = activity.findViewById(execBtnId);
+        if (execBtn != null && execBtn.isShown()) return true;
+      }
+      int toggleBtnId =
+          activity
+              .getResources()
+              .getIdentifier(
+                  "chat_ui_edit_mode_bottom_option_toggle_button", "id", activity.getPackageName());
+      if (toggleBtnId != 0) {
+        View toggleBtn = activity.findViewById(toggleBtnId);
+        if (toggleBtn != null && toggleBtn.isShown()) return true;
+      }
+      return false;
+    } catch (Throwable t) {
+      return false;
+    }
+  }
+
   private void injectButton(Object controller, Object slot, LineVersion.Config config) {
+    if (isInEditMode(controller, config)) return;
     try {
       Object headerHelper = Reflect.getObjectField(controller, config.main.fieldHeaderHelper);
       if (headerHelper == null) return;
@@ -113,6 +195,37 @@ public class HeaderButtonInjector implements BaseHook {
       // Use stable setButtonImageViewDrawable API to avoid per-version config
       Object headerButton =
           Reflect.callMethod(headerHelper, config.main.methodGetHeaderButtonView, slot);
+
+      if (headerButton == null) {
+        // LINE cleared the button; re-create it via methodSetHeaderButton with a no-op proxy
+        try {
+          sCreating.set(Boolean.TRUE);
+          Object noopProxy =
+              Proxy.newProxyInstance(
+                  classLoader,
+                  new Class<?>[] {headerInterfaceAClass},
+                  (p, m, args) -> {
+                    Class<?> rt = m.getReturnType();
+                    if (rt == boolean.class) return Boolean.FALSE;
+                    if (rt == int.class) return 0;
+                    if (rt == long.class) return 0L;
+                    if (rt == float.class) return 0f;
+                    if (rt == double.class) return 0d;
+                    if (rt == short.class) return (short) 0;
+                    if (rt == byte.class) return (byte) 0;
+                    if (rt == char.class) return '\0';
+                    return null;
+                  });
+          Reflect.callMethod(controller, config.main.methodSetHeaderButton, slot, noopProxy);
+          headerButton =
+              Reflect.callMethod(headerHelper, config.main.methodGetHeaderButtonView, slot);
+        } catch (Throwable t) {
+          Knot.log("Knot: button recreate error: " + t.getMessage());
+        } finally {
+          sCreating.remove();
+        }
+      }
+
       if (headerButton == null) return;
       Reflect.callMethod(headerButton, "setButtonImageViewDrawable", icon);
 
