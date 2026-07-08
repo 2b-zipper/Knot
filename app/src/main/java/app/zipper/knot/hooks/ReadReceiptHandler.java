@@ -104,7 +104,29 @@ public class ReadReceiptHandler implements BaseHook {
 
     hookSendReadReceipt(managerCls, cfg, config);
     hookExecuteReadReceiptAsync(managerCls, cfg, config);
+    hookResolveReadTarget(managerCls, cfg);
     hookReadAll(managerCls, cfg, config);
+  }
+
+  private void hookResolveReadTarget(Class<?> managerCls, LineVersion.Config cfg) {
+    String method = cfg.readReceipt.methodResolveReadTarget;
+    if (method == null || method.isEmpty()) return;
+    try {
+      Knot.hookAll(
+          managerCls,
+          method,
+          chain -> {
+            Object result = chain.proceed();
+            if (result instanceof Long
+                && (Long) result == 0L
+                && !chain.getArgs().isEmpty()
+                && chain.getArg(0) instanceof String) {
+              pendingManualReads.remove(chain.getArg(0));
+            }
+            return result;
+          });
+    } catch (Throwable ignored) {
+    }
   }
 
   private void hookSendReadReceipt(Class<?> managerCls, LineVersion.Config cfg, KnotConfig config) {

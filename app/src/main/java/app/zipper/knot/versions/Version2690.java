@@ -79,6 +79,7 @@ public class Version2690 {
     v.readReceipt.methodSendReadReceipt = "d";
     v.readReceipt.methodExecuteReadReceiptAsync = "e";
     v.readReceipt.methodReadAll = "c";
+    v.readReceipt.methodResolveReadTarget = "a";
     v.readReceipt.operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
     v.readReceipt.longPressReadClass = "ns1";
 
