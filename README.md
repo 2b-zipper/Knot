@@ -1,7 +1,9 @@
 <div align="center">
-  <img src="images/knot2.png" width="56" alt="Knot Logo">
-  <h1>Knot</h1>
-  <p><b>A brand-new Xposed module for LINE</b></p>
+  <h1>
+    <img src="images/knot2.png" width="45" height="45" alt="Knot Logo" style="vertical-align: middle;">
+    Knot
+  </h1>
+  <p>A brand-new Xposed module for LINE</p>
 
   <p>
     <a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Knot?sort=semver&style=flat&label=Release&color=2ea44f" alt="Release"></a>
