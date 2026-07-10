@@ -4,10 +4,12 @@
     Knot
   </h1>
   <p>A brand-new Xposed module for LINE</p>
+
   <p>
-    <a href="https://github.com/2b-zipper/Knot/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Knot/total.svg" alt="Downloads"></a>
-    <a href="https://github.com/2b-zipper/Knot/stargazers"><img src="https://badgen.net/github/stars/2b-zipper/Knot" alt="Stars"></a>
-    <a href="https://github.com/2b-zipper/Knot/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License"></a>
+    <a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Knot?sort=semver&style=flat&label=Release&color=2ea44f" alt="Release"></a>
+    <a href="https://github.com/2b-zipper/Knot/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Knot/total?style=flat&label=Downloads&color=2ea44f" alt="Downloads"></a>
+    <a href="https://github.com/2b-zipper/Knot/stargazers"><img src="https://img.shields.io/github/stars/2b-zipper/Knot?style=flat&label=Stars&color=2ea44f" alt="Stars"></a>
+    <a href="https://github.com/2b-zipper/Knot/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-2ea44f?style=flat" alt="License"></a>
   </p>
 </div>
 
@@ -51,7 +53,11 @@
 - **消音ボタンを非表示**: 通知に表示される「通知をオフ」ボタンを削除します。
 - **通知の遅延・不達対策 (FCM Fix)**: 非root環境での通知不達を回避するため、FCM受信処理の直接引き渡しや、LINEの常時フォアグラウンドサービス化を行います。
 
-## 使い方
+## インストール方法
+
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.zipper.knot%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2F2b-zipper%2Fknot%22%2C%22author%22%3A%222b-zipper%22%2C%22name%22%3A%22Knot%22%2C%22overrideSource%22%3A%22GitHub%22%7D"><img src="images/badge_obtainium.png" height="52" alt="Get it on Obtainium"></a>
+&nbsp;&nbsp;
+<a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="images/badge_github.png" height="52" alt="Get it on GitHub"></a>
 
 ### Root環境
 
@@ -77,11 +83,20 @@
 
 ## リリースの種類について
 
-| | |
-| :--- | :--- |
-| **Release (安定版)** | 十分にテストされ、安定して動作することが確認されたバージョンです。<br>**※通常はこちらを使用してください。** |
-| **RC (リリース候補版)** | 正式リリースに向けた最終確認のためのバージョンです。<br>Beta版より安定していますが、不具合が残っている可能性があります。 |
-| **Beta (ベータ版)** | 新機能の追加やバグ修正のテストを目的としたバージョンです。<br>予期せぬ不具合が含まれる可能性があります。 |
+<table>
+  <tr>
+    <td><b>Release (安定版)</b></td>
+    <td>十分にテストされ、安定して動作することが確認されたバージョンです。<br><b>※通常はこちらを使用してください。</b></td>
+  </tr>
+  <tr>
+    <td><b>RC (リリース候補版)</b></td>
+    <td>正式リリースに向けた最終確認のためのバージョンです。<br>Beta版より安定していますが、不具合が残っている可能性があります。</td>
+  </tr>
+  <tr>
+    <td><b>Beta (ベータ版)</b></td>
+    <td>新機能の追加やバグ修正のテストを目的としたバージョンです。<br>予期せぬ不具合が含まれる可能性があります。</td>
+  </tr>
+</table>
 
 ## 開発者
 
