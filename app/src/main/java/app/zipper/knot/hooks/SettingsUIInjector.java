@@ -45,6 +45,7 @@ import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleStrings;
+import io.github.libxposed.api.XposedInterface;
 import java.io.File;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -53,42 +54,14 @@ import java.util.List;
 
 public class SettingsUIInjector implements BaseHook {
 
-  public static volatile Runnable openSettingsAction = null;
-  private static volatile SettingsUIInjector instance = null;
-  private static volatile Object cachedToggle = null;
-  private static volatile Object cachedSuccess = null;
-
   private static final String BRAND_TAG = "Knot";
+  private static final int PICK_DIRECTORY_CODE = 0x4C58;
+  private static final int PICK_FONT_CODE = 0x4C59;
+  private static final int PICK_RESTORE_DB_CODE = 0x4C5A;
   private static final String[][] CONTRIBUTOR_SECTIONS = {
     {ModuleStrings.ABOUT_SEC_DEVELOPERS, "2b-zipper", "Nich87"},
     {ModuleStrings.ABOUT_SEC_CONTRIBUTORS, "atuy1219"},
   };
-
-  public static void openSettings(android.app.Activity activity) {
-    SettingsUIInjector ui = instance;
-    if (ui != null) ui.displaySettingsDialog(activity);
-  }
-
-  private volatile Runnable onSettingsReloadRequest = null;
-  private static final int PICK_DIRECTORY_CODE = 0x4C58;
-  private static final int PICK_FONT_CODE = 0x4C59;
-  private static final int PICK_RESTORE_DB_CODE = 0x4C5A;
-
-  private volatile Object targetAdapter = null;
-  private volatile Object targetFragment = null;
-
-  private volatile Dialog settingsDialog = null;
-  private volatile Activity dialogHost = null;
-  private volatile boolean pendingRestart = false;
-  private volatile KnotConfig.Category currentActiveCategory = null;
-  private volatile boolean aboutPageActive = false;
-  private volatile FrameLayout cachedPageContainer = null;
-  private volatile View aboutPageView = null;
-  private volatile FrameLayout cachedItemHost = null;
-  private volatile View cachedNavHeader = null;
-  private volatile View cachedSearchView = null;
-  private static final java.util.List<Runnable> uiUpdateCallbacks = new java.util.ArrayList<>();
-
   private static final KnotConfig.Category[] DISPLAY_CATEGORIES = {
     KnotConfig.Category.PRIVACY,
     KnotConfig.Category.CHAT,
@@ -97,35 +70,56 @@ public class SettingsUIInjector implements BaseHook {
     KnotConfig.Category.SYSTEM
   };
 
+  public static volatile Runnable openSettingsAction = null;
+  private static volatile SettingsUIInjector instance = null;
+  private static volatile Object cachedToggle = null;
+  private static volatile Object cachedSuccess = null;
+  private static final java.util.List<Runnable> uiUpdateCallbacks = new java.util.ArrayList<>();
+
+  private volatile Runnable onSettingsReloadRequest = null;
+  private volatile Object targetAdapter = null;
+  private volatile Object targetFragment = null;
+  private volatile Dialog settingsDialog = null;
+  private volatile Activity dialogHost = null;
+  private volatile boolean pendingRestart = false;
+  private volatile boolean pickerActive = false;
+  private volatile KnotConfig.Category currentActiveCategory = null;
+  private volatile boolean aboutPageActive = false;
+  private volatile FrameLayout cachedPageContainer = null;
+  private volatile View aboutPageView = null;
+  private volatile FrameLayout cachedItemHost = null;
+  private volatile View cachedNavHeader = null;
+  private volatile View cachedSearchView = null;
+
+  public static void openSettings(android.app.Activity activity) {
+    SettingsUIInjector ui = instance;
+    if (ui != null) ui.displaySettingsDialog(activity);
+  }
+
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     instance = this;
     LineVersion.Config cfg = LineVersion.get();
 
+    hookSettingsFragment(cfg, lpparam);
+    hookSettingsItemInjection(cfg, lpparam);
+    hookViewHolderBinding(cfg, lpparam);
+    hookActivityResult();
+    hookHostLifecycle();
+  }
+
+  private void hookSettingsFragment(LineVersion.Config cfg, LoadParam lpparam) {
     Class<?> fragmentClass =
         Reflect.findClass(cfg.settings.mainSettingsFragmentClass, lpparam.classLoader);
     Knot.module
         .hook(Reflect.findMethodExact(fragmentClass, "onViewCreated", View.class, Bundle.class))
-        .intercept(
-            chain -> {
-              Object result = chain.proceed();
-              try {
-                LineVersion.Config c = LineVersion.get();
-                targetFragment = chain.getThisObject();
-                View listView = ((View) chain.getArg(0)).findViewById(c.res.idSettingList);
-                if (listView != null) targetAdapter = Reflect.callMethod(listView, "getAdapter");
-                openSettingsAction =
-                    () ->
-                        displaySettingsDialog(
-                            (Context) Reflect.callMethod(targetFragment, "requireContext"));
-              } catch (Throwable ignored) {
-              }
-              return result;
-            });
+        .intercept(this::onSettingsFragmentViewCreated);
+  }
 
+  private void hookSettingsItemInjection(LineVersion.Config cfg, LoadParam lpparam) {
     final Class<?> proxyInterface =
         Reflect.findClass(cfg.settings.settingsItemClass, lpparam.classLoader);
-    final Class<?> settingsSearchHelperClass =
+    final Class<?> searchHelperCls =
         Reflect.findClass(cfg.settings.settingsSearchHelperClass, lpparam.classLoader);
     Knot.module
         .hook(
@@ -134,106 +128,12 @@ public class SettingsUIInjector implements BaseHook {
                 lpparam.classLoader,
                 cfg.settings.methodSetItems,
                 Collection.class))
-        .intercept(
-            chain -> {
-              LineVersion.Config c = LineVersion.get();
-              Collection<?> sourceItems = (Collection<?>) chain.getArg(0);
-              if (chain.getThisObject() != targetAdapter
-                  && !settingsSearchHelperClass.isInstance(chain.getThisObject())) {
-                return chain.proceed();
-              }
-              if (containsKnotItem(sourceItems, c)) return chain.proceed();
+        .intercept(chain -> injectKnotItems(chain, proxyInterface, searchHelperCls, lpparam));
+  }
 
-              List<Object> items = new ArrayList<>(sourceItems);
-              int insertPos = items.size();
-              findPosition:
-              for (int i = 0; i < items.size(); i++) {
-                try {
-                  Object model = Reflect.getObjectField(items.get(i), c.settings.fieldItemModel);
-                  if (model == null) continue;
-                  for (java.lang.reflect.Field f : model.getClass().getDeclaredFields()) {
-                    if (f.getType() == int.class) {
-                      f.setAccessible(true);
-                      if (f.getInt(model) == c.res.idPersonalInfo) {
-                        insertPos = i;
-                        break findPosition;
-                      }
-                    }
-                  }
-                } catch (Throwable ignored) {
-                }
-              }
-              Object section =
-                  createAdapterItemProxy(proxyInterface, lpparam.classLoader, c.res.typeSection);
-              Object row =
-                  createAdapterItemProxy(proxyInterface, lpparam.classLoader, c.res.typeRow);
-
-              if (c.settings.settingsAdapterWrapperClass != null
-                  && !c.settings.settingsAdapterWrapperClass.isEmpty()) {
-                try {
-                  Class<?> wrapperCls =
-                      Reflect.findClass(
-                          c.settings.settingsAdapterWrapperClass, lpparam.classLoader);
-                  Class<?> headerCls =
-                      Reflect.findClass(c.settings.settingsHeaderItemClass, lpparam.classLoader);
-                  Class<?> itemCls =
-                      Reflect.findClass(c.settings.settingsRowItemClass, lpparam.classLoader);
-
-                  Class<?> unsafeCls = Reflect.findClass("sun.misc.Unsafe", (ClassLoader) null);
-                  Object unsafe = Reflect.getStaticObjectField(unsafeCls, "theUnsafe");
-
-                  Object dummyHeader = Reflect.callMethod(unsafe, "allocateInstance", headerCls);
-                  Object dummyRow = Reflect.callMethod(unsafe, "allocateInstance", itemCls);
-
-                  Reflect.setIntField(dummyHeader, cfg.settings.fieldLayoutId, c.res.typeSection);
-                  Reflect.setIntField(dummyRow, cfg.settings.fieldLayoutId, c.res.typeRow);
-
-                  section = Reflect.newInstance(wrapperCls, dummyHeader);
-                  row = Reflect.newInstance(wrapperCls, dummyRow);
-
-                  Reflect.setObjectField(dummyHeader, cfg.settings.fieldModelTag, BRAND_TAG);
-                  Reflect.setObjectField(dummyRow, cfg.settings.fieldModelTag, BRAND_TAG);
-
-                  Reflect.setBooleanField(dummyHeader, cfg.settings.fieldIsVisible, true);
-
-                  Class<?> bc =
-                      Reflect.findClass(c.settings.settingsHandlerBaseClass, lpparam.classLoader);
-                  Object dummyHandler =
-                      Reflect.getStaticObjectField(bc, cfg.settings.fieldDefaultHandler);
-
-                  String[] handlerFields = {
-                    cfg.settings.fieldActionHandler,
-                    cfg.settings.fieldIconProvider,
-                    cfg.settings.fieldDescriptionProvider,
-                    cfg.settings.fieldSubActionHandler,
-                    cfg.settings.fieldVisibilityFilter
-                  };
-                  for (String f : handlerFields) {
-                    try {
-                      Reflect.setObjectField(dummyRow, f, dummyHandler);
-                      Reflect.setObjectField(dummyHeader, f, dummyHandler);
-                    } catch (Throwable ignored) {
-                    }
-                  }
-
-                  Reflect.setObjectField(
-                      dummyRow,
-                      cfg.settings.fieldVisibilityFilter,
-                      Reflect.getStaticObjectField(bc, cfg.settings.fieldCommonHandler));
-                  Reflect.setObjectField(
-                      dummyHeader,
-                      cfg.settings.fieldVisibilityFilter,
-                      Reflect.getStaticObjectField(bc, cfg.settings.fieldCommonHandler));
-                } catch (Throwable e) {
-                  Knot.log("Knot: Adapter wrapper failed: " + e);
-                }
-              }
-
-              items.add(insertPos, section);
-              items.add(insertPos + 1, row);
-              return chain.proceed(new Object[] {items});
-            });
-
+  private void hookViewHolderBinding(LineVersion.Config cfg, LoadParam lpparam) {
+    final Class<?> searchHelperCls =
+        Reflect.findClass(cfg.settings.settingsSearchHelperClass, lpparam.classLoader);
     Class<?> itemBindingClass =
         Reflect.findClass(cfg.settings.settingsBaseAdapterClass, lpparam.classLoader);
     Knot.module
@@ -244,214 +144,363 @@ public class SettingsUIInjector implements BaseHook {
                 cfg.settings.methodBindViewHolder,
                 itemBindingClass,
                 int.class))
-        .intercept(
-            chain -> {
-              if (chain.getThisObject() != targetAdapter
-                  && !settingsSearchHelperClass.isInstance(chain.getThisObject())) {
-                return chain.proceed();
-              }
-              LineVersion.Config c = LineVersion.get();
-              int currentPos = (int) chain.getArg(1);
-              boolean ours = false;
-              try {
-                Object currentItem =
-                    Reflect.callMethod(chain.getThisObject(), c.settings.methodGetItem, currentPos);
-                if (currentItem == null) return chain.proceed();
-                if (currentItem
-                    .getClass()
-                    .getName()
-                    .equals(c.settings.settingsAdapterWrapperClass)) {
-                  currentItem = Reflect.getObjectField(currentItem, c.settings.fieldItemModel);
-                }
-                if (currentItem == null) return chain.proceed();
+        .intercept(chain -> bindKnotViewHolder(chain, searchHelperCls));
+  }
 
-                String sourceTag =
-                    (String) Reflect.getObjectField(currentItem, c.settings.fieldModelTag);
-                if (!BRAND_TAG.equals(sourceTag)) return chain.proceed();
-
-                ours = true;
-
-                int entryType = Reflect.getIntField(currentItem, cfg.settings.fieldLayoutId);
-                View itemView =
-                    (View) Reflect.getObjectField(chain.getArg(0), c.settings.fieldViewHolderView);
-                if (entryType == c.res.typeSection) {
-                  if (itemView instanceof TextView) ((TextView) itemView).setText(BRAND_TAG);
-                } else if (entryType == c.res.typeRow) {
-                  applyVisibility(itemView, c.res.idIcon, View.VISIBLE);
-                  applyVisibility(itemView, c.res.idDesc, View.GONE);
-                  applyVisibility(itemView, c.res.idMark, View.GONE);
-                  applyVisibility(itemView, c.res.idSeparator, View.GONE);
-                  applyVisibility(itemView, c.res.idNewMark, View.GONE);
-                  applyVisibility(itemView, c.res.idNoticeDot, View.GONE);
-                  applyVisibility(itemView, c.res.idArrow, View.VISIBLE);
-
-                  android.widget.ImageView iconView = itemView.findViewById(c.res.idIcon);
-                  if (iconView != null) {
-                    try {
-                      Context modCtx =
-                          itemView
-                              .getContext()
-                              .createPackageContext(
-                                  "app.zipper.knot", Context.CONTEXT_IGNORE_SECURITY);
-                      int resId =
-                          modCtx
-                              .getResources()
-                              .getIdentifier("ic_knot", "drawable", "app.zipper.knot");
-
-                      if (resId != 0) {
-                        iconView.setImageTintList(null);
-                        iconView.setImageDrawable(modCtx.getDrawable(resId));
-                        iconView.clearColorFilter();
-                        iconView.setVisibility(android.view.View.VISIBLE);
-
-                        float density =
-                            itemView.getContext().getResources().getDisplayMetrics().density;
-                        int size = (int) (24 * density);
-                        android.view.ViewGroup.LayoutParams lp = iconView.getLayoutParams();
-                        if (lp != null) {
-                          lp.width = size;
-                          lp.height = size;
-                          iconView.setLayoutParams(lp);
-                        }
-                        iconView.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
-                      }
-                    } catch (Throwable ignored) {
-                    }
-                  }
-                  TextView title = itemView.findViewById(c.res.idTitle);
-                  if (title != null) title.setText(ModuleStrings.SETTINGS_TITLE);
-                  itemView.setOnClickListener(v -> displaySettingsDialog(v.getContext()));
-                }
-              } catch (Throwable ignored) {
-              }
-              return ours ? null : chain.proceed();
-            });
-
+  private void hookActivityResult() {
     Knot.module
         .hook(
             Reflect.findMethodExact(
                 android.app.Activity.class, "onActivityResult", int.class, int.class, Intent.class))
-        .intercept(
-            chain -> {
-              int requestCode = (int) chain.getArg(0);
-              if (requestCode == PICK_DIRECTORY_CODE) {
-                if ((int) chain.getArg(1) != Activity.RESULT_OK || chain.getArg(2) == null)
-                  return null;
-                Uri treeUri = ((Intent) chain.getArg(2)).getData();
-                if (treeUri == null) return null;
-                try {
-                  ((Activity) chain.getThisObject())
-                      .getContentResolver()
-                      .takePersistableUriPermission(
-                          treeUri,
-                          Intent.FLAG_GRANT_READ_URI_PERMISSION
-                              | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                } catch (Throwable ignored) {
-                }
-                SettingsStore.setSettingsDir(treeUri.toString());
-                SettingsStore.load(Main.options);
-                pendingRestart = true;
-                if (onSettingsReloadRequest != null) onSettingsReloadRequest.run();
-                return null;
-              } else if (requestCode == PICK_FONT_CODE) {
-                if ((int) chain.getArg(1) != Activity.RESULT_OK || chain.getArg(2) == null)
-                  return null;
-                Uri fontUri = ((Intent) chain.getArg(2)).getData();
-                if (fontUri == null) return null;
+        .intercept(this::handleActivityResult);
+  }
 
-                try {
-                  Context ctx = (Context) chain.getThisObject();
-                  java.io.InputStream is = ctx.getContentResolver().openInputStream(fontUri);
-                  File out = new File(ctx.getFilesDir(), "knot_custom_font.ttf");
-                  java.io.FileOutputStream os = new java.io.FileOutputStream(out);
-                  byte[] buffer = new byte[8192];
-                  int len;
-                  while ((len = is.read(buffer)) != -1) os.write(buffer, 0, len);
-                  os.close();
-                  is.close();
-
-                  String localPath = out.getAbsolutePath();
-                  SettingsStore.save("custom_font_path", localPath);
-                  for (KnotConfig.Item itm : Main.options.items) {
-                    if (itm.key.equals("custom_font_path")) {
-                      itm.value = localPath;
-                      break;
-                    }
-                  }
-                  pendingRestart = true;
-                  if (onSettingsReloadRequest != null) onSettingsReloadRequest.run();
-                } catch (Throwable t) {
-                  Knot.log("Knot: Failed to copy font file: " + t.getMessage());
-                }
-                return null;
-              } else if (requestCode == PICK_RESTORE_DB_CODE) {
-                if ((int) chain.getArg(1) != Activity.RESULT_OK || chain.getArg(2) == null)
-                  return null;
-                Uri dbUri = ((Intent) chain.getArg(2)).getData();
-                if (dbUri == null) return null;
-
-                Context ctx = (Context) chain.getThisObject();
-                new Thread(
-                        () -> {
-                          File tempFile = null;
-                          try {
-                            tempFile =
-                                File.createTempFile("knot_restore_", ".db", ctx.getCacheDir());
-                            try (java.io.InputStream is =
-                                    ctx.getContentResolver().openInputStream(dbUri);
-                                java.io.FileOutputStream os =
-                                    new java.io.FileOutputStream(tempFile)) {
-                              byte[] buffer = new byte[8192];
-                              int len;
-                              while ((len = is.read(buffer)) != -1) os.write(buffer, 0, len);
-                            }
-
-                            final File finalFile = tempFile;
-                            new Handler(Looper.getMainLooper())
-                                .post(
-                                    () -> {
-                                      int themeId = LineTheme.dialogTheme(ctx);
-                                      LineTheme.applyDialogColors(
-                                          new AlertDialog.Builder(ctx, themeId)
-                                              .setTitle(ModuleStrings.RESTORE_CONFIRM_TITLE)
-                                              .setMessage(ModuleStrings.RESTORE_CONFIRM_MSG)
-                                              .setPositiveButton(
-                                                  ModuleStrings.SETTINGS_YES,
-                                                  (d, w) -> {
-                                                    BackupRestoreHook.runRestore(ctx, finalFile);
-                                                  })
-                                              .setNegativeButton(
-                                                  ModuleStrings.SETTINGS_CANCEL,
-                                                  (d, w) -> finalFile.delete())
-                                              .show(),
-                                          ctx);
-                                    });
-                          } catch (Throwable t) {
-                            Knot.log("Knot: Failed to prepare restore DB: " + t.getMessage());
-                            if (tempFile != null) tempFile.delete();
-                          }
-                        })
-                    .start();
-                return null;
-              }
-              return chain.proceed();
-            });
-
+  private void hookHostLifecycle() {
     Knot.module
         .hook(Reflect.findMethodExact(android.app.Activity.class, "onDestroy"))
-        .intercept(
-            chain -> {
-              if (chain.getThisObject() == dialogHost) {
-                try {
-                  Dialog d = settingsDialog;
-                  if (d != null && d.isShowing()) d.dismiss();
-                } catch (Throwable ignored) {
-                }
-                settingsDialog = null;
-                dialogHost = null;
-              }
-              return chain.proceed();
-            });
+        .intercept(this::onHostDestroy);
+    Knot.module
+        .hook(Reflect.findMethodExact(android.app.Activity.class, "onStop"))
+        .intercept(this::onHostStop);
+  }
+
+  private void dismissSettingsImmediately() {
+    Dialog d = settingsDialog;
+    if (d == null || !d.isShowing()) return;
+    try {
+      d.dismiss();
+    } catch (Throwable ignored) {
+    }
+    settingsDialog = null;
+    dialogHost = null;
+    currentActiveCategory = null;
+    aboutPageActive = false;
+    cachedPageContainer = null;
+    aboutPageView = null;
+    cachedItemHost = null;
+    cachedNavHeader = null;
+    cachedSearchView = null;
+    uiUpdateCallbacks.clear();
+  }
+
+  private Object onSettingsFragmentViewCreated(XposedInterface.Chain chain) throws Throwable {
+    Object result = chain.proceed();
+    try {
+      LineVersion.Config c = LineVersion.get();
+      targetFragment = chain.getThisObject();
+      View listView = ((View) chain.getArg(0)).findViewById(c.res.idSettingList);
+      if (listView != null) targetAdapter = Reflect.callMethod(listView, "getAdapter");
+      openSettingsAction =
+          () ->
+              displaySettingsDialog((Context) Reflect.callMethod(targetFragment, "requireContext"));
+    } catch (Throwable ignored) {
+    }
+    return result;
+  }
+
+  private Object injectKnotItems(
+      XposedInterface.Chain chain,
+      Class<?> proxyInterface,
+      Class<?> searchHelperCls,
+      LoadParam lpparam)
+      throws Throwable {
+    LineVersion.Config c = LineVersion.get();
+    Collection<?> sourceItems = (Collection<?>) chain.getArg(0);
+    if (chain.getThisObject() != targetAdapter
+        && !searchHelperCls.isInstance(chain.getThisObject())) {
+      return chain.proceed();
+    }
+    if (containsKnotItem(sourceItems, c)) return chain.proceed();
+
+    List<Object> items = new ArrayList<>(sourceItems);
+    int insertPos = items.size();
+    findPosition:
+    for (int i = 0; i < items.size(); i++) {
+      try {
+        Object model = Reflect.getObjectField(items.get(i), c.settings.fieldItemModel);
+        if (model == null) continue;
+        for (java.lang.reflect.Field f : model.getClass().getDeclaredFields()) {
+          if (f.getType() == int.class) {
+            f.setAccessible(true);
+            if (f.getInt(model) == c.res.idPersonalInfo) {
+              insertPos = i;
+              break findPosition;
+            }
+          }
+        }
+      } catch (Throwable ignored) {
+      }
+    }
+    Object section = createAdapterItemProxy(proxyInterface, lpparam.classLoader, c.res.typeSection);
+    Object row = createAdapterItemProxy(proxyInterface, lpparam.classLoader, c.res.typeRow);
+
+    if (c.settings.settingsAdapterWrapperClass != null
+        && !c.settings.settingsAdapterWrapperClass.isEmpty()) {
+      try {
+        Class<?> wrapperCls =
+            Reflect.findClass(c.settings.settingsAdapterWrapperClass, lpparam.classLoader);
+        Class<?> headerCls =
+            Reflect.findClass(c.settings.settingsHeaderItemClass, lpparam.classLoader);
+        Class<?> itemCls = Reflect.findClass(c.settings.settingsRowItemClass, lpparam.classLoader);
+
+        Class<?> unsafeCls = Reflect.findClass("sun.misc.Unsafe", (ClassLoader) null);
+        Object unsafe = Reflect.getStaticObjectField(unsafeCls, "theUnsafe");
+
+        Object dummyHeader = Reflect.callMethod(unsafe, "allocateInstance", headerCls);
+        Object dummyRow = Reflect.callMethod(unsafe, "allocateInstance", itemCls);
+
+        Reflect.setIntField(dummyHeader, c.settings.fieldLayoutId, c.res.typeSection);
+        Reflect.setIntField(dummyRow, c.settings.fieldLayoutId, c.res.typeRow);
+
+        section = Reflect.newInstance(wrapperCls, dummyHeader);
+        row = Reflect.newInstance(wrapperCls, dummyRow);
+
+        Reflect.setObjectField(dummyHeader, c.settings.fieldModelTag, BRAND_TAG);
+        Reflect.setObjectField(dummyRow, c.settings.fieldModelTag, BRAND_TAG);
+
+        Reflect.setBooleanField(dummyHeader, c.settings.fieldIsVisible, true);
+
+        Class<?> bc = Reflect.findClass(c.settings.settingsHandlerBaseClass, lpparam.classLoader);
+        Object dummyHandler = Reflect.getStaticObjectField(bc, c.settings.fieldDefaultHandler);
+
+        String[] handlerFields = {
+          c.settings.fieldActionHandler,
+          c.settings.fieldIconProvider,
+          c.settings.fieldDescriptionProvider,
+          c.settings.fieldSubActionHandler,
+          c.settings.fieldVisibilityFilter
+        };
+        for (String f : handlerFields) {
+          try {
+            Reflect.setObjectField(dummyRow, f, dummyHandler);
+            Reflect.setObjectField(dummyHeader, f, dummyHandler);
+          } catch (Throwable ignored) {
+          }
+        }
+
+        Reflect.setObjectField(
+            dummyRow,
+            c.settings.fieldVisibilityFilter,
+            Reflect.getStaticObjectField(bc, c.settings.fieldCommonHandler));
+        Reflect.setObjectField(
+            dummyHeader,
+            c.settings.fieldVisibilityFilter,
+            Reflect.getStaticObjectField(bc, c.settings.fieldCommonHandler));
+      } catch (Throwable e) {
+        Knot.log("Knot: Adapter wrapper failed: " + e);
+      }
+    }
+
+    items.add(insertPos, section);
+    items.add(insertPos + 1, row);
+    return chain.proceed(new Object[] {items});
+  }
+
+  private Object bindKnotViewHolder(XposedInterface.Chain chain, Class<?> searchHelperCls)
+      throws Throwable {
+    if (chain.getThisObject() != targetAdapter
+        && !searchHelperCls.isInstance(chain.getThisObject())) {
+      return chain.proceed();
+    }
+    LineVersion.Config c = LineVersion.get();
+    int currentPos = (int) chain.getArg(1);
+    boolean ours = false;
+    try {
+      Object currentItem =
+          Reflect.callMethod(chain.getThisObject(), c.settings.methodGetItem, currentPos);
+      if (currentItem == null) return chain.proceed();
+      if (currentItem.getClass().getName().equals(c.settings.settingsAdapterWrapperClass)) {
+        currentItem = Reflect.getObjectField(currentItem, c.settings.fieldItemModel);
+      }
+      if (currentItem == null) return chain.proceed();
+
+      String sourceTag = (String) Reflect.getObjectField(currentItem, c.settings.fieldModelTag);
+      if (!BRAND_TAG.equals(sourceTag)) return chain.proceed();
+
+      ours = true;
+
+      int entryType = Reflect.getIntField(currentItem, c.settings.fieldLayoutId);
+      View itemView =
+          (View) Reflect.getObjectField(chain.getArg(0), c.settings.fieldViewHolderView);
+      if (entryType == c.res.typeSection) {
+        if (itemView instanceof TextView) ((TextView) itemView).setText(BRAND_TAG);
+      } else if (entryType == c.res.typeRow) {
+        bindKnotSettingsRow(itemView, c);
+      }
+    } catch (Throwable ignored) {
+    }
+    return ours ? null : chain.proceed();
+  }
+
+  private void bindKnotSettingsRow(View itemView, LineVersion.Config c) {
+    applyVisibility(itemView, c.res.idIcon, View.VISIBLE);
+    applyVisibility(itemView, c.res.idDesc, View.GONE);
+    applyVisibility(itemView, c.res.idMark, View.GONE);
+    applyVisibility(itemView, c.res.idSeparator, View.GONE);
+    applyVisibility(itemView, c.res.idNewMark, View.GONE);
+    applyVisibility(itemView, c.res.idNoticeDot, View.GONE);
+    applyVisibility(itemView, c.res.idArrow, View.VISIBLE);
+
+    ImageView iconView = itemView.findViewById(c.res.idIcon);
+    if (iconView != null) applyKnotIcon(itemView, iconView);
+
+    TextView title = itemView.findViewById(c.res.idTitle);
+    if (title != null) title.setText(ModuleStrings.SETTINGS_TITLE);
+    itemView.setOnClickListener(v -> displaySettingsDialog(v.getContext()));
+  }
+
+  private void applyKnotIcon(View itemView, ImageView iconView) {
+    try {
+      Context modCtx =
+          itemView
+              .getContext()
+              .createPackageContext("app.zipper.knot", Context.CONTEXT_IGNORE_SECURITY);
+      int resId = modCtx.getResources().getIdentifier("ic_knot", "drawable", "app.zipper.knot");
+      if (resId == 0) return;
+
+      iconView.setImageTintList(null);
+      iconView.setImageDrawable(modCtx.getDrawable(resId));
+      iconView.clearColorFilter();
+      iconView.setVisibility(View.VISIBLE);
+
+      float density = itemView.getContext().getResources().getDisplayMetrics().density;
+      int size = (int) (24 * density);
+      ViewGroup.LayoutParams lp = iconView.getLayoutParams();
+      if (lp != null) {
+        lp.width = size;
+        lp.height = size;
+        iconView.setLayoutParams(lp);
+      }
+      iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+    } catch (Throwable ignored) {
+    }
+  }
+
+  private Object handleActivityResult(XposedInterface.Chain chain) throws Throwable {
+    int requestCode = (int) chain.getArg(0);
+    if (requestCode == PICK_DIRECTORY_CODE
+        || requestCode == PICK_FONT_CODE
+        || requestCode == PICK_RESTORE_DB_CODE) {
+      pickerActive = false;
+    }
+    if (requestCode == PICK_DIRECTORY_CODE) {
+      handleDirectoryPicked(chain);
+      return null;
+    } else if (requestCode == PICK_FONT_CODE) {
+      handleFontPicked(chain);
+      return null;
+    } else if (requestCode == PICK_RESTORE_DB_CODE) {
+      handleRestoreDbPicked(chain);
+      return null;
+    }
+    return chain.proceed();
+  }
+
+  private void handleDirectoryPicked(XposedInterface.Chain chain) {
+    if ((int) chain.getArg(1) != Activity.RESULT_OK || chain.getArg(2) == null) return;
+    Uri treeUri = ((Intent) chain.getArg(2)).getData();
+    if (treeUri == null) return;
+    try {
+      ((Activity) chain.getThisObject())
+          .getContentResolver()
+          .takePersistableUriPermission(
+              treeUri,
+              Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    } catch (Throwable ignored) {
+    }
+    SettingsStore.setSettingsDir(treeUri.toString());
+    SettingsStore.load(Main.options);
+    pendingRestart = true;
+    if (onSettingsReloadRequest != null) onSettingsReloadRequest.run();
+  }
+
+  private void handleFontPicked(XposedInterface.Chain chain) {
+    if ((int) chain.getArg(1) != Activity.RESULT_OK || chain.getArg(2) == null) return;
+    Uri fontUri = ((Intent) chain.getArg(2)).getData();
+    if (fontUri == null) return;
+    try {
+      Context ctx = (Context) chain.getThisObject();
+      java.io.InputStream is = ctx.getContentResolver().openInputStream(fontUri);
+      File out = new File(ctx.getFilesDir(), "knot_custom_font.ttf");
+      java.io.FileOutputStream os = new java.io.FileOutputStream(out);
+      byte[] buffer = new byte[8192];
+      int len;
+      while ((len = is.read(buffer)) != -1) os.write(buffer, 0, len);
+      os.close();
+      is.close();
+
+      String localPath = out.getAbsolutePath();
+      SettingsStore.save("custom_font_path", localPath);
+      for (KnotConfig.Item itm : Main.options.items) {
+        if (itm.key.equals("custom_font_path")) {
+          itm.value = localPath;
+          break;
+        }
+      }
+      pendingRestart = true;
+      if (onSettingsReloadRequest != null) onSettingsReloadRequest.run();
+    } catch (Throwable t) {
+      Knot.log("Knot: Failed to copy font file: " + t.getMessage());
+    }
+  }
+
+  private void handleRestoreDbPicked(XposedInterface.Chain chain) {
+    if ((int) chain.getArg(1) != Activity.RESULT_OK || chain.getArg(2) == null) return;
+    Uri dbUri = ((Intent) chain.getArg(2)).getData();
+    if (dbUri == null) return;
+    Context ctx = (Context) chain.getThisObject();
+    new Thread(() -> prepareRestoreDb(ctx, dbUri)).start();
+  }
+
+  private void prepareRestoreDb(Context ctx, Uri dbUri) {
+    File tempFile = null;
+    try {
+      tempFile = File.createTempFile("knot_restore_", ".db", ctx.getCacheDir());
+      try (java.io.InputStream is = ctx.getContentResolver().openInputStream(dbUri);
+          java.io.FileOutputStream os = new java.io.FileOutputStream(tempFile)) {
+        byte[] buffer = new byte[8192];
+        int len;
+        while ((len = is.read(buffer)) != -1) os.write(buffer, 0, len);
+      }
+      final File finalFile = tempFile;
+      new Handler(Looper.getMainLooper()).post(() -> confirmRestore(ctx, finalFile));
+    } catch (Throwable t) {
+      Knot.log("Knot: Failed to prepare restore DB: " + t.getMessage());
+      if (tempFile != null) tempFile.delete();
+    }
+  }
+
+  private void confirmRestore(Context ctx, File file) {
+    int themeId = LineTheme.dialogTheme(ctx);
+    LineTheme.applyDialogColors(
+        new AlertDialog.Builder(ctx, themeId)
+            .setTitle(ModuleStrings.RESTORE_CONFIRM_TITLE)
+            .setMessage(ModuleStrings.RESTORE_CONFIRM_MSG)
+            .setPositiveButton(
+                ModuleStrings.SETTINGS_YES, (d, w) -> BackupRestoreHook.runRestore(ctx, file))
+            .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, (d, w) -> file.delete())
+            .show(),
+        ctx);
+  }
+
+  private Object onHostDestroy(XposedInterface.Chain chain) throws Throwable {
+    if (chain.getThisObject() == dialogHost) {
+      try {
+        Dialog d = settingsDialog;
+        if (d != null && d.isShowing()) d.dismiss();
+      } catch (Throwable ignored) {
+      }
+      settingsDialog = null;
+      dialogHost = null;
+    }
+    return chain.proceed();
+  }
+
+  private Object onHostStop(XposedInterface.Chain chain) throws Throwable {
+    if (chain.getThisObject() == dialogHost && !pickerActive) {
+      dismissSettingsImmediately();
+    }
+    return chain.proceed();
   }
 
   private void displaySettingsDialog(Context ctx) {
@@ -577,7 +626,6 @@ public class SettingsUIInjector implements BaseHook {
   private View createSettingsView(Activity host, Object toggleType, Object statusEnum, Window win) {
     try {
       LineVersion.Config currentCfg = LineVersion.get();
-      boolean isDark = LineTheme.isDark(host);
       LayoutInflater infl = LayoutInflater.from(host);
       ViewGroup hostContainer = (ViewGroup) infl.inflate(currentCfg.res.layoutSettingsMain, null);
       hostContainer.setClickable(true);
@@ -585,78 +633,14 @@ public class SettingsUIInjector implements BaseHook {
       hostContainer.setPadding(0, 0, 0, 0);
       uiUpdateCallbacks.clear();
 
-      try {
-        int composeHeaderId =
-            host.getResources().getIdentifier("compose_header", "id", "jp.naver.line.android");
-        if (composeHeaderId != 0) {
-          View composeHeader = hostContainer.findViewById(composeHeaderId);
-          if (composeHeader != null && composeHeader.getParent() instanceof ViewGroup)
-            ((ViewGroup) composeHeader.getParent()).removeView(composeHeader);
-        }
-      } catch (Throwable ignored) {
-      }
+      removeComposeHeader(host, hostContainer);
 
       View navHeader = hostContainer.findViewById(currentCfg.res.idHeader);
-      if (navHeader != null) {
-        try {
-          Reflect.callMethod(navHeader, currentCfg.main.methodRefreshNavHeader, win);
-        } catch (Throwable t) {
-          if (currentCfg.res.idStatusBarGuide != 0) {
-            View guide = navHeader.findViewById(currentCfg.res.idStatusBarGuide);
-            if (guide != null) {
-              int statusBarHeight = 0;
-              int resId =
-                  host.getResources().getIdentifier("status_bar_height", "dimen", "android");
-              if (resId > 0) statusBarHeight = host.getResources().getDimensionPixelSize(resId);
-              if (statusBarHeight > 0) {
-                ViewGroup.LayoutParams lp = guide.getLayoutParams();
-                lp.height = statusBarHeight;
-                guide.setLayoutParams(lp);
-              }
-            }
-          }
-        }
-        Reflect.callMethod(
-            navHeader, currentCfg.main.methodHeaderSetTitle, ModuleStrings.SETTINGS_TITLE);
-        try {
-          Reflect.callMethod(navHeader, currentCfg.main.methodHeaderSetButtonVisibility, true);
-        } catch (Throwable ignored) {
-        }
-        Reflect.callMethod(
-            navHeader,
-            currentCfg.main.methodHeaderSetButtonListener,
-            (View.OnClickListener) v -> initiateDialogClosure());
-
-        navHeader.setBackgroundColor(LineTheme.backgroundColor(host));
-        LineTheme.tintTextAndIcons(navHeader, LineTheme.primaryTextColor(host));
-      }
+      if (navHeader != null) setupNavHeader(host, navHeader, win, currentCfg);
 
       View itemListView = hostContainer.findViewById(currentCfg.res.idSettingList);
       if (itemListView != null) {
-        ViewGroup viewParent = (ViewGroup) itemListView.getParent();
-        int viewIndex = viewParent.indexOfChild(itemListView);
-        ViewGroup.LayoutParams viewLp = itemListView.getLayoutParams();
-        viewParent.removeView(itemListView);
-
-        LinearLayout settingsRoot = new LinearLayout(host);
-        settingsRoot.setOrientation(LinearLayout.VERTICAL);
-        settingsRoot.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
-
-        final FrameLayout itemHost = new FrameLayout(host);
-        itemHost.addView(renderSettingsItems(host, toggleType, statusEnum, null, false));
-        cachedItemHost = itemHost;
-        cachedNavHeader = navHeader;
-
-        setupSearchBox(host, isDark, settingsRoot, itemHost, toggleType, statusEnum);
-
-        settingsRoot.addView(itemHost, new LinearLayout.LayoutParams(-1, -1));
-
-        FrameLayout pageContainer = new FrameLayout(host);
-        pageContainer.addView(settingsRoot);
-        cachedPageContainer = pageContainer;
-        viewParent.addView(pageContainer, viewIndex, viewLp);
-
-        hostContainer.setBackgroundColor(LineTheme.backgroundColor(host));
+        installSettingsBody(host, hostContainer, itemListView, navHeader, toggleType, statusEnum);
       }
       return hostContainer;
     } catch (Throwable t) {
@@ -664,6 +648,86 @@ public class SettingsUIInjector implements BaseHook {
       errorLabel.setText("Error: " + t.getMessage());
       return errorLabel;
     }
+  }
+
+  private void removeComposeHeader(Activity host, ViewGroup hostContainer) {
+    try {
+      int composeHeaderId =
+          host.getResources().getIdentifier("compose_header", "id", "jp.naver.line.android");
+      if (composeHeaderId != 0) {
+        View composeHeader = hostContainer.findViewById(composeHeaderId);
+        if (composeHeader != null && composeHeader.getParent() instanceof ViewGroup)
+          ((ViewGroup) composeHeader.getParent()).removeView(composeHeader);
+      }
+    } catch (Throwable ignored) {
+    }
+  }
+
+  private void setupNavHeader(
+      Activity host, View navHeader, Window win, LineVersion.Config currentCfg) {
+    try {
+      Reflect.callMethod(navHeader, currentCfg.main.methodRefreshNavHeader, win);
+    } catch (Throwable t) {
+      if (currentCfg.res.idStatusBarGuide != 0) {
+        View guide = navHeader.findViewById(currentCfg.res.idStatusBarGuide);
+        if (guide != null) {
+          int statusBarHeight = 0;
+          int resId = host.getResources().getIdentifier("status_bar_height", "dimen", "android");
+          if (resId > 0) statusBarHeight = host.getResources().getDimensionPixelSize(resId);
+          if (statusBarHeight > 0) {
+            ViewGroup.LayoutParams lp = guide.getLayoutParams();
+            lp.height = statusBarHeight;
+            guide.setLayoutParams(lp);
+          }
+        }
+      }
+    }
+    Reflect.callMethod(
+        navHeader, currentCfg.main.methodHeaderSetTitle, ModuleStrings.SETTINGS_TITLE);
+    try {
+      Reflect.callMethod(navHeader, currentCfg.main.methodHeaderSetButtonVisibility, true);
+    } catch (Throwable ignored) {
+    }
+    Reflect.callMethod(
+        navHeader,
+        currentCfg.main.methodHeaderSetButtonListener,
+        (View.OnClickListener) v -> initiateDialogClosure());
+
+    navHeader.setBackgroundColor(LineTheme.backgroundColor(host));
+    LineTheme.tintTextAndIcons(navHeader, LineTheme.primaryTextColor(host));
+  }
+
+  private void installSettingsBody(
+      Activity host,
+      ViewGroup hostContainer,
+      View itemListView,
+      View navHeader,
+      Object toggleType,
+      Object statusEnum) {
+    ViewGroup viewParent = (ViewGroup) itemListView.getParent();
+    int viewIndex = viewParent.indexOfChild(itemListView);
+    ViewGroup.LayoutParams viewLp = itemListView.getLayoutParams();
+    viewParent.removeView(itemListView);
+
+    LinearLayout settingsRoot = new LinearLayout(host);
+    settingsRoot.setOrientation(LinearLayout.VERTICAL);
+    settingsRoot.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
+
+    final FrameLayout itemHost = new FrameLayout(host);
+    itemHost.addView(renderSettingsItems(host, toggleType, statusEnum, null, false));
+    cachedItemHost = itemHost;
+    cachedNavHeader = navHeader;
+
+    setupSearchBox(host, settingsRoot, itemHost, toggleType, statusEnum);
+
+    settingsRoot.addView(itemHost, new LinearLayout.LayoutParams(-1, -1));
+
+    FrameLayout pageContainer = new FrameLayout(host);
+    pageContainer.addView(settingsRoot);
+    cachedPageContainer = pageContainer;
+    viewParent.addView(pageContainer, viewIndex, viewLp);
+
+    hostContainer.setBackgroundColor(LineTheme.backgroundColor(host));
   }
 
   private void switchPage(
@@ -842,37 +906,29 @@ public class SettingsUIInjector implements BaseHook {
   private void injectStorageSection(LayoutInflater infl, LinearLayout parent, Context ctx) {
     injectSectionHeader(infl, parent, ModuleStrings.CAT_STORAGE);
     injectPathSelectorRow(infl, parent, ctx, ModuleStrings.DESC_PATH_ROW);
-    parent
-        .getChildAt(parent.getChildCount() - 1)
-        .setTag((ModuleStrings.CAT_STORAGE + " " + ModuleStrings.DESC_PATH_ROW).toLowerCase());
+    tagLastChild(parent, ModuleStrings.CAT_STORAGE + " " + ModuleStrings.DESC_PATH_ROW);
   }
 
   private void injectBackupSection(LayoutInflater infl, LinearLayout parent, Context ctx) {
     injectSectionHeader(infl, parent, ModuleStrings.CAT_BACKUP);
     injectBackupRow(infl, parent, ctx);
-    parent
-        .getChildAt(parent.getChildCount() - 1)
-        .setTag(
-            (ModuleStrings.OPT_BACKUP_LABEL + " " + ModuleStrings.OPT_BACKUP_DESC).toLowerCase());
+    tagLastChild(parent, ModuleStrings.OPT_BACKUP_LABEL + " " + ModuleStrings.OPT_BACKUP_DESC);
     injectRestoreRow(infl, parent, ctx);
-    parent
-        .getChildAt(parent.getChildCount() - 1)
-        .setTag(
-            (ModuleStrings.OPT_RESTORE_LABEL + " " + ModuleStrings.OPT_RESTORE_DESC).toLowerCase());
+    tagLastChild(parent, ModuleStrings.OPT_RESTORE_LABEL + " " + ModuleStrings.OPT_RESTORE_DESC);
   }
 
   private void injectOtherSection(
       LayoutInflater infl, LinearLayout parent, Context ctx, KnotConfig config) {
     injectSectionHeader(infl, parent, ModuleStrings.CAT_OTHER);
     injectAboutRow(infl, parent, ctx);
-    parent
-        .getChildAt(parent.getChildCount() - 1)
-        .setTag((ModuleStrings.OPT_ABOUT_LABEL + " " + ModuleStrings.OPT_ABOUT_DESC).toLowerCase());
+    tagLastChild(parent, ModuleStrings.OPT_ABOUT_LABEL + " " + ModuleStrings.OPT_ABOUT_DESC);
 
     injectResetRow(infl, parent, ctx, config, ModuleStrings.DESC_RESET_ROW);
-    parent
-        .getChildAt(parent.getChildCount() - 1)
-        .setTag((ModuleStrings.SETTINGS_RESET + " " + ModuleStrings.DESC_RESET_ROW).toLowerCase());
+    tagLastChild(parent, ModuleStrings.SETTINGS_RESET + " " + ModuleStrings.DESC_RESET_ROW);
+  }
+
+  private void tagLastChild(LinearLayout parent, String text) {
+    parent.getChildAt(parent.getChildCount() - 1).setTag(text.toLowerCase());
   }
 
   private void injectItemRow(
@@ -884,30 +940,8 @@ public class SettingsUIInjector implements BaseHook {
       Object toggleType,
       Object statusEnum) {
     try {
-      final String settingKey = i.key;
-      if (settingKey.equals("custom_font_path")) {
-        View row =
-            injectInfoRow(
-                infl,
-                parent,
-                ctx,
-                i.label,
-                i.description,
-                true,
-                null,
-                v -> {
-                  Activity host = resolveActivity(ctx);
-                  if (host == null) return;
-                  Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                  intent.addCategory(Intent.CATEGORY_OPENABLE);
-                  intent.setType("*/*");
-                  String[] mimeTypes = {
-                    "font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf"
-                  };
-                  intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                  host.startActivityForResult(intent, PICK_FONT_CODE);
-                });
-        if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+      if (i.key.equals("custom_font_path")) {
+        injectFontPickerRow(infl, parent, ctx, i);
         return;
       }
 
@@ -925,56 +959,73 @@ public class SettingsUIInjector implements BaseHook {
       Reflect.callMethod(row, currentCfg.settings.methodSetChecked, isEnabled);
       Reflect.callMethod(row, currentCfg.settings.methodSetDividerVisible, true);
 
-      Runnable updateUI =
-          () -> {
-            if (i.disabledWhenEnabledKey != null) {
-              boolean isDisabled = SettingsStore.get(i.disabledWhenEnabledKey, false);
-              row.setAlpha(isDisabled ? 0.5f : 1.0f);
-              if (isDisabled) {
-                Reflect.callMethod(row, currentCfg.settings.methodSetChecked, false);
-                if (SettingsStore.get(settingKey, false)) {
-                  SettingsStore.save(settingKey, false);
-                  for (KnotConfig.Item itm : Main.options.items) {
-                    if (itm.key.equals(settingKey)) {
-                      itm.enabled = false;
-                      break;
-                    }
-                  }
-                }
-              }
-            }
-          };
+      Runnable updateUI = () -> applyItemDisabledState(row, i, currentCfg);
       uiUpdateCallbacks.add(updateUI);
       updateUI.run();
 
-      row.setOnClickListener(
-          v -> {
-            if (i.disabledWhenEnabledKey != null
-                && SettingsStore.get(i.disabledWhenEnabledKey, false)) {
-              Reflect.callMethod(v, currentCfg.settings.methodSetChecked, false);
-              return;
-            }
-            boolean newState = !SettingsStore.get(settingKey, i.enabled);
-            Reflect.callMethod(v, currentCfg.settings.methodSetChecked, newState);
-            for (KnotConfig.Item itm : Main.options.items) {
-              if (itm.key.equals(settingKey)) {
-                itm.enabled = newState;
-                break;
-              }
-            }
-            SettingsStore.save(settingKey, newState);
-
-            for (Runnable r : uiUpdateCallbacks) {
-              r.run();
-            }
-
-            pendingRestart = true;
-            cachedSearchView = null;
-          });
+      row.setOnClickListener(v -> toggleItem(v, i, currentCfg));
       row.setTag((i.label + " " + i.description).toLowerCase());
       parent.addView(row);
     } catch (Throwable ignored) {
     }
+  }
+
+  private void injectFontPickerRow(
+      LayoutInflater infl, LinearLayout parent, Context ctx, KnotConfig.Item i) {
+    View row =
+        injectInfoRow(
+            infl, parent, ctx, i.label, i.description, true, null, v -> openFontPicker(ctx));
+    if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+  }
+
+  private void openFontPicker(Context ctx) {
+    Activity host = resolveActivity(ctx);
+    if (host == null) return;
+    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+    intent.addCategory(Intent.CATEGORY_OPENABLE);
+    intent.setType("*/*");
+    String[] mimeTypes = {
+      "font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf"
+    };
+    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+    pickerActive = true;
+    host.startActivityForResult(intent, PICK_FONT_CODE);
+  }
+
+  private void applyItemDisabledState(View row, KnotConfig.Item i, LineVersion.Config currentCfg) {
+    if (i.disabledWhenEnabledKey == null) return;
+    boolean isDisabled = SettingsStore.get(i.disabledWhenEnabledKey, false);
+    row.setAlpha(isDisabled ? 0.5f : 1.0f);
+    if (!isDisabled) return;
+
+    Reflect.callMethod(row, currentCfg.settings.methodSetChecked, false);
+    if (!SettingsStore.get(i.key, false)) return;
+    SettingsStore.save(i.key, false);
+    for (KnotConfig.Item itm : Main.options.items) {
+      if (itm.key.equals(i.key)) {
+        itm.enabled = false;
+        break;
+      }
+    }
+  }
+
+  private void toggleItem(View v, KnotConfig.Item i, LineVersion.Config currentCfg) {
+    if (i.disabledWhenEnabledKey != null && SettingsStore.get(i.disabledWhenEnabledKey, false)) {
+      Reflect.callMethod(v, currentCfg.settings.methodSetChecked, false);
+      return;
+    }
+    boolean newState = !SettingsStore.get(i.key, i.enabled);
+    Reflect.callMethod(v, currentCfg.settings.methodSetChecked, newState);
+    for (KnotConfig.Item itm : Main.options.items) {
+      if (itm.key.equals(i.key)) {
+        itm.enabled = newState;
+        break;
+      }
+    }
+    SettingsStore.save(i.key, newState);
+    for (Runnable r : uiUpdateCallbacks) r.run();
+    pendingRestart = true;
+    cachedSearchView = null;
   }
 
   private void injectCategoryRow(
@@ -1196,6 +1247,7 @@ public class SettingsUIInjector implements BaseHook {
             } catch (Throwable ignored) {
             }
 
+            pickerActive = true;
             host.startActivityForResult(intent, PICK_RESTORE_DB_CODE);
           });
     } catch (Throwable ignored) {
@@ -1318,6 +1370,35 @@ public class SettingsUIInjector implements BaseHook {
     root.setBackgroundColor(bg);
     root.setPadding(0, 0, 0, (int) (64 * density));
 
+    root.addView(buildAboutHero(ctx));
+
+    for (String[] section : CONTRIBUTOR_SECTIONS) {
+      injectSectionHeader(infl, root, section[0]);
+      for (int i = 1; i < section.length; i++) {
+        injectContributorRow(infl, root, ctx, section[i]);
+      }
+    }
+
+    injectAboutLinks(infl, root, ctx);
+
+    TextView disclaimer = new TextView(ctx);
+    disclaimer.setText(ModuleStrings.ABOUT_DISCLAIMER);
+    disclaimer.setTextSize(12);
+    disclaimer.setTextColor(LineTheme.secondaryTextColor(ctx));
+    disclaimer.setGravity(Gravity.CENTER_HORIZONTAL);
+    LinearLayout.LayoutParams discLp = new LinearLayout.LayoutParams(-1, -2);
+    discLp.topMargin = (int) (28 * density);
+    discLp.leftMargin = (int) (24 * density);
+    discLp.rightMargin = (int) (24 * density);
+    disclaimer.setLayoutParams(discLp);
+    root.addView(disclaimer);
+
+    scroller.addView(root);
+    return scroller;
+  }
+
+  private LinearLayout buildAboutHero(Context ctx) {
+    float density = ctx.getResources().getDisplayMetrics().density;
     LinearLayout hero = new LinearLayout(ctx);
     hero.setOrientation(LinearLayout.VERTICAL);
     hero.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -1367,15 +1448,10 @@ public class SettingsUIInjector implements BaseHook {
     tagline.setLayoutParams(tagLp);
     hero.addView(tagline);
 
-    root.addView(hero);
+    return hero;
+  }
 
-    for (String[] section : CONTRIBUTOR_SECTIONS) {
-      injectSectionHeader(infl, root, section[0]);
-      for (int i = 1; i < section.length; i++) {
-        injectContributorRow(infl, root, ctx, section[i]);
-      }
-    }
-
+  private void injectAboutLinks(LayoutInflater infl, LinearLayout root, Context ctx) {
     injectSectionHeader(infl, root, ModuleStrings.ABOUT_SEC_LINKS);
     injectInfoRow(
         infl,
@@ -1395,21 +1471,6 @@ public class SettingsUIInjector implements BaseHook {
         true,
         null,
         v -> openUrl(ctx, "https://github.com/2b-zipper/Knot/blob/main/LICENSE"));
-
-    TextView disclaimer = new TextView(ctx);
-    disclaimer.setText(ModuleStrings.ABOUT_DISCLAIMER);
-    disclaimer.setTextSize(12);
-    disclaimer.setTextColor(LineTheme.secondaryTextColor(ctx));
-    disclaimer.setGravity(Gravity.CENTER_HORIZONTAL);
-    LinearLayout.LayoutParams discLp = new LinearLayout.LayoutParams(-1, -2);
-    discLp.topMargin = (int) (28 * density);
-    discLp.leftMargin = (int) (24 * density);
-    discLp.rightMargin = (int) (24 * density);
-    disclaimer.setLayoutParams(discLp);
-    root.addView(disclaimer);
-
-    scroller.addView(root);
-    return scroller;
   }
 
   private static String[] contributorHandles() {
@@ -1511,6 +1572,7 @@ public class SettingsUIInjector implements BaseHook {
     if (host == null) return;
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
     intent.addFlags(3);
+    pickerActive = true;
     host.startActivityForResult(intent, PICK_DIRECTORY_CODE);
   }
 
@@ -1552,12 +1614,7 @@ public class SettingsUIInjector implements BaseHook {
   }
 
   private void setupSearchBox(
-      Context ctx,
-      boolean isDark,
-      LinearLayout root,
-      FrameLayout itemHost,
-      Object toggleType,
-      Object statusEnum) {
+      Context ctx, LinearLayout root, FrameLayout itemHost, Object toggleType, Object statusEnum) {
     float density = ctx.getResources().getDisplayMetrics().density;
     RelativeLayout searchContainer = new RelativeLayout(ctx);
     LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(-1, -2);
@@ -1615,32 +1672,8 @@ public class SettingsUIInjector implements BaseHook {
           @Override
           public void onTextChanged(CharSequence s, int start, int before, int count) {
             String query = s.toString().toLowerCase();
-            boolean isSearching = query.length() > 0;
-            clearButton.setVisibility(isSearching ? View.VISIBLE : View.GONE);
-
-            if (isSearching) {
-              if (currentActiveCategory == null) {
-                if (cachedSearchView == null) {
-                  cachedSearchView = renderSettingsItems(ctx, toggleType, statusEnum, null, true);
-                }
-                if (cachedItemHost.getChildAt(0) != cachedSearchView) {
-                  cachedItemHost.removeAllViews();
-                  cachedItemHost.addView(cachedSearchView);
-                }
-                filterSettings(cachedSearchView, query);
-              } else {
-                filterSettings(cachedItemHost.getChildAt(0), query);
-              }
-            } else {
-              if (cachedItemHost.getChildAt(0) == cachedSearchView) {
-                View normalView =
-                    renderSettingsItems(ctx, toggleType, statusEnum, currentActiveCategory, false);
-                cachedItemHost.removeAllViews();
-                cachedItemHost.addView(normalView);
-              } else {
-                filterSettings(cachedItemHost.getChildAt(0), "");
-              }
-            }
+            clearButton.setVisibility(query.length() > 0 ? View.VISIBLE : View.GONE);
+            applySearchQuery(ctx, query, toggleType, statusEnum);
           }
 
           @Override
@@ -1648,22 +1681,50 @@ public class SettingsUIInjector implements BaseHook {
         });
 
     onSettingsReloadRequest =
+        () -> reloadSettingsList(ctx, itemHost, searchBox, toggleType, statusEnum);
+  }
+
+  private void applySearchQuery(Context ctx, String query, Object toggleType, Object statusEnum) {
+    if (query.length() > 0) {
+      if (currentActiveCategory == null) {
+        if (cachedSearchView == null) {
+          cachedSearchView = renderSettingsItems(ctx, toggleType, statusEnum, null, true);
+        }
+        if (cachedItemHost.getChildAt(0) != cachedSearchView) {
+          cachedItemHost.removeAllViews();
+          cachedItemHost.addView(cachedSearchView);
+        }
+        filterSettings(cachedSearchView, query);
+      } else {
+        filterSettings(cachedItemHost.getChildAt(0), query);
+      }
+    } else {
+      if (cachedItemHost.getChildAt(0) == cachedSearchView) {
+        View normalView =
+            renderSettingsItems(ctx, toggleType, statusEnum, currentActiveCategory, false);
+        cachedItemHost.removeAllViews();
+        cachedItemHost.addView(normalView);
+      } else {
+        filterSettings(cachedItemHost.getChildAt(0), "");
+      }
+    }
+  }
+
+  private void reloadSettingsList(
+      Context ctx, FrameLayout itemHost, EditText searchBox, Object toggleType, Object statusEnum) {
+    Activity a = resolveActivity(ctx);
+    if (a == null) return;
+    a.runOnUiThread(
         () -> {
-          Activity a = resolveActivity(ctx);
-          if (a != null)
-            a.runOnUiThread(
-                () -> {
-                  cachedSearchView = null;
-                  itemHost.removeAllViews();
-                  String query = searchBox.getText().toString().toLowerCase();
-                  boolean isSearching = query.length() > 0;
-                  View newList =
-                      renderSettingsItems(
-                          ctx, toggleType, statusEnum, currentActiveCategory, isSearching);
-                  itemHost.addView(newList);
-                  filterSettings(newList, query);
-                });
-        };
+          cachedSearchView = null;
+          itemHost.removeAllViews();
+          String query = searchBox.getText().toString().toLowerCase();
+          boolean isSearching = query.length() > 0;
+          View newList =
+              renderSettingsItems(ctx, toggleType, statusEnum, currentActiveCategory, isSearching);
+          itemHost.addView(newList);
+          filterSettings(newList, query);
+        });
   }
 
   private void applyNativeHighlight(View v, Context ctx) {
