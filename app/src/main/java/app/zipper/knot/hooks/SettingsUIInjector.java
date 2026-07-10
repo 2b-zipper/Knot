@@ -82,7 +82,6 @@ public class SettingsUIInjector implements BaseHook {
   private volatile Dialog settingsDialog = null;
   private volatile Activity dialogHost = null;
   private volatile boolean pendingRestart = false;
-  private volatile boolean pickerActive = false;
   private volatile KnotConfig.Category currentActiveCategory = null;
   private volatile boolean aboutPageActive = false;
   private volatile FrameLayout cachedPageContainer = null;
@@ -160,8 +159,8 @@ public class SettingsUIInjector implements BaseHook {
         .hook(Reflect.findMethodExact(android.app.Activity.class, "onDestroy"))
         .intercept(this::onHostDestroy);
     Knot.module
-        .hook(Reflect.findMethodExact(android.app.Activity.class, "onStop"))
-        .intercept(this::onHostStop);
+        .hook(Reflect.findMethodExact(android.app.Activity.class, "onResume"))
+        .intercept(this::onHostResume);
   }
 
   private void dismissSettingsImmediately() {
@@ -378,11 +377,6 @@ public class SettingsUIInjector implements BaseHook {
 
   private Object handleActivityResult(XposedInterface.Chain chain) throws Throwable {
     int requestCode = (int) chain.getArg(0);
-    if (requestCode == PICK_DIRECTORY_CODE
-        || requestCode == PICK_FONT_CODE
-        || requestCode == PICK_RESTORE_DB_CODE) {
-      pickerActive = false;
-    }
     if (requestCode == PICK_DIRECTORY_CODE) {
       handleDirectoryPicked(chain);
       return null;
@@ -496,8 +490,8 @@ public class SettingsUIInjector implements BaseHook {
     return chain.proceed();
   }
 
-  private Object onHostStop(XposedInterface.Chain chain) throws Throwable {
-    if (chain.getThisObject() == dialogHost && !pickerActive) {
+  private Object onHostResume(XposedInterface.Chain chain) throws Throwable {
+    if (dialogHost != null && chain.getThisObject() != dialogHost) {
       dismissSettingsImmediately();
     }
     return chain.proceed();
@@ -988,7 +982,6 @@ public class SettingsUIInjector implements BaseHook {
       "font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf"
     };
     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-    pickerActive = true;
     host.startActivityForResult(intent, PICK_FONT_CODE);
   }
 
@@ -1247,7 +1240,6 @@ public class SettingsUIInjector implements BaseHook {
             } catch (Throwable ignored) {
             }
 
-            pickerActive = true;
             host.startActivityForResult(intent, PICK_RESTORE_DB_CODE);
           });
     } catch (Throwable ignored) {
@@ -1572,7 +1564,6 @@ public class SettingsUIInjector implements BaseHook {
     if (host == null) return;
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
     intent.addFlags(3);
-    pickerActive = true;
     host.startActivityForResult(intent, PICK_DIRECTORY_CODE);
   }
 
