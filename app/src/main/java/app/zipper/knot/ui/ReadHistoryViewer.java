@@ -168,36 +168,8 @@ public class ReadHistoryViewer {
     card.addView(contentText);
 
     JSONObject readers = msg.optJSONObject("r");
-    if (readers != null) {
-      java.util.Iterator<String> rKeys = readers.keys();
-      while (rKeys.hasNext()) {
-        String rMid = rKeys.next();
-        JSONObject reader = readers.optJSONObject(rMid);
-        if (reader == null) continue;
-
-        String readerName = reader.optString("n", "Unknown");
-        String readTime = reader.optString("t", "");
-
-        LinearLayout detailRow = new LinearLayout(activity);
-        detailRow.setOrientation(LinearLayout.HORIZONTAL);
-        detailRow.setGravity(Gravity.CENTER_VERTICAL);
-        detailRow.setPadding(0, 5, 0, 5);
-
-        TextView nameText = new TextView(activity);
-        nameText.setText(readerName);
-        nameText.setTextColor(LineTheme.secondaryTextColor(activity));
-        nameText.setTextSize(15);
-        detailRow.addView(nameText);
-
-        TextView timeText = new TextView(activity);
-        timeText.setText(readTime);
-        timeText.setTextSize(12);
-        timeText.setTextColor(LineTheme.secondaryTextColor(activity));
-        timeText.setPadding(20, 0, 0, 0);
-        detailRow.addView(timeText);
-
-        card.addView(detailRow);
-      }
+    if (readers != null && readers.length() > 0) {
+      addReaderList(activity, card, readers);
     }
 
     card.setOnClickListener(
@@ -212,6 +184,80 @@ public class ReadHistoryViewer {
     View margin = new View(activity);
     container.addView(
         margin, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 15));
+  }
+
+  private static final int READER_COLLAPSE_THRESHOLD = 5;
+
+  private static void addReaderList(Activity activity, LinearLayout card, JSONObject readers) {
+    java.util.List<View> overflow = new java.util.ArrayList<>();
+
+    int index = 0;
+    java.util.Iterator<String> rKeys = readers.keys();
+    while (rKeys.hasNext()) {
+      JSONObject reader = readers.optJSONObject(rKeys.next());
+      if (reader == null) continue;
+      View row = buildReaderRow(activity, reader);
+      if (index >= READER_COLLAPSE_THRESHOLD) {
+        row.setVisibility(View.GONE);
+        overflow.add(row);
+      }
+      card.addView(row);
+      index++;
+    }
+
+    if (!overflow.isEmpty()) {
+      addReaderToggle(activity, card, overflow);
+    }
+  }
+
+  private static void addReaderToggle(
+      Activity activity, LinearLayout card, java.util.List<View> overflow) {
+    final String showAll =
+        String.format(
+            java.util.Locale.getDefault(), ModuleStrings.READ_HISTORY_SHOW_ALL, overflow.size());
+
+    TextView toggle = new TextView(activity);
+    toggle.setText(showAll);
+    toggle.setTextSize(13);
+    toggle.setTypeface(null, android.graphics.Typeface.BOLD);
+    toggle.setTextColor(LineTheme.secondaryTextColor(activity));
+    toggle.setPadding(0, 8, 0, 4);
+
+    final boolean[] expanded = {false};
+    toggle.setOnClickListener(
+        v -> {
+          expanded[0] = !expanded[0];
+          for (View row : overflow) {
+            row.setVisibility(expanded[0] ? View.VISIBLE : View.GONE);
+          }
+          toggle.setText(expanded[0] ? ModuleStrings.READ_HISTORY_COLLAPSE : showAll);
+        });
+    card.addView(toggle);
+  }
+
+  private static View buildReaderRow(Activity activity, JSONObject reader) {
+    String readerName = reader.optString("n", "Unknown");
+    String readTime = reader.optString("t", "");
+
+    LinearLayout detailRow = new LinearLayout(activity);
+    detailRow.setOrientation(LinearLayout.HORIZONTAL);
+    detailRow.setGravity(Gravity.CENTER_VERTICAL);
+    detailRow.setPadding(0, 5, 0, 5);
+
+    TextView nameText = new TextView(activity);
+    nameText.setText(readerName);
+    nameText.setTextColor(LineTheme.secondaryTextColor(activity));
+    nameText.setTextSize(15);
+    detailRow.addView(nameText);
+
+    TextView timeText = new TextView(activity);
+    timeText.setText(readTime);
+    timeText.setTextSize(12);
+    timeText.setTextColor(LineTheme.secondaryTextColor(activity));
+    timeText.setPadding(20, 0, 0, 0);
+    detailRow.addView(timeText);
+
+    return detailRow;
   }
 
   private static void clearChatHistory(String chatId) {

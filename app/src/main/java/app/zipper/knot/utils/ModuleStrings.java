@@ -68,6 +68,8 @@ public class ModuleStrings {
   public static final String READ_HISTORY_DELETE_CONFIRM_TITLE = "履歴の削除";
   public static final String READ_HISTORY_DELETE_CONFIRM_MSG = "このチャットの既読履歴をすべて削除しますか？";
   public static final String READ_HISTORY_UNKNOWN_MSG = "(メディアまたは不明なメッセージ)";
+  public static final String READ_HISTORY_SHOW_ALL = "残り%d人を表示 ▼";
+  public static final String READ_HISTORY_COLLAPSE = "折りたたむ ▲";
 
   public static final String MSG_STICKER = "[スタンプ]";
   public static final String MSG_IMAGE = "[画像]";
