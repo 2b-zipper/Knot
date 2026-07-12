@@ -8,8 +8,6 @@
 
 ![Banner](images/banner.png)
 
----
-
 Knotは、Android版LINEのユーザー体験を向上させるために設計された開発中のXposedモジュールです。
 
 
