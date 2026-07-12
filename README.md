@@ -1,36 +1,34 @@
-<div align="center">
-  <h1>
-    <img src="images/knot2.png" width="45" height="45" alt="Knot Logo" style="vertical-align: middle;">
-    Knot
-  </h1>
-  <p>A brand-new Xposed module for LINE</p>
+# Knot - Xposed module for LINE
+<p>
+  <a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Knot?sort=semver&style=flat&label=Release&color=2ea44f" alt="Release"></a>
+  <a href="https://github.com/2b-zipper/Knot/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Knot/total?style=flat&label=Downloads&color=2ea44f" alt="Downloads"></a>
+  <a href="https://github.com/2b-zipper/Knot/stargazers"><img src="https://img.shields.io/github/stars/2b-zipper/Knot?style=flat&label=Stars&color=2ea44f" alt="Stars"></a>
+  <a href="https://github.com/2b-zipper/Knot/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-2ea44f?style=flat" alt="License"></a>
+</p>
 
-  <p>
-    <a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Knot?sort=semver&style=flat&label=Release&color=2ea44f" alt="Release"></a>
-    <a href="https://github.com/2b-zipper/Knot/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Knot/total?style=flat&label=Downloads&color=2ea44f" alt="Downloads"></a>
-    <a href="https://github.com/2b-zipper/Knot/stargazers"><img src="https://img.shields.io/github/stars/2b-zipper/Knot?style=flat&label=Stars&color=2ea44f" alt="Stars"></a>
-    <a href="https://github.com/2b-zipper/Knot/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-2ea44f?style=flat" alt="License"></a>
-  </p>
-</div>
+![Banner](images/banner.png)
 
 ---
 
-**Knot** は、Android版LINEのユーザー体験を向上させるために設計された開発中のXposedモジュールです。
+Knotは、Android版LINEのユーザー体験を向上させるために設計された開発中のXposedモジュールです。
 
 
-> ⚠️このモジュールは個人が学習目的で開発したものであり、使用は自己責任で行ってください。LINEの利用規約に抵触する可能性があり、このモジュールを使用したことによる不利益について、開発者は一切の責任を負いません。
+> ⚠️このモジュールは個人が学習目的で開発したものであり、LINEヤフー株式会社とは一切関係ありません。本モジュールの使用はLINEの利用規約に抵触する可能性があり、使用に起因するアカウントの制限、凍結、データ消失などのいかなる不利益や損害についても、開発者は一切の責任を負いません。自己責任でご使用ください。
 
 **対応LINEバージョン**: 26.8.0, 26.9.0, 26.10.0
 
 ## スクリーンショット
 
-| 設定画面 | チャット画面 | カスタムフォント |
-| :---: | :---: | :---: |
-| ![Settings](images/sc_settings.png) | ![Talk](images/sc_talk.png) | ![Custom Font](images/sc_customfont.png) |
-
-| プラスメニュー | 既読履歴 | 送信取り消し防止 |
-| :---: | :---: | :---: |
-| ![Plus Menu](images/sc_plusmenu.png) | ![Read History](images/sc_readhistory.png) | ![Unsend](images/sc_unsend.png) |
+<p float="left">
+  <img src="images/sc_settings.png" width="200" />
+  <img src="images/sc_plusmenu.png" width="200" />
+  <img src="images/sc_talk.png" width="200" />
+</p>
+<p float="left">
+  <img src="images/sc_readhistory.png" width="200" />
+  <img src="images/sc_unsend.png" width="200" />
+  <img src="images/sc_customfont.png" width="200" />
+</p>
 
 ## 主な機能
 
@@ -55,9 +53,11 @@
 
 ## インストール方法
 
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.zipper.knot%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2F2b-zipper%2Fknot%22%2C%22author%22%3A%222b-zipper%22%2C%22name%22%3A%22Knot%22%2C%22overrideSource%22%3A%22GitHub%22%7D"><img src="images/badge_obtainium.png" height="52" alt="Get it on Obtainium"></a>
-&nbsp;&nbsp;
-<a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="images/badge_github.png" height="52" alt="Get it on GitHub"></a>
+<p>
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.zipper.knot%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2F2b-zipper%2Fknot%22%2C%22author%22%3A%222b-zipper%22%2C%22name%22%3A%22Knot%22%2C%22overrideSource%22%3A%22GitHub%22%7D"><img src="images/badge_obtainium.png" height="75" alt="Get it on Obtainium"></a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="images/badge_github.png" height="75" alt="Get it on GitHub"></a>
+</p>
 
 ### Root環境
 
