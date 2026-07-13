@@ -83,7 +83,7 @@ public class Version26101 {
     v.readReceipt.operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
     v.readReceipt.longPressReadClass = "ou1";
 
-    v.unsend.notifiedReadMessageHandlerClass = "o58.c2";
+    v.unsend.notifiedReadMessageHandlerClass = "o58.b2";
     v.unsend.notifiedSendReactionHandlerClass = "o58.m2";
     v.unsend.notifiedDestroyMessageHandlerClass = "o58.b1";
     v.unsend.chatMessageViewHolderClass = "rh1.f";
@@ -320,7 +320,7 @@ public class Version26101 {
     v.chat.searchPresenterKeywordSubjectField = "t";
     v.chat.searchResultWrapperResultOptionalField = "c";
     v.chat.searchResultCountField = "d";
-    v.chat.searchResultTitleViewHolderClass = "lo1.h";
+    v.chat.searchResultTitleViewHolderClass = "lo1.i";
     v.chat.searchResultTitleBindMethod = "F0";
     v.chat.searchResultTitleBindingField = "x";
     v.chat.searchResultTitleTextViewField = "b";
