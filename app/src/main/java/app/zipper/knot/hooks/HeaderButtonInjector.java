@@ -18,6 +18,8 @@ import java.lang.reflect.Proxy;
 public class HeaderButtonInjector implements BaseHook {
 
   private static final ThreadLocal<Boolean> sCreating = new ThreadLocal<>();
+  private static final java.util.WeakHashMap<Object, Object> sHelperToControllerMap =
+      new java.util.WeakHashMap<>();
   private Class<?> headerInterfaceAClass;
   private ClassLoader classLoader;
 
@@ -91,22 +93,28 @@ public class HeaderButtonInjector implements BaseHook {
                 return result;
               });
 
-      Knot.module
-          .hook(
-              Reflect.findMethodExact(
-                  headerControllerClass,
-                  config.main.methodSetHeaderButtonVisibility,
-                  headerButtonTypeEnum,
-                  int.class))
-          .intercept(
-              chain -> {
-                Object result = chain.proceed();
-                if (SettingsStore.get("record_read_history", false)
-                    && !Boolean.TRUE.equals(sCreating.get())) {
-                  injectButton(chain.getThisObject(), slotFarLeft, config);
-                }
-                return result;
-              });
+      try {
+        Knot.module
+            .hook(
+                Reflect.findMethodExact(
+                    headerHelperClass,
+                    config.main.methodSetHeaderButtonVisibility,
+                    headerButtonTypeEnum,
+                    int.class))
+            .intercept(
+                chain -> {
+                  Object result = chain.proceed();
+                  if (SettingsStore.get("record_read_history", false)
+                      && !Boolean.TRUE.equals(sCreating.get())) {
+                    Object controller = sHelperToControllerMap.get(chain.getThisObject());
+                    if (controller != null) {
+                      injectButton(controller, slotFarLeft, config);
+                    }
+                  }
+                  return result;
+                });
+      } catch (Throwable ignored) {
+      }
 
     } catch (Throwable t) {
       Knot.log("Knot: init error: " + t.getMessage());
@@ -157,10 +165,13 @@ public class HeaderButtonInjector implements BaseHook {
   }
 
   private void injectButton(Object controller, Object slot, LineVersion.Config config) {
+    if (Boolean.TRUE.equals(sCreating.get())) return;
     if (isInEditMode(controller, config)) return;
     try {
+      sCreating.set(Boolean.TRUE);
       Object headerHelper = Reflect.getObjectField(controller, config.main.fieldHeaderHelper);
       if (headerHelper == null) return;
+      sHelperToControllerMap.put(headerHelper, controller);
 
       final Context context =
           (Context) Reflect.getObjectField(controller, config.main.fieldChatActivity);
@@ -199,7 +210,6 @@ public class HeaderButtonInjector implements BaseHook {
       if (headerButton == null) {
         // LINE cleared the button; re-create it via methodSetHeaderButton with a no-op proxy
         try {
-          sCreating.set(Boolean.TRUE);
           Object noopProxy =
               Proxy.newProxyInstance(
                   classLoader,
@@ -221,8 +231,6 @@ public class HeaderButtonInjector implements BaseHook {
               Reflect.callMethod(headerHelper, config.main.methodGetHeaderButtonView, slot);
         } catch (Throwable t) {
           Knot.log("Knot: button recreate error: " + t.getMessage());
-        } finally {
-          sCreating.remove();
         }
       }
 
@@ -291,6 +299,8 @@ public class HeaderButtonInjector implements BaseHook {
 
     } catch (Throwable t) {
       Knot.log("Knot: injection error: " + t.getMessage());
+    } finally {
+      sCreating.remove();
     }
   }
 }

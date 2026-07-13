@@ -253,23 +253,6 @@ public class FontUnlockHook implements BaseHook {
                 cfg.font.fontRequestExecutorClass,
                 cfg.font.fontCallbackWithHandlerClass))
         .intercept(chain -> customTypeface);
-
-    Knot.module
-        .hook(
-            Reflect.findMethodExact(
-                cfg.font.fontManagerClass,
-                lpparam.classLoader,
-                cfg.font.methodInitializeFont,
-                String.class,
-                android.content.Context.class,
-                java.util.List.class,
-                int.class))
-        .intercept(
-            chain -> {
-              Object res = chain.proceed();
-              if (res != null) Reflect.setObjectField(res, cfg.font.fieldTypeface, customTypeface);
-              return res;
-            });
   }
 
   private void initTypeface() {

@@ -70,51 +70,6 @@ public class FcmFixHook implements BaseHook {
     return null;
   }
 
-  private static Object readFieldCandidate(Object target, String... fieldNames)
-      throws NoSuchFieldException, IllegalAccessException {
-    for (String fieldName : fieldNames) {
-      try {
-        return Reflect.getObjectField(target, fieldName);
-      } catch (Throwable ignored) {
-      }
-    }
-
-    for (String fieldName : fieldNames) {
-      try {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(target);
-      } catch (Throwable ignored) {
-      }
-    }
-
-    throw new NoSuchFieldException(target.getClass().getName());
-  }
-
-  private static void writeLongFieldCandidate(Object target, long value, String... fieldNames)
-      throws NoSuchFieldException {
-    for (String fieldName : fieldNames) {
-      try {
-        Reflect.setLongField(target, fieldName, value);
-        return;
-      } catch (Throwable ignored) {
-      }
-    }
-    throw new NoSuchFieldException(target.getClass().getName());
-  }
-
-  private static void writeBooleanFieldCandidate(Object target, boolean value, String... fieldNames)
-      throws NoSuchFieldException {
-    for (String fieldName : fieldNames) {
-      try {
-        Reflect.setBooleanField(target, fieldName, value);
-        return;
-      } catch (Throwable ignored) {
-      }
-    }
-    throw new NoSuchFieldException(target.getClass().getName());
-  }
-
   @SuppressWarnings("deprecation")
   private static Object readBundleValue(Bundle bundle, String key) {
     return bundle.get(key);
@@ -197,16 +152,14 @@ public class FcmFixHook implements BaseHook {
   private static void suppressLegyBackgroundDisconnect(
       Object streamingManager, LineVersion.Config.NotificationFix fixCfg, Object backgroundState)
       throws Throwable {
-    Object stateField = readFieldCandidate(streamingManager, fixCfg.legyStateFieldCandidates);
+    Object stateField = Reflect.getObjectField(streamingManager, fixCfg.legyStateField);
     Reflect.callMethod(stateField, "setValue", backgroundState);
-    writeLongFieldCandidate(streamingManager, Long.MAX_VALUE, fixCfg.legyTimeoutFieldCandidates);
-    writeBooleanFieldCandidate(
-        streamingManager, false, fixCfg.legyBackgroundWorkerFlagFieldCandidates);
+    Reflect.setLongField(streamingManager, fixCfg.legyTimeoutField, Long.MAX_VALUE);
+    Reflect.setBooleanField(streamingManager, fixCfg.legyBackgroundWorkerFlagField, false);
 
-    Handler handler =
-        (Handler) readFieldCandidate(streamingManager, fixCfg.legyHandlerFieldCandidates);
+    Handler handler = (Handler) Reflect.getObjectField(streamingManager, fixCfg.legyHandlerField);
     Runnable closeRunnable =
-        (Runnable) readFieldCandidate(streamingManager, fixCfg.legyRunnableFieldCandidates);
+        (Runnable) Reflect.getObjectField(streamingManager, fixCfg.legyRunnableField);
     handler.removeCallbacks(closeRunnable);
   }
 

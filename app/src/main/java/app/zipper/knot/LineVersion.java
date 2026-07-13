@@ -350,10 +350,8 @@ public class LineVersion {
       public String fontCallbackClass = "";
       public String fontInjectedClass = "";
       public String methodGetFontConfig = "a";
-      public String methodInitializeFont = "b";
       public String methodGetFontSettings = "e";
       public String methodOnFontChanged = "b";
-      public String fieldTypeface = "";
       public String fontRequestExecutorClass = "";
       public String fontCallbackWithHandlerClass = "";
     }
@@ -423,11 +421,11 @@ public class LineVersion {
       public String legyLifecycleEventClass = "";
       public String legyBackgroundStateField = "";
       public String legyDisconnectRunnableClass = "";
-      public String[] legyStateFieldCandidates = new String[0];
-      public String[] legyTimeoutFieldCandidates = new String[0];
-      public String[] legyBackgroundWorkerFlagFieldCandidates = new String[0];
-      public String[] legyHandlerFieldCandidates = new String[0];
-      public String[] legyRunnableFieldCandidates = new String[0];
+      public String legyStateField = "";
+      public String legyTimeoutField = "";
+      public String legyBackgroundWorkerFlagField = "";
+      public String legyHandlerField = "";
+      public String legyRunnableField = "";
     }
 
     public static class ForegroundKeepAlive {
@@ -476,6 +474,7 @@ public class LineVersion {
     VERSION_TABLE.put("26.8.0", app.zipper.knot.versions.Version2680.create());
     VERSION_TABLE.put("26.9.0", app.zipper.knot.versions.Version2690.create());
     VERSION_TABLE.put("26.10.0", app.zipper.knot.versions.Version26100.create());
+    VERSION_TABLE.put("26.10.1", app.zipper.knot.versions.Version26101.create());
   }
 
   private static volatile Config cachedConfig = null;

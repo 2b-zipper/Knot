@@ -171,10 +171,8 @@ public class Version26100 {
     v.font.fontCallbackClass = "e7.m$c";
     v.font.fontInjectedClass = "zg4.k";
     v.font.methodGetFontConfig = "a";
-    v.font.methodInitializeFont = "b";
     v.font.methodGetFontSettings = "c";
     v.font.methodOnFontChanged = "b";
-    v.font.fieldTypeface = "f115305a";
     v.font.fontRequestExecutorClass = "e7.o";
     v.font.fontCallbackWithHandlerClass = "e7.c";
 
@@ -239,11 +237,11 @@ public class Version26100 {
     v.notificationFix.legyLifecycleEventClass = "androidx.lifecycle.e0$a";
     v.notificationFix.legyBackgroundStateField = "BACKGROUND";
     v.notificationFix.legyDisconnectRunnableClass = "y40.j";
-    v.notificationFix.legyStateFieldCandidates = new String[] {"q", "f59298q"};
-    v.notificationFix.legyTimeoutFieldCandidates = new String[] {"s", "f59300s"};
-    v.notificationFix.legyBackgroundWorkerFlagFieldCandidates = new String[] {"u", "f59302u"};
-    v.notificationFix.legyHandlerFieldCandidates = new String[] {"c", "f59284c"};
-    v.notificationFix.legyRunnableFieldCandidates = new String[] {"t", "f59301t"};
+    v.notificationFix.legyStateField = "q";
+    v.notificationFix.legyTimeoutField = "s";
+    v.notificationFix.legyBackgroundWorkerFlagField = "u";
+    v.notificationFix.legyHandlerField = "c";
+    v.notificationFix.legyRunnableField = "t";
 
     v.talkTabHeader.chatTabHeaderStateClass = "vu1.e";
     v.talkTabHeader.iconListStateField = "y";
