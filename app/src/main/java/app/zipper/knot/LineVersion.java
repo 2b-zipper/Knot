@@ -274,11 +274,15 @@ public class LineVersion {
 
     public static class Tabs {
       public String bottomNavigationBarTextViewClass = "";
-      public String resVoom = "";
-      public String resNews = "";
-      public String resMini = "";
-      public String resContainer = "";
-      public String resBtnText = "";
+      public String resVoom = "bnb_timeline";
+      public String resNews = "bnb_news";
+      public String resMini = "bnb_mini";
+      public String resContainer = "main_tab_container";
+      public String resBtnText = "bnb_button_text";
+      public String resCall = "bnb_call";
+      public String resCommerce = "bnb_commerce";
+      public String resCommerceTw = "bnb_commerce_tw";
+      public String resWallet = "bnb_wallet";
     }
 
     public static class Ads {

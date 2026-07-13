@@ -129,11 +129,6 @@ public class Version26100 {
 
     v.tabs.bottomNavigationBarTextViewClass =
         "jp.naver.line.android.activity.main.bottomnavigationbar.BottomNavigationBarTextView";
-    v.tabs.resVoom = "bnb_timeline";
-    v.tabs.resNews = "bnb_news";
-    v.tabs.resMini = "bnb_mini";
-    v.tabs.resContainer = "main_tab_container";
-    v.tabs.resBtnText = "bnb_button_text";
 
     v.ads.classAdSdkBase = "com.linecorp.line.ladsdk";
     v.ads.classAdMolinBase = "com.linecorp.line.admolin";

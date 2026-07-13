@@ -146,10 +146,14 @@ public class ModuleStrings {
       "ホームタブ上部（検索バーと友達リストの間）に表示されるLYP特典などのアコーディオン枠を非表示にします。";
   public static final String OPT_REMOVE_TAB_VOOM_LABEL = "VOOMタブを非表示";
   public static final String OPT_REMOVE_TAB_VOOM_DESC = "下部のVOOMタブを隠します。";
-  public static final String OPT_REMOVE_TAB_NEWS_LABEL = "ニュースタブを非表示";
-  public static final String OPT_REMOVE_TAB_NEWS_DESC = "下部のニュースタブを隠します。";
+  public static final String OPT_REMOVE_TAB_NEWS_LABEL = "ニュース/通話タブを非表示";
+  public static final String OPT_REMOVE_TAB_NEWS_DESC = "下部のニュース/通話タブを隠します。";
   public static final String OPT_REMOVE_TAB_MINI_LABEL = "MINIタブを非表示";
   public static final String OPT_REMOVE_TAB_MINI_DESC = "下部のMINIタブを隠します。";
+  public static final String OPT_REMOVE_TAB_COMMERCE_LABEL = "ショッピングタブを非表示";
+  public static final String OPT_REMOVE_TAB_COMMERCE_DESC = "下部のショッピングタブを隠します。";
+  public static final String OPT_REMOVE_TAB_WALLET_LABEL = "ウォレットタブを非表示";
+  public static final String OPT_REMOVE_TAB_WALLET_DESC = "下部のウォレットタブを隠します。";
   public static final String OPT_EXTEND_TAB_CLICK_AREA_LABEL = "タブのタップ範囲を拡張";
   public static final String OPT_EXTEND_TAB_CLICK_AREA_DESC = "下部タブの反応範囲を広げ、押しやすくします。";
   public static final String OPT_HIDE_TAB_TEXT_LABEL = "タブラベルを非表示";

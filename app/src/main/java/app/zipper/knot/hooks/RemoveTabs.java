@@ -27,10 +27,19 @@ public class RemoveTabs implements BaseHook {
 
               if (SettingsStore.get(config.removeTabVoom.key, config.removeTabVoom.enabled))
                 deactivateTab(host, c.tabs.resVoom);
-              if (SettingsStore.get(config.removeTabNews.key, config.removeTabNews.enabled))
+              if (SettingsStore.get(config.removeTabNews.key, config.removeTabNews.enabled)) {
                 deactivateTab(host, c.tabs.resNews);
+                deactivateTab(host, c.tabs.resCall);
+              }
               if (SettingsStore.get(config.removeTabMini.key, config.removeTabMini.enabled))
                 deactivateTab(host, c.tabs.resMini);
+              if (SettingsStore.get(
+                  config.removeTabCommerce.key, config.removeTabCommerce.enabled)) {
+                deactivateTab(host, c.tabs.resCommerce);
+                deactivateTab(host, c.tabs.resCommerceTw);
+              }
+              if (SettingsStore.get(config.removeTabWallet.key, config.removeTabWallet.enabled))
+                deactivateTab(host, c.tabs.resWallet);
               if (SettingsStore.get(
                   config.extendTabClickArea.key, config.extendTabClickArea.enabled))
                 expandInteractionArea(host);
