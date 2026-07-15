@@ -352,6 +352,12 @@ public class SearchByMemberHook implements BaseHook {
                 handleSearchResultWrapperCreated(chain, resultCls);
                 return result;
               });
+
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  config.chat.searchResultWrapperClass, classLoader, "equals", Object.class))
+          .intercept(chain -> Boolean.FALSE);
     } catch (Throwable t) {
       Knot.log("Knot: setupSearchResultWrapperHook error: " + t);
     }
