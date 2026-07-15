@@ -81,7 +81,7 @@ public class Version26110 {
     v.readReceipt.methodReadAll = "c";
     v.readReceipt.methodResolveReadTarget = "a";
     v.readReceipt.operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
-    v.readReceipt.longPressReadClass = "ou1";
+    v.readReceipt.longPressReadClass = "zv1";
 
     v.unsend.notifiedReadMessageHandlerClass = "e98.e2";
     v.unsend.notifiedSendReactionHandlerClass = "e98.p2";
@@ -227,7 +227,7 @@ public class Version26110 {
     v.foregroundKeepAlive.serviceClass = "androidx.work.impl.foreground.SystemForegroundService";
     v.notificationFix.legyStreamingStateClass = "com.linecorp.legy.streaming.h$a";
     v.notificationFix.legyStreamingLifecycleClass = "com.linecorp.legy.streaming.h$d";
-    v.notificationFix.legyStreamingLifecycleMethod = "a1";
+    v.notificationFix.legyStreamingLifecycleMethod = "e1";
     v.notificationFix.legyLifecycleOwnerClass = "androidx.lifecycle.u0";
     v.notificationFix.legyLifecycleEventClass = "androidx.lifecycle.e0$a";
     v.notificationFix.legyBackgroundStateField = "BACKGROUND";
