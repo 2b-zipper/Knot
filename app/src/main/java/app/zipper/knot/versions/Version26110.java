@@ -85,7 +85,7 @@ public class Version26110 {
 
     v.unsend.notifiedReadMessageHandlerClass = "e98.e2";
     v.unsend.notifiedSendReactionHandlerClass = "e98.p2";
-    v.unsend.notifiedDestroyMessageHandlerClass = "e98.b1";
+    v.unsend.notifiedDestroyMessageHandlerClass = "e98.c1";
     v.unsend.chatMessageViewHolderClass = "wi1.h";
     v.unsend.methodReadBuffer = "b";
     v.unsend.methodBind = "B";
@@ -113,7 +113,7 @@ public class Version26110 {
     v.unsend.chatMessageIdField = "d";
     v.unsend.operationUnsendName = "DESTROY_MESSAGE";
     v.unsend.operationNotifiedUnsendName = "NOTIFIED_DESTROY_MESSAGE";
-    v.unsend.unsendDestroyHandlerClass = "e98.b1";
+    v.unsend.unsendDestroyHandlerClass = "e98.c1";
     v.unsend.operationClass = "cb8.de";
 
     v.thrift.talkServiceClientImplClass =
