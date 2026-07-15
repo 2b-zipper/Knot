@@ -69,7 +69,9 @@ public class SearchMin1CharHook implements BaseHook {
                   lpparam.classLoader,
                   config.chat.searchKeywordTypeMethod,
                   String.class))
-          .intercept(chain -> hasMeaningfulKeyword((String) chain.getArg(0)));
+          .intercept(
+              chain ->
+                  hasMeaningfulKeyword((String) chain.getArg(0)) ? Boolean.TRUE : chain.proceed());
     } catch (Throwable t) {
       Knot.log("Knot: SearchMin1CharHook error: " + t);
     }

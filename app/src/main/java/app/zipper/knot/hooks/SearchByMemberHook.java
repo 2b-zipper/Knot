@@ -2,11 +2,13 @@ package app.zipper.knot.hooks;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.View;
@@ -38,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchByMemberHook implements BaseHook {
@@ -45,6 +48,8 @@ public class SearchByMemberHook implements BaseHook {
   private static final String MEMBER_ICON_TAG = "knot_search_member_icon";
   private static final String TOOLTIP_KEY = "knot_search_member_tooltip_shown";
   private static final String LINE_PKG = "jp.naver.line.android";
+  private static final String LINE_DB = "naver_line";
+  private static final int FILTER_ACTIVE_TINT = 0xFF2196F3;
 
   private static final Map<String, String> chatMemberFilter = new ConcurrentHashMap<>();
   private static final Map<String, String> chatMemberFilterName = new ConcurrentHashMap<>();
@@ -55,6 +60,7 @@ public class SearchByMemberHook implements BaseHook {
   private static final Map<String, Long> forcedKeywordRefreshes = new ConcurrentHashMap<>();
   private static final WeakHashMap<EditText, Boolean> watchedEditTexts = new WeakHashMap<>();
   private static final ThreadLocal<Boolean> creatingResult = new ThreadLocal<>();
+  private static final AtomicLong showAllNonce = new AtomicLong();
 
   private static volatile PopupWindow activeTooltip = null;
   private static ClassLoader appClassLoader;
@@ -85,6 +91,7 @@ public class SearchByMemberHook implements BaseHook {
     setupSearchPresenterHook(config, lpparam.classLoader);
     setupSearchResultHook(config, lpparam.classLoader);
     setupSearchResultWrapperHook(config, lpparam.classLoader);
+    setupKeywordTypeHook(config, lpparam.classLoader);
   }
 
   private boolean isValidConfig(LineVersion.Config config) {
@@ -131,9 +138,21 @@ public class SearchByMemberHook implements BaseHook {
       searchHeaderMap.put(activity, helper);
       setupTextWatcherIfNeeded(activity, config);
       injectMemberSearchIcon(activity, headerView, config);
+      reapplyActiveFilterOnOpen(activity, config);
     } catch (Throwable t) {
       Knot.log("Knot: handleHeaderCreated error: " + t);
     }
+  }
+
+  private void reapplyActiveFilterOnOpen(Activity activity, LineVersion.Config config) {
+    String chatId = resolveChatId(activity, config);
+    if (chatId == null || !chatMemberFilter.containsKey(chatId)) return;
+    EditText et = getSearchEditText(activity);
+    if (et == null) return;
+    et.post(
+        () -> {
+          if (chatMemberFilter.containsKey(chatId)) triggerReSearch(activity, chatId);
+        });
   }
 
   private void setupTextWatcherIfNeeded(Activity activity, LineVersion.Config config) {
@@ -197,14 +216,10 @@ public class SearchByMemberHook implements BaseHook {
 
   private void updateIconVisualState(Activity activity, LineVersion.Config config, ImageView icon) {
     String chatId = resolveChatId(activity, config);
-    if (chatId != null && chatMemberFilter.containsKey(chatId)) {
-      icon.setColorFilter(0xFF2196F3, android.graphics.PorterDuff.Mode.SRC_ATOP);
-      String name = chatMemberFilterName.get(chatId);
-      if (name != null) {
-        EditText et = getSearchEditText(activity);
-        if (et != null) et.setHint(ModuleStrings.SEARCH_BY_MEMBER_FILTERING + name);
-      }
-    }
+    if (chatId == null || !chatMemberFilter.containsKey(chatId)) return;
+    tintFilterActive(icon);
+    String name = chatMemberFilterName.get(chatId);
+    if (name != null) setFilteringHint(activity, name);
   }
 
   private void setupSearchBoxHook(LineVersion.Config config, ClassLoader classLoader) {
@@ -239,6 +254,28 @@ public class SearchByMemberHook implements BaseHook {
               });
     } catch (Throwable t) {
       Knot.log("Knot: setupSearchPresenterHook error: " + t);
+    }
+  }
+
+  private void setupKeywordTypeHook(LineVersion.Config config, ClassLoader classLoader) {
+    if (config.chat.searchKeywordTypeClass.isEmpty()
+        || config.chat.searchKeywordTypeMethod.isEmpty()) return;
+    try {
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  config.chat.searchKeywordTypeClass,
+                  classLoader,
+                  config.chat.searchKeywordTypeMethod,
+                  String.class))
+          .intercept(
+              chain -> {
+                if (!hasMeaningfulKeyword((String) chain.getArg(0)) && !pendingFetchAll.isEmpty())
+                  return Boolean.TRUE;
+                return chain.proceed();
+              });
+    } catch (Throwable t) {
+      Knot.log("Knot: SearchByMember setupKeywordTypeHook error: " + t);
     }
   }
 
@@ -281,8 +318,7 @@ public class SearchByMemberHook implements BaseHook {
         handleEmptyIds(chatId, senderMid, keyword, args);
       } else {
         List<Long> filtered = filterLocalIdsByMid(ids, senderMid);
-        cachedResults.put(chatId, filtered);
-        cachedKeywords.put(chatId, normalizeKeyword(keyword));
+        cacheResults(chatId, filtered, keyword);
         args[3] = filtered;
         args[1] = filtered.size();
       }
@@ -292,11 +328,9 @@ public class SearchByMemberHook implements BaseHook {
   }
 
   private void handleEmptyIds(String chatId, String senderMid, String keyword, Object[] args) {
-    boolean emptyKeyword = !hasMeaningfulKeyword(keyword);
-    if (pendingFetchAll.remove(chatId) || emptyKeyword) {
+    if (pendingFetchAll.remove(chatId) || !hasMeaningfulKeyword(keyword)) {
       List<Long> allIds = fetchAllMemberLocalIds(chatId, senderMid);
-      cachedResults.put(chatId, allIds);
-      cachedKeywords.put(chatId, normalizeKeyword(keyword));
+      cacheResults(chatId, allIds, keyword);
       args[3] = allIds;
       args[1] = allIds.size();
     } else {
@@ -333,12 +367,10 @@ public class SearchByMemberHook implements BaseHook {
       String resultKeyword = keyword != null ? keyword : "";
       String normalizedKeyword = normalizeKeyword(resultKeyword);
 
-      boolean fetchAll = pendingFetchAll.remove(chatId);
       List<Long> ids = null;
-      if (fetchAll) {
+      if (pendingFetchAll.remove(chatId)) {
         ids = fetchAllMemberLocalIds(chatId, senderMid);
-        cachedResults.put(chatId, ids);
-        cachedKeywords.put(chatId, normalizedKeyword);
+        cacheResults(chatId, ids, resultKeyword);
       } else if (Objects.equals(cachedKeywords.get(chatId), normalizedKeyword)) {
         ids = cachedResults.get(chatId);
       }
@@ -347,7 +379,8 @@ public class SearchByMemberHook implements BaseHook {
 
       creatingResult.set(Boolean.TRUE);
       try {
-        Object result = Reflect.newInstance(resultCls, chatId, ids.size(), resultKeyword, ids);
+        String injectKeyword = distinctifyShowAllKeyword(resultKeyword);
+        Object result = Reflect.newInstance(resultCls, chatId, ids.size(), injectKeyword, ids);
         Reflect.setObjectField(
             chain.getThisObject(),
             lineVersionConfig.chat.searchResultWrapperResultOptionalField,
@@ -360,39 +393,35 @@ public class SearchByMemberHook implements BaseHook {
     }
   }
 
+  private static String distinctifyShowAllKeyword(String keyword) {
+    if (keyword == null || !keyword.isEmpty()) return keyword;
+    return (showAllNonce.getAndIncrement() & 1L) == 0 ? "" : "\u200B";
+  }
+
   private static List<Long> filterLocalIdsByMid(List<Long> ids, String senderMid) {
-    try {
-      android.app.Application app = Knot.currentApplication();
-      if (app == null) return ids;
-      File dbFile = app.getDatabasePath("naver_line");
-      if (!dbFile.exists()) return ids;
-
-      try (SQLiteDatabase db =
-          SQLiteDatabase.openDatabase(
-              dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY)) {
-        String myMid = LineDBUtils.getMyMid();
-        boolean isOwn = senderMid.equals(myMid);
-
-        StringBuilder sb = new StringBuilder("SELECT id FROM chat_history WHERE id IN (");
-        for (int i = 0; i < ids.size(); i++) {
-          if (i > 0) sb.append(",");
-          sb.append("?");
-        }
-        sb.append(isOwn ? ") AND (from_mid = ? OR from_mid IS NULL)" : ") AND from_mid = ?");
-
-        String[] args = new String[ids.size() + 1];
-        for (int i = 0; i < ids.size(); i++) args[i] = String.valueOf(ids.get(i));
-        args[ids.size()] = senderMid;
-
-        Set<Long> kept = new HashSet<>();
-        try (Cursor cursor = db.rawQuery(sb.toString(), args)) {
-          while (cursor.moveToNext()) kept.add(cursor.getLong(0));
-        }
-
-        List<Long> result = new ArrayList<>();
-        for (Long id : ids) if (kept.contains(id)) result.add(id);
-        return result;
+    File dbFile = lineDatabaseFile();
+    if (dbFile == null) return ids;
+    try (SQLiteDatabase db =
+        SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY)) {
+      StringBuilder sb = new StringBuilder("SELECT id FROM chat_history WHERE id IN (");
+      for (int i = 0; i < ids.size(); i++) {
+        if (i > 0) sb.append(",");
+        sb.append("?");
       }
+      sb.append(") AND ").append(senderMidPredicate(isOwnMid(senderMid)));
+
+      String[] args = new String[ids.size() + 1];
+      for (int i = 0; i < ids.size(); i++) args[i] = String.valueOf(ids.get(i));
+      args[ids.size()] = senderMid;
+
+      Set<Long> kept = new HashSet<>();
+      try (Cursor cursor = db.rawQuery(sb.toString(), args)) {
+        while (cursor.moveToNext()) kept.add(cursor.getLong(0));
+      }
+
+      List<Long> result = new ArrayList<>();
+      for (Long id : ids) if (kept.contains(id)) result.add(id);
+      return result;
     } catch (Throwable t) {
       Knot.log("Knot: filterLocalIdsByMid error: " + t);
       return ids;
@@ -400,19 +429,13 @@ public class SearchByMemberHook implements BaseHook {
   }
 
   private static List<Long> fetchAllMemberLocalIds(String chatId, String senderMid) {
+    File dbFile = lineDatabaseFile();
+    if (dbFile == null) return new ArrayList<>();
     try {
-      android.app.Application app = Knot.currentApplication();
-      if (app == null) return new ArrayList<>();
-      File dbFile = app.getDatabasePath("naver_line");
-      if (!dbFile.exists()) return new ArrayList<>();
-
-      String myMid = LineDBUtils.getMyMid();
-      boolean isOwn = senderMid.equals(myMid);
       String sql =
-          isOwn
-              ? "SELECT id FROM chat_history WHERE chat_id = ? AND (from_mid = ? OR from_mid IS NULL) ORDER BY id DESC"
-              : "SELECT id FROM chat_history WHERE chat_id = ? AND from_mid = ? ORDER BY id DESC";
-
+          "SELECT id FROM chat_history WHERE chat_id = ? AND "
+              + senderMidPredicate(isOwnMid(senderMid))
+              + " ORDER BY id DESC";
       try (SQLiteDatabase db =
               SQLiteDatabase.openDatabase(
                   dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
@@ -425,6 +448,41 @@ public class SearchByMemberHook implements BaseHook {
       Knot.log("Knot: fetchAllMemberLocalIds error: " + t);
       return new ArrayList<>();
     }
+  }
+
+  private static File lineDatabaseFile() {
+    Application app = Knot.currentApplication();
+    if (app == null) return null;
+    File dbFile = app.getDatabasePath(LINE_DB);
+    return dbFile.exists() ? dbFile : null;
+  }
+
+  private static boolean isOwnMid(String senderMid) {
+    return senderMid.equals(LineDBUtils.getMyMid());
+  }
+
+  private static String senderMidPredicate(boolean isOwn) {
+    return isOwn ? "(from_mid = ? OR from_mid IS NULL)" : "from_mid = ?";
+  }
+
+  private static void cacheResults(String chatId, List<Long> ids, String keyword) {
+    cachedResults.put(chatId, ids);
+    cachedKeywords.put(chatId, normalizeKeyword(keyword));
+  }
+
+  private static void clearFilterCaches(String chatId) {
+    pendingFetchAll.remove(chatId);
+    cachedResults.remove(chatId);
+    cachedKeywords.remove(chatId);
+  }
+
+  private static void tintFilterActive(ImageView icon) {
+    icon.setColorFilter(FILTER_ACTIVE_TINT, PorterDuff.Mode.SRC_ATOP);
+  }
+
+  private void setFilteringHint(Activity activity, String name) {
+    EditText et = getSearchEditText(activity);
+    if (et != null) et.setHint(ModuleStrings.SEARCH_BY_MEMBER_FILTERING + name);
   }
 
   private void showMemberPicker(
@@ -441,13 +499,9 @@ public class SearchByMemberHook implements BaseHook {
                   LineDBUtils.MemberInfo member = members.get(i);
                   chatMemberFilter.put(chatId, member.mid);
                   chatMemberFilterName.put(chatId, member.name);
-                  pendingFetchAll.remove(chatId);
-                  cachedResults.remove(chatId);
-                  cachedKeywords.remove(chatId);
-                  icon.setColorFilter(0xFF2196F3, android.graphics.PorterDuff.Mode.SRC_ATOP);
-                  EditText et = getSearchEditText(activity);
-                  if (et != null)
-                    et.setHint(ModuleStrings.SEARCH_BY_MEMBER_FILTERING + member.name);
+                  clearFilterCaches(chatId);
+                  tintFilterActive(icon);
+                  setFilteringHint(activity, member.name);
                   triggerReSearch(activity, chatId);
                 })
             .setNegativeButton(android.R.string.cancel, null)
@@ -456,9 +510,7 @@ public class SearchByMemberHook implements BaseHook {
   }
 
   private void clearMemberFilter(Activity activity, String chatId, ImageView icon) {
-    pendingFetchAll.remove(chatId);
-    cachedResults.remove(chatId);
-    cachedKeywords.remove(chatId);
+    clearFilterCaches(chatId);
     chatMemberFilterName.remove(chatId);
     chatMemberFilter.remove(chatId);
     icon.clearColorFilter();
