@@ -159,7 +159,8 @@ public class ModuleStrings {
   public static final String OPT_HIDE_TAB_TEXT_LABEL = "タブラベルを非表示";
   public static final String OPT_HIDE_TAB_TEXT_DESC = "下部タブのアイコン下のテキストを非表示にします。";
   public static final String OPT_HOME_TAB_TYPE_LABEL = "ホームの種類を変更";
-  public static final String OPT_HOME_TAB_TYPE_DESC = "ホームタブの種類を変更します。反映にはLINEの再起動が必要です。";
+  public static final String OPT_HOME_TAB_TYPE_DESC =
+      "ホームタブの種類を変更します。従来のホームに戻す場合は\"HOME\"を選択してください。";
   public static final String HOME_TYPE_DEFAULT = "デフォルト";
 
   public static final String OPT_REMOVE_AI_FRIENDS_BUTTON_LABEL = "AI Friendsボタンを非表示";
