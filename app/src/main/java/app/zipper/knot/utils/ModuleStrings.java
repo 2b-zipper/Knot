@@ -67,7 +67,7 @@ public class ModuleStrings {
   public static final String READ_HISTORY_DELETE = "履歴を削除";
   public static final String READ_HISTORY_DELETE_CONFIRM_TITLE = "履歴の削除";
   public static final String READ_HISTORY_DELETE_CONFIRM_MSG = "このチャットの既読履歴をすべて削除しますか？";
-  public static final String READ_HISTORY_UNKNOWN_MSG = "(メディアまたは不明なメッセージ)";
+  public static final String READ_HISTORY_UNKNOWN_MSG = "(不明なメッセージ)";
   public static final String READ_HISTORY_SHOW_ALL = "残り%d人を表示 ▼";
   public static final String READ_HISTORY_COLLAPSE = "折りたたむ ▲";
 
@@ -148,8 +148,8 @@ public class ModuleStrings {
   public static final String OPT_REMOVE_TAB_VOOM_DESC = "下部のVOOMタブを隠します。";
   public static final String OPT_REMOVE_TAB_NEWS_LABEL = "ニュース/通話タブを非表示";
   public static final String OPT_REMOVE_TAB_NEWS_DESC = "下部のニュース/通話タブを隠します。";
-  public static final String OPT_REMOVE_TAB_MINI_LABEL = "MINIタブを非表示";
-  public static final String OPT_REMOVE_TAB_MINI_DESC = "下部のMINIタブを隠します。";
+  public static final String OPT_REMOVE_TAB_MINI_LABEL = "アプリタブを非表示";
+  public static final String OPT_REMOVE_TAB_MINI_DESC = "下部のアプリタブを隠します。";
   public static final String OPT_REMOVE_TAB_COMMERCE_LABEL = "ショッピングタブを非表示";
   public static final String OPT_REMOVE_TAB_COMMERCE_DESC = "下部のショッピングタブを隠します。";
   public static final String OPT_REMOVE_TAB_WALLET_LABEL = "ウォレットタブを非表示";
