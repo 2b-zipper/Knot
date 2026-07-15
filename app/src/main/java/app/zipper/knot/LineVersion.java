@@ -42,6 +42,13 @@ public class LineVersion {
     public ChatEditSelectAll chatEditSelectAll = new ChatEditSelectAll();
     public Camera camera = new Camera();
     public Iab iab = new Iab();
+    public HomeTab homeTab = new HomeTab();
+
+    public static class HomeTab {
+      public String tabListProviderClass = "";
+      public String methodBuildTabList = "";
+      public String mainTabEnumClass = "";
+    }
 
     public static class Camera {
       public String cameraModuleClass = "";

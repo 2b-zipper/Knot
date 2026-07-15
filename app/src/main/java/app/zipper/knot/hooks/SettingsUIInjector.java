@@ -938,6 +938,10 @@ public class SettingsUIInjector implements BaseHook {
         injectFontPickerRow(infl, parent, ctx, i);
         return;
       }
+      if (i.key.equals("home_tab_type")) {
+        injectHomeTypeRow(infl, parent, ctx, i);
+        return;
+      }
 
       View row = infl.inflate(currentCfg.res.layoutCheckbox, parent, false);
       boolean isEnabled = SettingsStore.get(i.key, i.enabled);
@@ -970,6 +974,51 @@ public class SettingsUIInjector implements BaseHook {
         injectInfoRow(
             infl, parent, ctx, i.label, i.description, true, null, v -> openFontPicker(ctx));
     if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+  }
+
+  private void injectHomeTypeRow(
+      LayoutInflater infl, LinearLayout parent, Context ctx, KnotConfig.Item i) {
+    View row =
+        injectInfoRow(
+            infl, parent, ctx, i.label, i.description, true, null, v -> openHomeTypePicker(ctx, i));
+    if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+  }
+
+  private void openHomeTypePicker(Context ctx, KnotConfig.Item i) {
+    List<String> values = new ArrayList<>();
+    values.add("");
+    values.addAll(HomeTabTypeHook.availableHomeTypes(ctx.getClassLoader()));
+
+    String[] labels = new String[values.size()];
+    labels[0] = ModuleStrings.HOME_TYPE_DEFAULT;
+    for (int k = 1; k < values.size(); k++) labels[k] = values.get(k);
+
+    int checked = values.indexOf(SettingsStore.getString(i.key, ""));
+    if (checked < 0) checked = 0;
+
+    int themeId = LineTheme.dialogTheme(ctx);
+    LineTheme.applyDialogColors(
+        new AlertDialog.Builder(ctx, themeId)
+            .setTitle(i.label)
+            .setSingleChoiceItems(
+                labels,
+                checked,
+                (d, which) -> {
+                  String chosen = values.get(which);
+                  SettingsStore.save(i.key, chosen);
+                  for (KnotConfig.Item itm : Main.options.items) {
+                    if (itm.key.equals(i.key)) {
+                      itm.value = chosen;
+                      break;
+                    }
+                  }
+                  d.dismiss();
+                  pendingRestart = true;
+                  if (onSettingsReloadRequest != null) onSettingsReloadRequest.run();
+                })
+            .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, null)
+            .show(),
+        ctx);
   }
 
   private void openFontPicker(Context ctx) {

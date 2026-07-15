@@ -146,6 +146,9 @@ public class Main extends XposedModule {
           || options.removeSearchBarAgentIButton.enabled) {
         applyHook(new RemoveHeaderButtons(), lpparam);
       }
+      if (options.homeTabType.value != null && !options.homeTabType.value.isEmpty()) {
+        applyHook(new HomeTabTypeHook(), lpparam);
+      }
       if (options.useCustomFont.enabled) {
         applyHook(new FontUnlockHook(), lpparam);
       }

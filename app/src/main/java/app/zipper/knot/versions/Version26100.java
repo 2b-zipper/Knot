@@ -350,6 +350,10 @@ public class Version26100 {
 
     v.iab.inAppBrowserActivityClass = "com.linecorp.line.iab.browser.impl.InAppBrowserActivity";
 
+    v.homeTab.tabListProviderClass = "iv7.c";
+    v.homeTab.methodBuildTabList = "a";
+    v.homeTab.mainTabEnumClass = "jp.naver.line.android.activity.main.a";
+
     return v;
   }
 }
