@@ -313,8 +313,7 @@ public class RemoveHeaderButtons implements BaseHook {
     return name.equals(cfg.searchBarAgentI.homeTabName)
         || name.equals(cfg.searchBarAgentI.homeTabV2Name)
         || name.equals(cfg.searchBarAgentI.chatTabName)
-        || (!cfg.searchBarAgentI.newsTabName.isEmpty()
-            && name.equals(cfg.searchBarAgentI.newsTabName));
+        || name.equals(cfg.searchBarAgentI.newsTabName);
   }
 
   private static int dpToPx(Context context, int dp) {
