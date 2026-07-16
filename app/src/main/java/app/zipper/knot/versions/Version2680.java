@@ -255,10 +255,17 @@ public class Version2680 {
     v.searchBarAgentI.homeTabName = "HOME";
     v.searchBarAgentI.homeTabV2Name = "HOME_V2";
     v.searchBarAgentI.chatTabName = "CHAT";
+    v.searchBarAgentI.newsTabName = "NEWS";
     v.searchBarAgentI.homeAiContainerId = 0x7f0b1659;
     v.searchBarAgentI.homeGuidelineId = 0x7f0b165b;
     v.searchBarAgentI.homeGuidelineEndDp = 55;
     v.searchBarAgentI.homeGuidelineClass = "androidx.constraintlayout.widget.Guideline";
+    v.searchBarAgentI.miniTabHeaderClass =
+        "com.linecorp.line.wallet.impl.v3.view.WalletV3GrandDesignHeaderView";
+    v.searchBarAgentI.miniTabAgentMethod = "o";
+    v.searchBarAgentI.home26NavIconClass = "o42.n";
+    v.searchBarAgentI.home26NavIconMethod = "b";
+    v.searchBarAgentI.home26AgentDrawableId = 0x7f080b33;
 
     v.agentIInChat.toggleComposableClass = "bd1.k";
 

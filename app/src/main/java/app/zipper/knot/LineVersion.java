@@ -463,10 +463,18 @@ public class LineVersion {
       public String homeTabName = "";
       public String homeTabV2Name = "";
       public String chatTabName = "";
+      public String newsTabName = "";
       public int homeAiContainerId = 0;
       public int homeGuidelineId = 0;
       public int homeGuidelineEndDp = 0;
       public String homeGuidelineClass = "";
+
+      public String miniTabHeaderClass = "";
+      public String miniTabAgentMethod = "";
+
+      public String home26NavIconClass = "";
+      public String home26NavIconMethod = "";
+      public int home26AgentDrawableId = 0;
     }
 
     public static class AgentIInChat {

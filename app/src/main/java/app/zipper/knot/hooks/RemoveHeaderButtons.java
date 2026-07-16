@@ -32,6 +32,8 @@ public class RemoveHeaderButtons implements BaseHook {
 
     if (config.removeSearchBarAgentIButton.enabled) {
       hookHomeSearchBarAiButton(cfg, lpparam.classLoader);
+      hookMiniTabAgentButton(cfg, lpparam.classLoader);
+      hookHome26AgentButton(cfg, lpparam.classLoader);
     }
 
     if (cfg.talkTabHeader.chatTabHeaderStateClass.isEmpty()) return;
@@ -226,6 +228,49 @@ public class RemoveHeaderButtons implements BaseHook {
     Knot.log("Knot: RemoveHeaderButtons hooked Home search bar Agent i button.");
   }
 
+  private static void hookMiniTabAgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
+    if (cfg.searchBarAgentI.miniTabHeaderClass.isEmpty()
+        || cfg.searchBarAgentI.miniTabAgentMethod.isEmpty()) return;
+
+    try {
+      Class<?> cls = Reflect.findClass(cfg.searchBarAgentI.miniTabHeaderClass, classLoader);
+      Knot.hookAll(
+          cls,
+          cfg.searchBarAgentI.miniTabAgentMethod,
+          chain -> {
+            if (Main.options.removeSearchBarAgentIButton.enabled) return null;
+            return chain.proceed();
+          });
+      Knot.log("Knot: RemoveHeaderButtons hooked mini-app tab Agent i button.");
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveHeaderButtons could not hook mini-app tab Agent i button: " + t);
+    }
+  }
+
+  private static void hookHome26AgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
+    if (cfg.searchBarAgentI.home26NavIconClass.isEmpty()
+        || cfg.searchBarAgentI.home26NavIconMethod.isEmpty()
+        || cfg.searchBarAgentI.home26AgentDrawableId == 0) return;
+
+    final int agentDrawableId = cfg.searchBarAgentI.home26AgentDrawableId;
+    try {
+      Class<?> cls = Reflect.findClass(cfg.searchBarAgentI.home26NavIconClass, classLoader);
+      Knot.hookAll(
+          cls,
+          cfg.searchBarAgentI.home26NavIconMethod,
+          chain -> {
+            if (Main.options.removeSearchBarAgentIButton.enabled
+                && chain.getArgs().contains(agentDrawableId)) {
+              return null;
+            }
+            return chain.proceed();
+          });
+      Knot.log("Knot: RemoveHeaderButtons hooked HOME26 Agent i button.");
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveHeaderButtons could not hook HOME26 Agent i button: " + t);
+    }
+  }
+
   private static void patchHomeSearchBarAiButton(LineVersion.Config cfg, Object instance) {
     if (!isHomeSearchBar(cfg, instance)) return;
 
@@ -267,7 +312,9 @@ public class RemoveHeaderButtons implements BaseHook {
     String name = ((Enum<?>) tabType).name();
     return name.equals(cfg.searchBarAgentI.homeTabName)
         || name.equals(cfg.searchBarAgentI.homeTabV2Name)
-        || name.equals(cfg.searchBarAgentI.chatTabName);
+        || name.equals(cfg.searchBarAgentI.chatTabName)
+        || (!cfg.searchBarAgentI.newsTabName.isEmpty()
+            && name.equals(cfg.searchBarAgentI.newsTabName));
   }
 
   private static int dpToPx(Context context, int dp) {
