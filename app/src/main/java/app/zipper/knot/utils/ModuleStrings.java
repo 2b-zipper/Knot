@@ -127,9 +127,9 @@ public class ModuleStrings {
   public static final String OPT_FIX_ANNOUNCEMENT_NAME_DESC =
       "パッチ済みのLINEで、アナウンス登録時のシステムメッセージが「がアナウンスしました」と名前が空になる不具合を修正し、正しく表示されるようにします。";
 
-  public static final String OPT_HIDE_AI_ICON_PERMANENTLY_LABEL = "AIアイコンを永久に非表示";
+  public static final String OPT_HIDE_AI_ICON_PERMANENTLY_LABEL = "トークルームのAgent iを永久に非表示";
   public static final String OPT_HIDE_AI_ICON_PERMANENTLY_DESC =
-      "チャット画面のテキストボックス内にあるAIアイコンを常に非表示にします。通常は30日間のみ非表示にできますが、このオプションを有効にすると設定に関わらず永続的に非表示になります。";
+      "トークルームのメッセージ入力欄に表示されるAgent iを常に非表示にします。通常は30日間のみ非表示にできますが、このオプションを有効にすると設定に関わらず永続的に非表示になります。";
 
   public static final String OPT_OPEN_URL_IN_DEFAULT_BROWSER_LABEL = "URLをデフォルトブラウザで開く";
   public static final String OPT_OPEN_URL_IN_DEFAULT_BROWSER_DESC =
@@ -139,7 +139,7 @@ public class ModuleStrings {
   public static final String OPT_REMOVE_ADS_DESC = "トークリスト上部やホーム画面などに表示される広告を非表示にします。";
   public static final String OPT_REMOVE_HOME_RECOMMENDATIONS_LABEL = "ホームのおすすめを非表示";
   public static final String OPT_REMOVE_HOME_RECOMMENDATIONS_DESC = "ホーム画面に表示されるおすすめコンテンツを非表示にします。";
-  public static final String OPT_REMOVE_HOME_SERVICES_LABEL = "ホームのサービスを非表示";
+  public static final String OPT_REMOVE_HOME_SERVICES_LABEL = "ホームのサービス一覧を非表示";
   public static final String OPT_REMOVE_HOME_SERVICES_DESC = "ホーム画面に表示されるサービス一覧を非表示にします。";
   public static final String OPT_REMOVE_HOME_ACCORDION_LABEL = "ホーム上部のアコーディオンを非表示";
   public static final String OPT_REMOVE_HOME_ACCORDION_DESC =
