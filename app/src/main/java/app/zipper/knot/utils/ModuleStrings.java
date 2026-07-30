@@ -183,11 +183,11 @@ public class ModuleStrings {
 
   public static final String OPT_USE_AMOLED_THEME_LABEL = "AMOLEDテーマを適用する";
   public static final String OPT_USE_AMOLED_THEME_DESC =
-      "AMOLEDテーマを適用します。\"ダークモードでは「ブラック」着せかえを適用\"をオフにする必要があります。";
+      "AMOLEDテーマを適用します。\"ダークモードでは「ブラック」着せかえを適用\"をオフにする必要があります。メニューやダイアログもAMOLEDの配色に揃えます。";
 
   public static final String OPT_FORCE_DARK_MODE_UI_LABEL = "着せかえ適用中もダークモードUIを維持";
   public static final String OPT_FORCE_DARK_MODE_UI_DESC =
-      "\"ダークモードでは「ブラック」着せかえを適用\"をオフにすると、長押しメニューやダイアログなどがすべてライト表示になります。このオプションを有効にすると、好きな着せかえを適用したままそれらをダーク表示にします。OSのダークモード設定に関わらず適用されます。";
+      "着せかえ適用時にライト表示になる長押しメニューやダイアログを、\"ダークモードでは「ブラック」着せかえを適用\"設定に関わらずダークに固定します。「AMOLEDテーマを適用する」有効時はそちらに含まれるため無効です。";
 
   public static final String OPT_SHOW_THEME_ON_SUB_DEVICE_LABEL = "サブ端末で着せかえ項目を表示";
   public static final String OPT_SHOW_THEME_ON_SUB_DEVICE_DESC =

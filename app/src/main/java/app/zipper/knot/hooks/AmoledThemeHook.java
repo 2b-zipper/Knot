@@ -2,11 +2,15 @@ package app.zipper.knot.hooks;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.Main;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import io.github.libxposed.api.XposedInterface.Hooker;
@@ -24,9 +28,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -39,6 +45,13 @@ public class AmoledThemeHook implements BaseHook {
   private static final String THEME_JSON = "theme.json";
   private static final String CACHE_SUBDIR = "knot_amoled";
   private static final String IMAGES_PREFIX = "images/";
+
+  private static final String SEMANTIC_SECTION = "theme.semantic";
+  private static final String SEMANTIC_SUFFIX = ".background.color";
+  private static final int[] NO_COLOR = new int[0];
+
+  private static final Set<String> SEMANTIC_SKIP_TOKENS =
+      Collections.unmodifiableSet(new HashSet<>(Arrays.asList("primaryFill")));
 
   private static final String[] THEME_PATH_HINTS = {
     "jp.naver.line.android", "/Themes/", "/themes/", "/.theme", "/theme/"
@@ -65,6 +78,9 @@ public class AmoledThemeHook implements BaseHook {
   private static File cacheBundle;
   private static final Map<String, File> cacheImages = new HashMap<>();
 
+  private static volatile Map<String, Integer> semanticColors;
+  private static final Map<Integer, int[]> resIdCache = new ConcurrentHashMap<>();
+
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     Context ctx = SettingsStore.getContext();
@@ -85,6 +101,64 @@ public class AmoledThemeHook implements BaseHook {
     installFileRedirects();
     installThriftValidationHijack(lpparam);
     installNavigationBarBlackening();
+    NightModePin.install(lpparam, () -> Main.options.useAmoledTheme.enabled, "Knot: AmoledTheme");
+    installThemeSemanticColors();
+  }
+
+  private void installThemeSemanticColors() {
+    Map<String, Integer> colors = semanticColors;
+    if (colors == null || colors.isEmpty()) return;
+
+    Hooker colorHook =
+        chain -> {
+          if (Main.options.useAmoledTheme.enabled) {
+            Integer c = resolve((Resources) chain.getThisObject(), (Integer) chain.getArg(0));
+            if (c != null) return c;
+          }
+          return chain.proceed();
+        };
+    Hooker colorStateListHook =
+        chain -> {
+          if (Main.options.useAmoledTheme.enabled) {
+            Integer c = resolve((Resources) chain.getThisObject(), (Integer) chain.getArg(0));
+            if (c != null) return ColorStateList.valueOf(c);
+          }
+          return chain.proceed();
+        };
+
+    Knot.module
+        .hook(Reflect.findMethodExact(Resources.class, "getColor", int.class))
+        .intercept(colorHook);
+    Knot.module
+        .hook(
+            Reflect.findMethodExact(Resources.class, "getColor", int.class, Resources.Theme.class))
+        .intercept(colorHook);
+    Knot.module
+        .hook(Reflect.findMethodExact(Resources.class, "getColorStateList", int.class))
+        .intercept(colorStateListHook);
+    Knot.module
+        .hook(
+            Reflect.findMethodExact(
+                Resources.class, "getColorStateList", int.class, Resources.Theme.class))
+        .intercept(colorStateListHook);
+
+    Knot.log("Knot: AmoledTheme: routing " + colors.size() + " color tokens through theme");
+  }
+
+  private static Integer resolve(Resources res, int id) {
+    int[] cached = resIdCache.get(id);
+    if (cached != null) return cached.length == 0 ? null : cached[0];
+
+    Integer color = null;
+    Map<String, Integer> colors = semanticColors;
+    if (colors != null) {
+      try {
+        color = colors.get(res.getResourceEntryName(id));
+      } catch (Throwable ignored) {
+      }
+    }
+    resIdCache.put(id, color == null ? NO_COLOR : new int[] {color});
+    return color;
   }
 
   private void installNavigationBarBlackening() {
@@ -137,10 +211,34 @@ public class AmoledThemeHook implements BaseHook {
     if (themeJsonBytes == null)
       throw new IOException(THEME_JSON + " missing from bundled themefile");
 
-    JSONObject manifest =
-        new JSONObject(new String(themeJsonBytes, StandardCharsets.UTF_8))
-            .optJSONObject("manifest");
+    JSONObject root = new JSONObject(new String(themeJsonBytes, StandardCharsets.UTF_8));
+    JSONObject manifest = root.optJSONObject("manifest");
     if (manifest != null) themeRevision = manifest.optInt("revision", -1);
+    semanticColors = parseSemantic(root);
+  }
+
+  private static Map<String, Integer> parseSemantic(JSONObject root) {
+    JSONObject semantic = root.optJSONObject(SEMANTIC_SECTION);
+    if (semantic == null) return null;
+    Map<String, Integer> map = new HashMap<>();
+    for (Iterator<String> it = semantic.keys(); it.hasNext(); ) {
+      String key = it.next();
+      if (!key.endsWith(SEMANTIC_SUFFIX)) continue;
+      String token = key.substring(0, key.length() - SEMANTIC_SUFFIX.length());
+      if (SEMANTIC_SKIP_TOKENS.contains(token)) continue;
+      Integer color = parseColor(semantic.optString(key, null));
+      if (color != null) map.put(token, color);
+    }
+    return map;
+  }
+
+  private static Integer parseColor(String hex) {
+    if (hex == null || hex.isEmpty()) return null;
+    try {
+      return Color.parseColor(hex);
+    } catch (Throwable t) {
+      return null;
+    }
   }
 
   private void installFileRedirects() {
