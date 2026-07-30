@@ -361,6 +361,10 @@ public class Version26100 {
     v.homeTab.methodBuildTabList = "a";
     v.homeTab.mainTabEnumClass = "jp.naver.line.android.activity.main.a";
 
+    v.nightMode.nightModeConfiguratorClass = "a10.a";
+    v.nightMode.methodApplyNightMode = "a";
+    v.nightMode.fieldSystemDarkMode = "a";
+
     return v;
   }
 }

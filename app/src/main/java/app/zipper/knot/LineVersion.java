@@ -43,6 +43,13 @@ public class LineVersion {
     public Camera camera = new Camera();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
+    public NightMode nightMode = new NightMode();
+
+    public static class NightMode {
+      public String nightModeConfiguratorClass = "";
+      public String methodApplyNightMode = "";
+      public String fieldSystemDarkMode = "";
+    }
 
     public static class HomeTab {
       public String tabListProviderClass = "";

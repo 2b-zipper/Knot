@@ -155,6 +155,9 @@ public class Main extends XposedModule {
       if (options.useAmoledTheme.enabled) {
         applyHook(new AmoledThemeHook(), lpparam);
       }
+      if (options.forceDarkModeUi.enabled) {
+        applyHook(new ForceDarkModeUiHook(), lpparam);
+      }
       if (options.showThemeOnSubDevice.enabled) {
         applyHook(new ShowThemeOnSubDeviceHook(), lpparam);
       }
