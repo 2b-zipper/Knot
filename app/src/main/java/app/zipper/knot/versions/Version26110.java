@@ -7,6 +7,7 @@ public class Version26110 {
     LineVersion.Config v = new LineVersion.Config();
 
     v.main.mainActivity = "jp.naver.line.android.activity.main.MainActivity";
+    v.main.baseMainTabFragment = "jp.naver.line.android.activity.main.BaseMainTabFragment";
     v.main.headerButton = "jp.naver.line.android.common.view.header.HeaderButton";
     v.main.headerButtonTypeClass = "m48.d";
     v.main.slotFarLeft = "FAR_LEFT";
@@ -270,6 +271,11 @@ public class Version26110 {
     v.compose.clickableClass = "u1.l0";
     v.compose.methodClickable = "a";
     v.compose.methodCombinedClickable = "d";
+    v.compose.onGloballyPositionedClass = "w4.y1";
+    v.compose.methodOnGloballyPositioned = "a";
+    v.compose.layoutCoordinatesClass = "w4.b0";
+    v.compose.methodLocalToWindow = "k";
+    v.compose.methodCoordinatesSize = "a";
 
     v.agentIInChat.toggleComposableClass = "ig1.i";
 

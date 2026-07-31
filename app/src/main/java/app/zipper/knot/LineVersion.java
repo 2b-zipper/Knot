@@ -52,6 +52,11 @@ public class LineVersion {
       public String clickableClass = "";
       public String methodClickable = "";
       public String methodCombinedClickable = "";
+      public String onGloballyPositionedClass = "";
+      public String methodOnGloballyPositioned = "";
+      public String layoutCoordinatesClass = "";
+      public String methodLocalToWindow = "";
+      public String methodCoordinatesSize = "";
     }
 
     public static class Home26NavIcon {
@@ -155,6 +160,7 @@ public class LineVersion {
 
     public static class Main {
       public String mainActivity = "";
+      public String baseMainTabFragment = "";
       public String headerButton = "";
       public String headerButtonTypeClass = "";
       public String slotFarLeft = "";

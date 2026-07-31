@@ -29,6 +29,11 @@ public class SettingsButtonLongPress implements BaseHook {
   private static volatile WeakReference<Object> settingsOnClick = null;
   private static volatile boolean clickableHookInstalled = false;
 
+  private static volatile Method onGloballyPositioned = null;
+  private static volatile Method localToWindow = null;
+  private static volatile Method coordinatesSize = null;
+  private static volatile Object positionCallback = null;
+
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     LineVersion.Config cfg = LineVersion.get();
@@ -123,6 +128,7 @@ public class SettingsButtonLongPress implements BaseHook {
 
     Method clickable = resolveClickableMethods(cfg, lpparam);
     if (clickable == null) return;
+    resolveLayoutCoordinateApi(cfg, lpparam);
 
     try {
       Class<?> navCls = Reflect.findClass(cfg.home26NavIcon.rendererClass, lpparam.classLoader);
@@ -190,6 +196,27 @@ public class SettingsButtonLongPress implements BaseHook {
     }
   }
 
+  private void resolveLayoutCoordinateApi(LineVersion.Config cfg, LoadParam lpparam) {
+    if (cfg.compose.onGloballyPositionedClass.isEmpty()
+        || cfg.compose.layoutCoordinatesClass.isEmpty()) return;
+
+    try {
+      Class<?> coordinates =
+          Reflect.findClass(cfg.compose.layoutCoordinatesClass, lpparam.classLoader);
+      localToWindow =
+          Reflect.findMethodExact(coordinates, cfg.compose.methodLocalToWindow, long.class);
+      coordinatesSize = Reflect.findMethodExact(coordinates, cfg.compose.methodCoordinatesSize);
+      onGloballyPositioned =
+          findMethod(
+              Reflect.findClass(cfg.compose.onGloballyPositionedClass, lpparam.classLoader),
+              cfg.compose.methodOnGloballyPositioned,
+              params -> params.length == 2 && params[1] == combinedClickable.getReturnType());
+    } catch (Throwable t) {
+      Knot.log("Knot: SettingsButtonLongPress could not resolve the layout coordinate API: " + t);
+      onGloballyPositioned = null;
+    }
+  }
+
   private static Method findMethod(Class<?> cls, String name, Predicate<Class<?>[]> params) {
     for (Method m : cls.getDeclaredMethods()) {
       if (m.getName().equals(name) && params.test(m.getParameterTypes())) {
@@ -249,19 +276,47 @@ public class SettingsButtonLongPress implements BaseHook {
       Object callback = longPressCallback();
       if (callback == null) return null;
 
-      return combined.invoke(
-          null,
-          args.get(0),
-          argOfType(source, args, target[1]),
-          argOfType(source, args, target[2]),
-          argOfType(source, args, target[3]),
-          callback,
-          args.get(args.size() - 1),
-          0);
+      Object modifier =
+          combined.invoke(
+              null,
+              args.get(0),
+              argOfType(source, args, target[1]),
+              argOfType(source, args, target[2]),
+              argOfType(source, args, target[3]),
+              callback,
+              args.get(args.size() - 1),
+              0);
+      return trackIconBounds(modifier);
     } catch (Throwable t) {
       Knot.log("Knot: SettingsButtonLongPress could not build the long-press modifier: " + t);
       return null;
     }
+  }
+
+  private static Object trackIconBounds(Object modifier) {
+    Method factory = onGloballyPositioned;
+    if (factory == null) return modifier;
+    try {
+      return factory.invoke(null, positionCallback(factory.getParameterTypes()[0]), modifier);
+    } catch (Throwable t) {
+      Knot.log("Knot: SettingsButtonLongPress could not track the settings icon bounds: " + t);
+      return modifier;
+    }
+  }
+
+  private static void onIconPositioned(Object coordinates) throws Throwable {
+    long position = (long) localToWindow.invoke(coordinates, 0L);
+    long size = (long) coordinatesSize.invoke(coordinates);
+    int width = (int) (size >> 32);
+    int height = (int) (size & 0xFFFFFFFFL);
+    if (width <= 0 || height <= 0) return;
+
+    HomeSettingsTooltip.showForComposeIcon(
+        SettingsUIInjector.getForegroundActivity(),
+        Math.round(Float.intBitsToFloat((int) (position >> 32))),
+        Math.round(Float.intBitsToFloat((int) (position & 0xFFFFFFFFL))),
+        width,
+        height);
   }
 
   private static Object argOfType(Class<?>[] paramTypes, List<Object> args, Class<?> type) {
@@ -269,30 +324,53 @@ public class SettingsButtonLongPress implements BaseHook {
     return index < 0 ? null : args.get(index);
   }
 
-  private static synchronized Object longPressCallback() {
-    if (longPressCallback != null) return longPressCallback;
+  private static synchronized Object positionCallback(Class<?> callbackType) {
+    if (positionCallback == null) {
+      positionCallback =
+          kotlinCallback(callbackType, "KnotSettingsIconBounds", args -> onIconPositioned(args[0]));
+    }
+    return positionCallback;
+  }
 
-    Class<?> callbackType = longPressCallbackType;
-    final Object unit =
-        Reflect.getStaticObjectField(
-            Reflect.findClass("kotlin.Unit", callbackType.getClassLoader()), "INSTANCE");
-    longPressCallback =
-        Proxy.newProxyInstance(
-            callbackType.getClassLoader(),
-            new Class<?>[] {callbackType},
-            (proxy, method, methodArgs) -> {
-              switch (method.getName()) {
-                case "equals":
-                  return proxy == methodArgs[0];
-                case "hashCode":
-                  return System.identityHashCode(proxy);
-                case "toString":
-                  return "KnotSettingsLongPress";
-                default:
-                  openKnotSettings(SettingsUIInjector.getForegroundActivity());
-                  return unit;
-              }
-            });
+  private static synchronized Object longPressCallback() {
+    if (longPressCallback == null) {
+      longPressCallback =
+          kotlinCallback(
+              longPressCallbackType,
+              "KnotSettingsLongPress",
+              args -> openKnotSettings(SettingsUIInjector.getForegroundActivity()));
+    }
     return longPressCallback;
+  }
+
+  private interface CallbackBody {
+    void invoke(Object[] args) throws Throwable;
+  }
+
+  // Cache the result per callback; Compose compares modifier elements by equality
+  private static Object kotlinCallback(Class<?> type, String label, CallbackBody body) {
+    Object unit =
+        Reflect.getStaticObjectField(
+            Reflect.findClass("kotlin.Unit", type.getClassLoader()), "INSTANCE");
+    return Proxy.newProxyInstance(
+        type.getClassLoader(),
+        new Class<?>[] {type},
+        (proxy, method, args) -> {
+          switch (method.getName()) {
+            case "equals":
+              return proxy == args[0];
+            case "hashCode":
+              return System.identityHashCode(proxy);
+            case "toString":
+              return label;
+            default:
+              try {
+                body.invoke(args);
+              } catch (Throwable t) {
+                Knot.log("Knot: " + label + " error: " + t);
+              }
+              return unit;
+          }
+        });
   }
 }
