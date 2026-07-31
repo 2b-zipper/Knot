@@ -49,7 +49,7 @@ public class PlusMenuHook implements BaseHook {
 
     try {
       pCls = Reflect.findClass(cfg.plusMenu.plusMenuComponentClass, lpparam.classLoader);
-      composerCls = Reflect.findClass(cfg.plusMenu.plusMenuComposerClass, lpparam.classLoader);
+      composerCls = Reflect.findClass(cfg.compose.composerClass, lpparam.classLoader);
       composerImplCls =
           Reflect.findClass(cfg.plusMenu.plusMenuComposerImplClass, lpparam.classLoader);
       callbackCls = Reflect.findClass(cfg.plusMenu.plusMenuCallbackClass, lpparam.classLoader);
@@ -63,7 +63,7 @@ public class PlusMenuHook implements BaseHook {
       Knot.log("Knot: PlusMenu entry methods not found");
       return;
     }
-    final int composerArg = paramIndex(itemEntry, composerCls);
+    final int composerArg = Reflect.paramIndex(itemEntry, composerCls);
 
     final Object readToggleCallback =
         generateToggleHandler(
@@ -201,20 +201,12 @@ public class PlusMenuHook implements BaseHook {
 
   private static Method findComposeEntry(Class<?> cls, String name, Class<?> composerCls) {
     for (Method m : cls.getDeclaredMethods()) {
-      if (m.getName().equals(name) && paramIndex(m, composerCls) >= 0) {
+      if (m.getName().equals(name) && Reflect.paramIndex(m, composerCls) >= 0) {
         m.setAccessible(true);
         return m;
       }
     }
     return null;
-  }
-
-  private static int paramIndex(Method m, Class<?> type) {
-    Class<?>[] params = m.getParameterTypes();
-    for (int i = 0; i < params.length; i++) {
-      if (params[i] == type) return i;
-    }
-    return -1;
   }
 
   private static void addPlusMenuItem(

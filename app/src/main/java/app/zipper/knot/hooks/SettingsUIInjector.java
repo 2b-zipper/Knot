@@ -71,6 +71,7 @@ public class SettingsUIInjector implements BaseHook {
   };
 
   public static volatile Runnable openSettingsAction = null;
+  private static volatile java.lang.ref.WeakReference<Activity> foregroundActivity = null;
   private static volatile SettingsUIInjector instance = null;
   private static volatile Object cachedToggle = null;
   private static volatile Object cachedSuccess = null;
@@ -491,10 +492,17 @@ public class SettingsUIInjector implements BaseHook {
   }
 
   private Object onHostResume(XposedInterface.Chain chain) throws Throwable {
+    foregroundActivity = new java.lang.ref.WeakReference<>((Activity) chain.getThisObject());
     if (dialogHost != null && chain.getThisObject() != dialogHost) {
       dismissSettingsImmediately();
     }
     return chain.proceed();
+  }
+
+  public static Activity getForegroundActivity() {
+    java.lang.ref.WeakReference<Activity> ref = foregroundActivity;
+    Activity activity = ref == null ? null : ref.get();
+    return activity == null || activity.isFinishing() ? null : activity;
   }
 
   private void displaySettingsDialog(Context ctx) {

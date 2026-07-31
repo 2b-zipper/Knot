@@ -124,6 +124,17 @@ public final class Reflect {
     return findConstructorExact(findClass(className, cl), paramTypeSpecs);
   }
 
+  public static int paramIndex(Class<?>[] paramTypes, Class<?> type) {
+    for (int i = 0; i < paramTypes.length; i++) {
+      if (paramTypes[i] == type) return i;
+    }
+    return -1;
+  }
+
+  public static int paramIndex(Method method, Class<?> type) {
+    return paramIndex(method.getParameterTypes(), type);
+  }
+
   public static Object callMethod(Object obj, String name, Object... args) {
     Method m = resolveBestMethod(obj.getClass(), name, args);
     try {

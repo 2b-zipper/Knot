@@ -44,6 +44,22 @@ public class LineVersion {
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
     public NightMode nightMode = new NightMode();
+    public Compose compose = new Compose();
+    public Home26NavIcon home26NavIcon = new Home26NavIcon();
+
+    public static class Compose {
+      public String composerClass = "";
+      public String clickableClass = "";
+      public String methodClickable = "";
+      public String methodCombinedClickable = "";
+    }
+
+    public static class Home26NavIcon {
+      public String rendererClass = "";
+      public String rendererMethod = "";
+      public int agentDrawableId = 0;
+      public int settingsDrawableId = 0;
+    }
 
     public static class NightMode {
       public String nightModeConfiguratorClass = "";
@@ -202,7 +218,6 @@ public class LineVersion {
 
     public static class PlusMenu {
       public String plusMenuComponentClass = "";
-      public String plusMenuComposerClass = "";
       public String plusMenuComposerImplClass = "";
       public String plusMenuCallbackClass = "";
       public String plusMenuOnClickItemClass = "";
@@ -314,7 +329,6 @@ public class LineVersion {
       public String resNoServicesId = "";
       public String lypRecommendationModuleArgClass = "";
       public String lypRecommendationContextClass = "";
-      public String lypRecommendationComposerClass = "";
       public String lypRecommendationModuleClass = "";
       public String lypRecommendationControllerClass = "";
       public String lypRecommendationSectionClass = "";
@@ -478,10 +492,6 @@ public class LineVersion {
 
       public String miniTabHeaderClass = "";
       public String miniTabAgentMethod = "";
-
-      public String home26NavIconClass = "";
-      public String home26NavIconMethod = "";
-      public int home26AgentDrawableId = 0;
     }
 
     public static class AgentIInChat {

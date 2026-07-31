@@ -82,7 +82,7 @@ public class RemoveHomeContents implements BaseHook {
         || cfg.home.lypRecommendationControllerClass.isEmpty()
         || cfg.home.lypRecommendationModuleArgClass.isEmpty()
         || cfg.home.lypRecommendationContextClass.isEmpty()
-        || cfg.home.lypRecommendationComposerClass.isEmpty()) return;
+        || cfg.compose.composerClass.isEmpty()) return;
 
     Knot.module
         .hook(
@@ -93,7 +93,7 @@ public class RemoveHomeContents implements BaseHook {
                 String.class,
                 cfg.home.lypRecommendationModuleArgClass,
                 cfg.home.lypRecommendationContextClass,
-                cfg.home.lypRecommendationComposerClass))
+                cfg.compose.composerClass))
         .intercept(
             chain -> {
               if (!SettingsStore.get(

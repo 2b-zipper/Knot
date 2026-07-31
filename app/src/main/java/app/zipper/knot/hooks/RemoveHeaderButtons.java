@@ -248,16 +248,16 @@ public class RemoveHeaderButtons implements BaseHook {
   }
 
   private static void hookHome26AgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
-    if (cfg.searchBarAgentI.home26NavIconClass.isEmpty()
-        || cfg.searchBarAgentI.home26NavIconMethod.isEmpty()
-        || cfg.searchBarAgentI.home26AgentDrawableId == 0) return;
+    if (cfg.home26NavIcon.rendererClass.isEmpty()
+        || cfg.home26NavIcon.rendererMethod.isEmpty()
+        || cfg.home26NavIcon.agentDrawableId == 0) return;
 
-    final int agentDrawableId = cfg.searchBarAgentI.home26AgentDrawableId;
+    final int agentDrawableId = cfg.home26NavIcon.agentDrawableId;
     try {
-      Class<?> cls = Reflect.findClass(cfg.searchBarAgentI.home26NavIconClass, classLoader);
+      Class<?> cls = Reflect.findClass(cfg.home26NavIcon.rendererClass, classLoader);
       Knot.hookAll(
           cls,
-          cfg.searchBarAgentI.home26NavIconMethod,
+          cfg.home26NavIcon.rendererMethod,
           chain -> {
             if (Main.options.removeSearchBarAgentIButton.enabled
                 && chain.getArgs().contains(agentDrawableId)) {

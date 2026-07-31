@@ -57,7 +57,6 @@ public class Version26100 {
     v.settings.methodSetDividerVisible = "setDividerVisible";
 
     v.plusMenu.plusMenuComponentClass = "ey0.s";
-    v.plusMenu.plusMenuComposerClass = "h3.s";
     v.plusMenu.plusMenuComposerImplClass = "h3.c1";
     v.plusMenu.plusMenuCallbackClass = "f88.a";
     v.plusMenu.plusMenuOnClickItemClass = "f88.l";
@@ -142,7 +141,6 @@ public class Version26100 {
     v.home.resNoServicesId = "home_tab_no_services_title";
     v.home.lypRecommendationModuleArgClass = "a42.x";
     v.home.lypRecommendationContextClass = "k62.o";
-    v.home.lypRecommendationComposerClass = "h3.s";
     v.home.lypRecommendationModuleClass = "a42.x$l0";
     v.home.lypRecommendationControllerClass = "ja2.k";
     v.home.lypRecommendationSectionClass = "z52.e";
@@ -263,9 +261,15 @@ public class Version26100 {
     v.searchBarAgentI.miniTabHeaderClass =
         "com.linecorp.line.wallet.impl.v3.view.WalletV3GrandDesignHeaderView";
     v.searchBarAgentI.miniTabAgentMethod = "o";
-    v.searchBarAgentI.home26NavIconClass = "x82.m";
-    v.searchBarAgentI.home26NavIconMethod = "b";
-    v.searchBarAgentI.home26AgentDrawableId = 0x7f080b6f;
+    v.home26NavIcon.rendererClass = "x82.m";
+    v.home26NavIcon.rendererMethod = "b";
+    v.home26NavIcon.agentDrawableId = 0x7f080b6f;
+    v.home26NavIcon.settingsDrawableId = 0x7f081239;
+
+    v.compose.composerClass = "h3.s";
+    v.compose.clickableClass = "u1.o0";
+    v.compose.methodClickable = "a";
+    v.compose.methodCombinedClickable = "d";
 
     v.agentIInChat.toggleComposableClass = "ef1.i";
 

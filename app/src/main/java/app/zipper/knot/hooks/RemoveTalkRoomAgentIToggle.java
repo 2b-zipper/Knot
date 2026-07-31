@@ -59,7 +59,7 @@ public class RemoveTalkRoomAgentIToggle implements BaseHook {
     boolean hasComposer = false;
     boolean hasFlags = false;
     for (Class<?> type : method.getParameterTypes()) {
-      if (cfg.plusMenu.plusMenuComposerClass.equals(type.getName())) {
+      if (cfg.compose.composerClass.equals(type.getName())) {
         hasComposer = true;
       } else if (type == Integer.TYPE) {
         hasFlags = true;
