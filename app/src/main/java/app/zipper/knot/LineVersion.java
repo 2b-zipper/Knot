@@ -338,6 +338,13 @@ public class LineVersion {
       public String lypRecommendationModuleClass = "";
       public String lypRecommendationControllerClass = "";
       public String lypRecommendationSectionClass = "";
+
+      public String home26RegistryClass = "";
+      public String home26RegistryControllersField = "";
+      public String home26RendererAdapterClass = "";
+      public String home26FeedModules = "";
+      public String home26ServiceModules = "";
+      public String home26LoadingMoreDataClass = "";
     }
 
     public static class Chat {

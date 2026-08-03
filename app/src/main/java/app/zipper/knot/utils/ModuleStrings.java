@@ -137,8 +137,9 @@ public class ModuleStrings {
 
   public static final String OPT_REMOVE_ADS_LABEL = "広告を非表示";
   public static final String OPT_REMOVE_ADS_DESC = "トークリスト上部やホーム画面などに表示される広告を非表示にします。";
-  public static final String OPT_REMOVE_HOME_RECOMMENDATIONS_LABEL = "ホームのおすすめを非表示";
-  public static final String OPT_REMOVE_HOME_RECOMMENDATIONS_DESC = "ホーム画面に表示されるおすすめコンテンツを非表示にします。";
+  public static final String OPT_REMOVE_HOME_RECOMMENDATIONS_LABEL = "ホームのおすすめ/フィードを非表示";
+  public static final String OPT_REMOVE_HOME_RECOMMENDATIONS_DESC =
+      "ホーム画面（HOME26を含む）に表示されるおすすめコンテンツやフィードを非表示にします。";
   public static final String OPT_REMOVE_HOME_SERVICES_LABEL = "ホームのサービス一覧を非表示";
   public static final String OPT_REMOVE_HOME_SERVICES_DESC = "ホーム画面に表示されるサービス一覧を非表示にします。";
   public static final String OPT_REMOVE_HOME_ACCORDION_LABEL = "ホーム上部のアコーディオンを非表示";
