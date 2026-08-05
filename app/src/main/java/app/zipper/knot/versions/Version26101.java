@@ -146,13 +146,11 @@ public class Version26101 {
     v.home.lypRecommendationControllerClass = "ia2.j";
     v.home.lypRecommendationSectionClass = "y52.e";
 
-    v.home.home26RegistryClass = "o62.d0";
-    v.home.home26RegistryControllersField = "c";
-    v.home.home26RendererAdapterClass = "o62.j";
-    v.home.home26FeedModules =
-        "z32.x$m,z32.x$l,z32.x$r,z32.x$s,z32.x$t,z32.x$u,z32.x$v,z32.x$w,z32.x$x,z32.x$y,z32.x$z,z32.x$a0,z32.x$b0,z32.x$c0,z32.x$d0,z32.x$e0";
-    v.home.home26ServiceModules = "z32.x$j0,z32.x$o";
+    v.home.home26FeedTypePrefixes =
+        "HomeFeed,HomeContentsRecommendation,GlobalHomePage,GlobalHomeDefault,AdModel,HomePerformanceAd,FLEX";
+    v.home.home26ServiceTypePrefixes = "HomeServiceList,GlobalHomeServiceSection";
     v.home.home26LoadingMoreDataClass = "l62.h$a";
+    v.home.home26ModuleBodyField = "e";
 
     v.chat.headerController = "zb1.h1";
     v.chat.headerHelper = "jp.naver.line.android.common.view.header.b";
