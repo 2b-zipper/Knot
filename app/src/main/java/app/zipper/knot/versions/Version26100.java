@@ -146,6 +146,12 @@ public class Version26100 {
     v.home.lypRecommendationControllerClass = "ja2.k";
     v.home.lypRecommendationSectionClass = "z52.e";
 
+    v.home.home26FeedTypePrefixes =
+        "HomeFeed,HomeContentsRecommendation,GlobalHomePage,GlobalHomeDefault,AdModel,HomePerformanceAd,FLEX";
+    v.home.home26ServiceTypePrefixes = "HomeServiceList,GlobalHomeServiceSection";
+    v.home.home26LoadingMoreDataClass = "m62.h$a";
+    v.home.home26ModuleBodyField = "e";
+
     v.chat.headerController = "ac1.r1";
     v.chat.headerHelper = "jp.naver.line.android.common.view.header.b";
     v.chat.chatIdField = "j";
