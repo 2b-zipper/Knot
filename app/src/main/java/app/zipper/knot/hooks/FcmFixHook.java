@@ -26,6 +26,22 @@ public class FcmFixHook implements BaseHook {
     return config.experimentalFcmFix.enabled;
   }
 
+  private static boolean isFisMode(KnotConfig config) {
+    return app.zipper.knot.utils.ModuleStrings.FCM_FIX_MODE_FIS.equals(config.fcmFixMode.value);
+  }
+
+  private static byte[] hexDecode(String hex) {
+    int len = hex.length();
+    byte[] out = new byte[len / 2];
+    for (int i = 0; i < len; i += 2) {
+      out[i / 2] =
+          (byte)
+              ((Character.digit(hex.charAt(i), 16) << 4)
+                  | Character.digit(hex.charAt(i + 1), 16));
+    }
+    return out;
+  }
+
   private static void logVerbose(String message) {
     if (VERBOSE_LOGGING) {
       Knot.log("Knot: " + message);
@@ -226,6 +242,29 @@ public class FcmFixHook implements BaseHook {
     }
   }
 
+  private static void hookFisCertDigest(
+      ClassLoader cl, KnotConfig config, LineVersion.Config.NotificationFix fixCfg) {
+    try {
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  fixCfg.fisCertDigestClass,
+                  cl,
+                  fixCfg.fisCertDigestMethod,
+                  Context.class,
+                  String.class))
+          .intercept(
+              chain -> {
+                if (!isEnabled(config)) return chain.proceed();
+                logVerbose("FIS: spoofed cert digest to official SHA-1");
+                return hexDecode(fixCfg.fisCertSha1);
+              });
+      Knot.log("Knot: FIS cert digest hook installed on " + fixCfg.fisCertDigestClass);
+    } catch (Throwable t) {
+      Knot.log("Knot: FIS cert digest hook failed: " + t);
+    }
+  }
+
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     final ClassLoader cl = lpparam.classLoader;
@@ -234,6 +273,11 @@ public class FcmFixHook implements BaseHook {
       return;
     }
     final LineVersion.Config.NotificationFix fixCfg = versionConfig.notificationFix;
+
+    if (isFisMode(config)) {
+      hookFisCertDigest(cl, config, fixCfg);
+      return;
+    }
 
     try {
       final Class<?> streamingStateClass = Reflect.findClass(fixCfg.legyStreamingStateClass, cl);

@@ -213,6 +213,11 @@ public class ModuleStrings {
   public static final String OPT_EXPERIMENTAL_FCM_FIX_LABEL = "FCM Fix";
   public static final String OPT_EXPERIMENTAL_FCM_FIX_DESC =
       "非root環境で通知が1分程度で届かなくなる問題を回避するため、LINEのFCM通知受信処理を直接サービスに引き渡す挙動を有効にします。";
+  public static final String OPT_FCM_FIX_MODE_LABEL = "FCM Fix Mode";
+  public static final String OPT_FCM_FIX_MODE_DESC =
+      "FCM Fixの動作モードを選択します。従来（Legy維持）はLINE独自のストリーミング接続を維持して通知を届けます。FIS（証明書偽装）はFCMトークン発行時の署名を公式証明書に偽装します。";
+  public static final String FCM_FIX_MODE_LEGY = "従来（Legy維持）";
+  public static final String FCM_FIX_MODE_FIS = "FIS（証明書偽装）";
   public static final String OPT_LINE_FOREGROUND_KEEP_ALIVE_LABEL = "LINEを常にフォアグラウンドサービス化する";
   public static final String OPT_LINE_FOREGROUND_KEEP_ALIVE_DESC =
       "バッテリー使用量が増加する可能性がありますが、FCMFixがタスクキル後も動作します。非root環境で通知が届かなくなる問題の回避に有効です。Knotアップデート時は強制停止か一時停止が必要になる場合があります。";

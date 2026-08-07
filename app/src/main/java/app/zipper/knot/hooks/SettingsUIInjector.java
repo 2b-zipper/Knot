@@ -950,6 +950,10 @@ public class SettingsUIInjector implements BaseHook {
         injectHomeTypeRow(infl, parent, ctx, i);
         return;
       }
+      if (i.key.equals("fcm_fix_mode")) {
+        injectFcmFixModeRow(infl, parent, ctx, i);
+        return;
+      }
 
       View row = infl.inflate(currentCfg.res.layoutCheckbox, parent, false);
       boolean isEnabled = SettingsStore.get(i.key, i.enabled);
@@ -990,6 +994,54 @@ public class SettingsUIInjector implements BaseHook {
         injectInfoRow(
             infl, parent, ctx, i.label, i.description, true, null, v -> openHomeTypePicker(ctx, i));
     if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+  }
+
+  private void injectFcmFixModeRow(
+      LayoutInflater infl, LinearLayout parent, Context ctx, KnotConfig.Item i) {
+    View row =
+        injectInfoRow(
+            infl, parent, ctx, i.label, i.description, true, null, v -> openFcmFixModePicker(ctx, i));
+    if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+  }
+
+  private void openFcmFixModePicker(Context ctx, KnotConfig.Item i) {
+    String[] labels = {
+      ModuleStrings.FCM_FIX_MODE_LEGY, ModuleStrings.FCM_FIX_MODE_FIS
+    };
+    String[] values = {ModuleStrings.FCM_FIX_MODE_LEGY, ModuleStrings.FCM_FIX_MODE_FIS};
+
+    int checked = 0;
+    String current = SettingsStore.getString(i.key, ModuleStrings.FCM_FIX_MODE_LEGY);
+    for (int k = 0; k < values.length; k++) {
+      if (values[k].equals(current)) {
+        checked = k;
+        break;
+      }
+    }
+
+    int themeId = LineTheme.dialogTheme(ctx);
+    LineTheme.applyDialogColors(
+        new AlertDialog.Builder(ctx, themeId)
+            .setTitle(i.label)
+            .setSingleChoiceItems(
+                labels,
+                checked,
+                (d, which) -> {
+                  String chosen = values[which];
+                  SettingsStore.save(i.key, chosen);
+                  for (KnotConfig.Item itm : Main.options.items) {
+                    if (itm.key.equals(i.key)) {
+                      itm.value = chosen;
+                      break;
+                    }
+                  }
+                  d.dismiss();
+                  pendingRestart = true;
+                  if (onSettingsReloadRequest != null) onSettingsReloadRequest.run();
+                })
+            .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, null)
+            .show(),
+        ctx);
   }
 
   private void openHomeTypePicker(Context ctx, KnotConfig.Item i) {

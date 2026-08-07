@@ -469,6 +469,9 @@ public class LineVersion {
       public String legyBackgroundWorkerFlagField = "";
       public String legyHandlerField = "";
       public String legyRunnableField = "";
+      public String fisCertDigestClass = "";
+      public String fisCertDigestMethod = "";
+      public String fisCertSha1 = "";
     }
 
     public static class ForegroundKeepAlive {
