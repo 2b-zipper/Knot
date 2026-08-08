@@ -993,7 +993,12 @@ public class SettingsUIInjector implements BaseHook {
     View row =
         injectInfoRow(
             infl, parent, ctx, i.label, i.description, true, null, v -> openHomeTypePicker(ctx, i));
-    if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+    if (row != null) {
+      row.setTag((i.label + " " + i.description).toLowerCase());
+      String current = SettingsStore.getString(i.key, "");
+      LineTheme.setRowValue(
+          row, current.isEmpty() ? ModuleStrings.HOME_TYPE_DEFAULT : current);
+    }
   }
 
   private void injectFcmFixModeRow(
@@ -1001,7 +1006,10 @@ public class SettingsUIInjector implements BaseHook {
     View row =
         injectInfoRow(
             infl, parent, ctx, i.label, i.description, true, null, v -> openFcmFixModePicker(ctx, i));
-    if (row != null) row.setTag((i.label + " " + i.description).toLowerCase());
+    if (row != null) {
+      row.setTag((i.label + " " + i.description).toLowerCase());
+      LineTheme.setRowValue(row, SettingsStore.getString(i.key, ModuleStrings.FCM_FIX_MODE_LEGY));
+    }
   }
 
   private void openFcmFixModePicker(Context ctx, KnotConfig.Item i) {

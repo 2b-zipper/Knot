@@ -188,6 +188,21 @@ public final class LineTheme {
     invokeRow(row, LineVersion.get().settings.methodRowSetTitleColor, Integer.valueOf(color));
   }
 
+  public static void setRowValue(View row, CharSequence value) {
+    if (row == null) return;
+    try {
+      Context ctx = row.getContext();
+      int id = ctx.getResources().getIdentifier("setting_inlined_value", "id", LINE_PKG);
+      if (id == 0) return;
+      View v = row.findViewById(id);
+      if (v instanceof TextView) {
+        ((TextView) v).setText(value);
+        v.setVisibility(value != null && value.length() > 0 ? View.VISIBLE : View.GONE);
+      }
+    } catch (Throwable ignored) {
+    }
+  }
+
   private static void invokeRow(View row, String method, Object arg) {
     if (row == null || method == null || method.isEmpty()) return;
     try {
