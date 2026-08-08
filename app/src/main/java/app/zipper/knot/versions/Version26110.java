@@ -242,6 +242,9 @@ public class Version26110 {
     v.notificationFix.legyBackgroundWorkerFlagField = "u";
     v.notificationFix.legyHandlerField = "c";
     v.notificationFix.legyRunnableField = "t";
+    v.notificationFix.fisCertDigestClass = "rl.a";
+    v.notificationFix.fisCertDigestMethod = "a";
+    v.notificationFix.fisCertSha1 = "61ED377E85D386A8DFEE6B864BD85B0BFAA5AF81";
 
     v.talkTabHeader.chatTabHeaderStateClass = "gw1.f";
     v.talkTabHeader.iconListStateField = "y";
