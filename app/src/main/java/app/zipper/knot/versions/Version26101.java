@@ -244,7 +244,7 @@ public class Version26101 {
     v.notificationFix.legyRunnableField = "t";
     v.notificationFix.fisCertDigestClass = "tl.a";
     v.notificationFix.fisCertDigestMethod = "a";
-    v.notificationFix.fisCertSha1 = "61ED377E85D386A8DFEE6B864BD85B0BFAA5AF81";
+    v.notificationFix.fisCertSha1 = "89396DC419292473972813922867E6973D6F5C50";
 
     v.talkTabHeader.chatTabHeaderStateClass = "uu1.e";
     v.talkTabHeader.iconListStateField = "y";
