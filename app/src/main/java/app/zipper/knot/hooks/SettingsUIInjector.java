@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 import app.zipper.knot.BuildConfig;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
@@ -954,6 +955,10 @@ public class SettingsUIInjector implements BaseHook {
         injectFcmFixModeRow(infl, parent, ctx, i);
         return;
       }
+      if (i.key.equals("fcm_force_registration")) {
+        injectFcmForceRegistrationRow(infl, parent, ctx, i);
+        return;
+      }
 
       View row = infl.inflate(currentCfg.res.layoutCheckbox, parent, false);
       boolean isEnabled = SettingsStore.get(i.key, i.enabled);
@@ -1009,6 +1014,38 @@ public class SettingsUIInjector implements BaseHook {
     if (row != null) {
       row.setTag((i.label + " " + i.description).toLowerCase());
       LineTheme.setRowValue(row, SettingsStore.getString(i.key, ModuleStrings.FCM_FIX_MODE_LEGY));
+    }
+  }
+
+  private void injectFcmForceRegistrationRow(
+      LayoutInflater infl, LinearLayout parent, Context ctx, KnotConfig.Item i) {
+    View row =
+        injectInfoRow(
+            infl,
+            parent,
+            ctx,
+            i.label,
+            i.description,
+            true,
+            null,
+            v -> {
+              if (!SettingsStore.get("experimental_fcm_fix", false)) {
+                Toast.makeText(
+                        ctx, ModuleStrings.FCM_FORCE_REGISTRATION_NEEDS_FIX, Toast.LENGTH_SHORT)
+                    .show();
+                return;
+              }
+              boolean started = FcmFixHook.requestFcmTokenRefresh(ctx.getClassLoader());
+              Toast.makeText(
+                      ctx,
+                      started
+                          ? ModuleStrings.FCM_FORCE_REGISTRATION_STARTED
+                          : ModuleStrings.FCM_FORCE_REGISTRATION_FAILED,
+                      Toast.LENGTH_SHORT)
+                  .show();
+            });
+    if (row != null) {
+      row.setTag((i.label + " " + i.description).toLowerCase());
     }
   }
 

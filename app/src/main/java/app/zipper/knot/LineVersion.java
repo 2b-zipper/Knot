@@ -472,6 +472,10 @@ public class LineVersion {
       public String fisCertDigestClass = "";
       public String fisCertDigestMethod = "";
       public String fisCertSha1 = "";
+      public String gmsSignatureCheckClass = "";
+      public String gmsSignatureCheckMethod = "";
+      public String gmsAvailabilityClass = "";
+      public String gmsAvailabilityMethod = "";
     }
 
     public static class ForegroundKeepAlive {

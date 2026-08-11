@@ -108,6 +108,7 @@ public class KnotConfig {
   public final Item removeNotificationMuteButton = item("remove_notification_mute_button",  OPT_REMOVE_NOTIFICATION_MUTE_BUTTON_LABEL,  OPT_REMOVE_NOTIFICATION_MUTE_BUTTON_DESC,  false, Category.NOTIFICATION, "");
   public final Item experimentalFcmFix           = item("experimental_fcm_fix",             OPT_EXPERIMENTAL_FCM_FIX_LABEL,             OPT_EXPERIMENTAL_FCM_FIX_DESC,             false, Category.NOTIFICATION, "");
   public final Item fcmFixMode                   = item("fcm_fix_mode",                     OPT_FCM_FIX_MODE_LABEL,                     OPT_FCM_FIX_MODE_DESC,                     false, Category.NOTIFICATION, "");
+  public final Item fcmForceRegistration         = item("fcm_force_registration",           OPT_FCM_FORCE_REGISTRATION_LABEL,           OPT_FCM_FORCE_REGISTRATION_DESC,           false, Category.NOTIFICATION, "");
   public final Item lineForegroundKeepAlive      = item("line_foreground_keep_alive",       OPT_LINE_FOREGROUND_KEEP_ALIVE_LABEL,       OPT_LINE_FOREGROUND_KEEP_ALIVE_DESC,       false, Category.NOTIFICATION, "");
   public final Item safeSettingsResources        = item("safe_settings_resources",          OPT_FIX_SETTINGS_TALK_CRASH_LABEL,          OPT_FIX_SETTINGS_TALK_CRASH_DESC,          true,  Category.SYSTEM,       "");
   public final Item spoofVersion                 = item("spoof_version",                    OPT_SPOOF_VERSION_LABEL,                    OPT_SPOOF_VERSION_DESC,                    false, Category.SYSTEM,       "");

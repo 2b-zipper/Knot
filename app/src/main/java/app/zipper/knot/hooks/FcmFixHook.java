@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import app.zipper.knot.Knot;
@@ -22,6 +23,12 @@ public class FcmFixHook implements BaseHook {
 
   private static final boolean VERBOSE_LOGGING = false;
 
+  private static final String REAL_GMS_PACKAGE = "com.google.android.gms";
+
+  private static volatile boolean forceNextTokenRefresh = false;
+  private static volatile boolean refreshHookReady = false;
+  private static volatile ClassLoader lastClassLoader = null;
+
   private static boolean isEnabled(KnotConfig config) {
     return config.experimentalFcmFix.enabled;
   }
@@ -36,8 +43,7 @@ public class FcmFixHook implements BaseHook {
     for (int i = 0; i < len; i += 2) {
       out[i / 2] =
           (byte)
-              ((Character.digit(hex.charAt(i), 16) << 4)
-                  | Character.digit(hex.charAt(i + 1), 16));
+              ((Character.digit(hex.charAt(i), 16) << 4) | Character.digit(hex.charAt(i + 1), 16));
     }
     return out;
   }
@@ -265,6 +271,143 @@ public class FcmFixHook implements BaseHook {
     }
   }
 
+  /**
+   * Hook to bypass LINE's GMS signature verification. With a microG-RE fork the signing certificate
+   * never matches Google's, so the check always fails. Only GMS-related PackageInfo instances are
+   * affected; unrelated lookups proceed normally.
+   */
+  private static void hookGmsSignatureCheck(
+      ClassLoader cl, KnotConfig config, LineVersion.Config.NotificationFix fixCfg) {
+    if (fixCfg.gmsSignatureCheckClass == null || fixCfg.gmsSignatureCheckClass.isEmpty()) {
+      return;
+    }
+    try {
+      Class<?> signatureCheckClass = Reflect.findClass(fixCfg.gmsSignatureCheckClass, cl);
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  signatureCheckClass,
+                  fixCfg.gmsSignatureCheckMethod,
+                  PackageInfo.class,
+                  boolean.class))
+          .intercept(
+              chain -> {
+                if (!isEnabled(config)) return chain.proceed();
+                Object arg = chain.getArg(0);
+                if (!(arg instanceof PackageInfo)) return chain.proceed();
+                PackageInfo pi = (PackageInfo) arg;
+                if (pi.packageName != null && REAL_GMS_PACKAGE.equals(pi.packageName)) {
+                  logVerbose("GMS signature check bypassed for " + pi.packageName);
+                  return Boolean.TRUE;
+                }
+                return chain.proceed();
+              });
+      Knot.log("Knot: GMS signature check hook installed on " + fixCfg.gmsSignatureCheckClass);
+    } catch (Throwable t) {
+      Knot.log("Knot: GMS signature check hook failed: " + t);
+    }
+  }
+
+  /**
+   * Hook to always report GMS as available (success code 0). Even with the signature check
+   * bypassed, the presence check can fail on devices. so force success when microG-RE is in use.
+   */
+  private static void hookGmsAvailability(
+      ClassLoader cl, KnotConfig config, LineVersion.Config.NotificationFix fixCfg) {
+    if (fixCfg.gmsAvailabilityClass == null || fixCfg.gmsAvailabilityClass.isEmpty()) {
+      return;
+    }
+    try {
+      Class<?> availabilityClass = Reflect.findClass(fixCfg.gmsAvailabilityClass, cl);
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  availabilityClass, fixCfg.gmsAvailabilityMethod, Context.class, int.class))
+          .intercept(
+              chain -> {
+                if (!isEnabled(config)) return chain.proceed();
+                logVerbose("GMS availability check bypassed -> 0");
+                return Integer.valueOf(0);
+              });
+      Knot.log("Knot: GMS availability hook installed on " + fixCfg.gmsAvailabilityClass);
+    } catch (Throwable t) {
+      Knot.log("Knot: GMS availability hook failed: " + t);
+    }
+  }
+
+  /**
+   * Hook FirebaseMessaging's token freshness check. When the UI sets forceNextTokenRefresh this
+   * returns true so LINE's token fetch path performs a fresh registration instead of returning the
+   * cached token.
+   */
+  private static void hookForceTokenRefresh(ClassLoader cl) {
+    try {
+      Class<?> fmClass = Reflect.findClass("com.google.firebase.messaging.FirebaseMessaging", cl);
+      for (Method m : fmClass.getDeclaredMethods()) {
+        if ("i".equals(m.getName())
+            && m.getParameterTypes().length == 1
+            && m.getReturnType() == boolean.class) {
+          m.setAccessible(true);
+          Knot.module
+              .hook(m)
+              .intercept(
+                  chain -> {
+                    if (forceNextTokenRefresh) {
+                      forceNextTokenRefresh = false;
+                      return Boolean.TRUE;
+                    }
+                    return chain.proceed();
+                  });
+          refreshHookReady = true;
+          Knot.log("Knot: FirebaseMessaging token refresh hook installed");
+          return;
+        }
+      }
+      Knot.log("Knot: FirebaseMessaging freshness method not found");
+    } catch (Throwable t) {
+      Knot.log("Knot: failed to install FirebaseMessaging refresh hook: " + t);
+    }
+  }
+
+  /**
+   * Force a fresh FCM token registration from the Knot settings UI. Runs in the same LINE process;
+   * the actual fetch happens on a background thread.
+   */
+  public static boolean requestFcmTokenRefresh(ClassLoader cl) {
+    ClassLoader loader = lastClassLoader != null ? lastClassLoader : cl;
+    if (loader == null) {
+      Knot.log("Knot: FCM token refresh requested without a classloader");
+      return false;
+    }
+    try {
+      Class<?> fmClass =
+          Reflect.findClass("com.google.firebase.messaging.FirebaseMessaging", loader);
+      Class<?> firebaseAppClass = Reflect.findClass("ur.e", loader);
+      Object defaultApp = Reflect.callStaticMethod(firebaseAppClass, "c");
+      Object fm = Reflect.callStaticMethod(fmClass, "getInstance", defaultApp);
+      forceNextTokenRefresh = true;
+      final Object fmRef = fm;
+      new Thread(
+              () -> {
+                try {
+                  Reflect.callMethod(fmRef, "a");
+                  Knot.log(
+                      "Knot: FCM token refresh completed"
+                          + (refreshHookReady ? "" : " (force hook not active)"));
+                } catch (Throwable t) {
+                  Knot.log("Knot: FCM token refresh failed: " + t);
+                }
+              },
+              "knot-fcm-refresh")
+          .start();
+      return true;
+    } catch (Throwable t) {
+      Knot.log("Knot: FCM token refresh setup failed: " + t);
+      forceNextTokenRefresh = false;
+      return false;
+    }
+  }
+
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     final ClassLoader cl = lpparam.classLoader;
@@ -273,6 +416,16 @@ public class FcmFixHook implements BaseHook {
       return;
     }
     final LineVersion.Config.NotificationFix fixCfg = versionConfig.notificationFix;
+
+    lastClassLoader = cl;
+
+    // GMS availability/signature hooks apply to both FIS and Legy modes.
+    hookGmsSignatureCheck(cl, config, fixCfg);
+    hookGmsAvailability(cl, config, fixCfg);
+
+    // Install the FirebaseMessaging freshness hook so a UI-triggered token
+    // refresh can force a new registration.
+    hookForceTokenRefresh(cl);
 
     if (isFisMode(config)) {
       hookFisCertDigest(cl, config, fixCfg);

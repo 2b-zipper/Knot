@@ -218,6 +218,12 @@ public class ModuleStrings {
       "FCM Fixの動作モードを選択します。従来（Legy維持）はLINE独自のストリーミング接続を維持して通知を届けます。FIS（証明書偽装）はFCMトークン発行時の署名を公式証明書に偽装します。";
   public static final String FCM_FIX_MODE_LEGY = "従来（Legy維持）";
   public static final String FCM_FIX_MODE_FIS = "FIS（証明書偽装）";
+  public static final String OPT_FCM_FORCE_REGISTRATION_LABEL = "FCMトークンを再登録";
+  public static final String OPT_FCM_FORCE_REGISTRATION_DESC =
+      "通知が届かない場合に、LINEのFCMトークンを再取得します。";
+  public static final String FCM_FORCE_REGISTRATION_NEEDS_FIX = "先にFCM Fixを有効にしてください";
+  public static final String FCM_FORCE_REGISTRATION_STARTED = "FCMトークンの再登録を開始しました";
+  public static final String FCM_FORCE_REGISTRATION_FAILED = "FCMトークンの再登録を開始できませんでした";
   public static final String OPT_LINE_FOREGROUND_KEEP_ALIVE_LABEL = "LINEを常にフォアグラウンドサービス化する";
   public static final String OPT_LINE_FOREGROUND_KEEP_ALIVE_DESC =
       "バッテリー使用量が増加する可能性がありますが、FCMFixがタスクキル後も動作します。非root環境で通知が届かなくなる問題の回避に有効です。Knotアップデート時は強制停止か一時停止が必要になる場合があります。";
