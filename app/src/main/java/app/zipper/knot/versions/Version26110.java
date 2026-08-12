@@ -245,6 +245,10 @@ public class Version26110 {
     v.notificationFix.fisCertDigestClass = "rl.a";
     v.notificationFix.fisCertDigestMethod = "a";
     v.notificationFix.fisCertSha1 = "89396DC419292473972813922867E6973D6F5C50";
+    v.notificationFix.gmsSignatureCheckClass = "gl.k";
+    v.notificationFix.gmsSignatureCheckMethod = "b";
+    v.notificationFix.gmsAvailabilityClass = "gl.j";
+    v.notificationFix.gmsAvailabilityMethod = "d";
 
     v.talkTabHeader.chatTabHeaderStateClass = "gw1.f";
     v.talkTabHeader.iconListStateField = "y";
