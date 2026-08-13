@@ -37,6 +37,7 @@ public class SettingsStore {
   private static final String SETTINGS_FILE = "knot_settings.bin";
   private static final String UNSEND_HISTORY_FILE = "knot_unsend_history.bin";
   private static final String READ_HISTORY_FILE = "knot_read_history.bin";
+  private static final String EDIT_HISTORY_FILE = "knot_edit_history.bin";
 
   private static final byte[] UNSEND_HISTORY_MAGIC = {'K', 'U', 'H', '1'};
   private static final byte[] READ_HISTORY_MAGIC = {'K', 'R', 'H', '1'};
@@ -193,6 +194,21 @@ public class SettingsStore {
       }
     } catch (Throwable e) {
       android.util.Log.e("Knot", "SettingsStore.save failed", e);
+    }
+  }
+
+  public static JSONObject loadEditHistory() {
+    try {
+      return readJson(EDIT_HISTORY_FILE);
+    } catch (Throwable e) {
+      return new JSONObject();
+    }
+  }
+
+  public static void saveEditHistory(JSONObject json) {
+    try {
+      writeJson(EDIT_HISTORY_FILE, json);
+    } catch (Throwable ignored) {
     }
   }
 

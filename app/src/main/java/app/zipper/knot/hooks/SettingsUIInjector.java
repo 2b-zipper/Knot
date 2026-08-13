@@ -1001,8 +1001,7 @@ public class SettingsUIInjector implements BaseHook {
     if (row != null) {
       row.setTag((i.label + " " + i.description).toLowerCase());
       String current = SettingsStore.getString(i.key, "");
-      LineTheme.setRowValue(
-          row, current.isEmpty() ? ModuleStrings.HOME_TYPE_DEFAULT : current);
+      LineTheme.setRowValue(row, current.isEmpty() ? ModuleStrings.HOME_TYPE_DEFAULT : current);
     }
   }
 
@@ -1010,7 +1009,14 @@ public class SettingsUIInjector implements BaseHook {
       LayoutInflater infl, LinearLayout parent, Context ctx, KnotConfig.Item i) {
     View row =
         injectInfoRow(
-            infl, parent, ctx, i.label, i.description, true, null, v -> openFcmFixModePicker(ctx, i));
+            infl,
+            parent,
+            ctx,
+            i.label,
+            i.description,
+            true,
+            null,
+            v -> openFcmFixModePicker(ctx, i));
     if (row != null) {
       row.setTag((i.label + " " + i.description).toLowerCase());
       LineTheme.setRowValue(row, SettingsStore.getString(i.key, ModuleStrings.FCM_FIX_MODE_LEGY));
@@ -1050,9 +1056,7 @@ public class SettingsUIInjector implements BaseHook {
   }
 
   private void openFcmFixModePicker(Context ctx, KnotConfig.Item i) {
-    String[] labels = {
-      ModuleStrings.FCM_FIX_MODE_LEGY, ModuleStrings.FCM_FIX_MODE_FIS
-    };
+    String[] labels = {ModuleStrings.FCM_FIX_MODE_LEGY, ModuleStrings.FCM_FIX_MODE_FIS};
     String[] values = {ModuleStrings.FCM_FIX_MODE_LEGY, ModuleStrings.FCM_FIX_MODE_FIS};
 
     int checked = 0;

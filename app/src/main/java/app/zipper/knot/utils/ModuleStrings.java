@@ -22,6 +22,7 @@ public class ModuleStrings {
   public static final String CAT_OTHER = "その他";
 
   public static final String SEC_PRIVACY_READ = "既読";
+  public static final String SEC_PRIVACY_EDIT = "メッセージ編集";
   public static final String SEC_PRIVACY_UNSEND = "送信取り消し";
   public static final String SEC_PRIVACY_PROFILE = "プロフィール";
 
@@ -123,6 +124,14 @@ public class ModuleStrings {
   public static final String OPT_SELECT_ALL_IN_EDIT_MODE_LABEL = "メッセージ削除画面に全選択ボタンを追加";
   public static final String OPT_SELECT_ALL_IN_EDIT_MODE_DESC =
       "メッセージ削除画面の下部に、すべてのメッセージを選択・選択解除できるボタンを追加します。";
+  public static final String OPT_SHOW_EDIT_HISTORY_LABEL = "メッセージ編集履歴を記録";
+  public static final String OPT_SHOW_EDIT_HISTORY_DESC =
+      "メッセージが編集されたときに編集前のテキストを記録し、編集済みメッセージの長押しメニューに「編集履歴」を追加します。";
+  public static final String EDIT_HISTORY_TITLE = "編集履歴";
+  public static final String EDIT_HISTORY_EMPTY = "編集履歴はありません。";
+  public static final String EDIT_HISTORY_ORIGINAL = "元のメッセージ";
+  public static final String EDIT_HISTORY_EDITED = "編集";
+  public static final String EDIT_HISTORY_DELETE_CONFIRM_MSG = "このメッセージの編集履歴を削除しますか？";
   public static final String OPT_FIX_ANNOUNCEMENT_NAME_LABEL = "アナウンス者名の表示を修正";
   public static final String OPT_FIX_ANNOUNCEMENT_NAME_DESC =
       "パッチ済みのLINEで、アナウンス登録時のシステムメッセージが「がアナウンスしました」と名前が空になる不具合を修正し、正しく表示されるようにします。";
@@ -219,8 +228,7 @@ public class ModuleStrings {
   public static final String FCM_FIX_MODE_LEGY = "従来（Legy維持）";
   public static final String FCM_FIX_MODE_FIS = "FIS（証明書偽装）";
   public static final String OPT_FCM_FORCE_REGISTRATION_LABEL = "FCMトークンを再登録";
-  public static final String OPT_FCM_FORCE_REGISTRATION_DESC =
-      "通知が届かない場合に、LINEのFCMトークンを再取得します。";
+  public static final String OPT_FCM_FORCE_REGISTRATION_DESC = "通知が届かない場合に、LINEのFCMトークンを再取得します。";
   public static final String FCM_FORCE_REGISTRATION_NEEDS_FIX = "先にFCM Fixを有効にしてください";
   public static final String FCM_FORCE_REGISTRATION_STARTED = "FCMトークンの再登録を開始しました";
   public static final String FCM_FORCE_REGISTRATION_FAILED = "FCMトークンの再登録を開始できませんでした";

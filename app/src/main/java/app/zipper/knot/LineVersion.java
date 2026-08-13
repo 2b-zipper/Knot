@@ -40,6 +40,7 @@ public class LineVersion {
     public ChatJump chatJump = new ChatJump();
     public ChatTimestamp chatTimestamp = new ChatTimestamp();
     public ChatEditSelectAll chatEditSelectAll = new ChatEditSelectAll();
+    public MessageEditHistory messageEditHistory = new MessageEditHistory();
     public Camera camera = new Camera();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
@@ -97,6 +98,26 @@ public class LineVersion {
       public String methodGetSelectedIds = "";
       public String methodToggleItem = "";
       public String methodIsItemSelected = "";
+    }
+
+    public static class MessageEditHistory {
+      public String editRequestClass = "";
+      public String editRequestIdField = "";
+      public String editRequestTextField = "";
+      public String menuListBuilderClass = "";
+      public String menuListMethod = "";
+      public String menuListField = "";
+      public String menuContextClass = "";
+      public String menuItemEnumClass = "";
+      public String menuPresentationEnumClass = "";
+      public String methodMenuLabel = "";
+      public String methodMenuIcon = "";
+      public String methodMenuActionAccessor = "";
+      public String menuActionLambdaClass = "";
+      public String menuContextMessageField = "";
+      public String menuMessageDataField = "";
+      public String menuMessageIdField = "";
+      public String menuEditedFlagField = "";
     }
 
     public static class Iab {

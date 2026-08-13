@@ -67,6 +67,7 @@ public class KnotConfig {
   // @formatter:off
   public final Item preventMarkAsRead            = item("prevent_mark_as_read",             OPT_PREVENT_MARK_AS_READ_LABEL,             OPT_PREVENT_MARK_AS_READ_DESC,             false, Category.PRIVACY,      SEC_PRIVACY_READ);
   public final Item recordReadHistory            = item("record_read_history",              OPT_RECORD_READ_HISTORY_LABEL,              OPT_RECORD_READ_HISTORY_DESC,              false, Category.PRIVACY,      SEC_PRIVACY_READ);
+  public final Item showEditHistory              = item("show_edit_history",                OPT_SHOW_EDIT_HISTORY_LABEL,                OPT_SHOW_EDIT_HISTORY_DESC,                false, Category.PRIVACY,      SEC_PRIVACY_EDIT);
   public final Item preventUnsendMessage         = item("prevent_unsend_message",           OPT_PREVENT_UNSEND_MESSAGE_LABEL,           OPT_PREVENT_UNSEND_MESSAGE_DESC,           false, Category.PRIVACY,      SEC_PRIVACY_UNSEND);
   public final Item spoofVersionUnsendOnly       = item("spoof_version_unsend_only",        OPT_SPOOF_VERSION_UNSEND_ONLY_LABEL,        OPT_SPOOF_VERSION_UNSEND_ONLY_DESC,        false, Category.PRIVACY,      SEC_PRIVACY_UNSEND);
   public final Item showProfileTimestamps        = item("show_profile_timestamps",          OPT_SHOW_PROFILE_TIMESTAMPS_LABEL,          OPT_SHOW_PROFILE_TIMESTAMPS_DESC,          false, Category.PRIVACY,      SEC_PRIVACY_PROFILE);

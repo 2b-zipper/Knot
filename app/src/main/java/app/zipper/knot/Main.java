@@ -114,6 +114,9 @@ public class Main extends XposedModule {
       if (options.selectAllInEditMode.enabled) {
         applyHook(new ChatEditSelectAllHook(), lpparam);
       }
+      if (options.showEditHistory.enabled) {
+        applyHook(new EditHistoryHook(), lpparam);
+      }
       if (options.useDefaultCamera.enabled) {
         applyHook(new UseDefaultCameraHook(), lpparam);
       }

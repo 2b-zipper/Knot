@@ -375,6 +375,23 @@ public class Version26100 {
     v.chatEditSelectAll.methodToggleItem = "b";
     v.chatEditSelectAll.methodIsItemSelected = "l";
 
+
+    v.messageEditHistory.editRequestClass = "tz7.h";
+    v.messageEditHistory.editRequestIdField = "b";
+    v.messageEditHistory.editRequestTextField = "d";
+    v.messageEditHistory.menuListBuilderClass = "jd1.u1";
+    v.messageEditHistory.menuListMethod = "a";
+    v.messageEditHistory.menuItemEnumClass = "i41.c";
+    v.messageEditHistory.menuPresentationEnumClass = "jd1.a1";
+    v.messageEditHistory.methodMenuLabel = "g";
+    v.messageEditHistory.methodMenuIcon = "e";
+    v.messageEditHistory.methodMenuActionAccessor = "d";
+    v.messageEditHistory.menuActionLambdaClass = "h41.f$b";
+    v.messageEditHistory.menuContextMessageField = "b";
+    v.messageEditHistory.menuMessageDataField = "b";
+    v.messageEditHistory.menuMessageIdField = "c";
+    v.messageEditHistory.menuEditedFlagField = "x";
+
     v.camera.cameraModuleClass = "l32.h";
     v.camera.methodUseExternalCamera = "c";
 
