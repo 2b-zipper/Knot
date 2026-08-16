@@ -5,8 +5,8 @@ pluginManagement {
         gradlePluginPortal()
     }
     plugins {
-        id 'com.android.application' version '8.8.0' apply false
-        id 'com.diffplug.spotless' version '6.25.0' apply false
+        id 'com.android.application' version '9.3.1' apply false
+        id 'com.diffplug.spotless' version '7.2.1' apply false
     }
 }
 dependencyResolutionManagement {
