@@ -404,6 +404,9 @@ public class Version26110 {
     v.nightMode.nightModeConfiguratorClass = "z00.a";
     v.nightMode.methodApplyNightMode = "a";
     v.nightMode.fieldSystemDarkMode = "a";
+    v.nightMode.darkThemeManagerClass = "o16.j";
+    v.nightMode.methodIsDarkTheme = "n";
+    v.nightMode.methodThemeMode = "z";
 
     return v;
   }
