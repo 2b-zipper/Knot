@@ -99,6 +99,7 @@ public class AmoledThemeHook implements BaseHook {
             + themeBundleBytes.length);
 
     installFileRedirects();
+    installBottomNavigationFileBridge();
     installThriftValidationHijack(lpparam);
     installNavigationBarBlackening();
     NightModePin.install(lpparam, () -> Main.options.useAmoledTheme.enabled, "Knot: AmoledTheme");
@@ -260,6 +261,47 @@ public class AmoledThemeHook implements BaseHook {
     }
     for (Executable m : decodeFileMethods()) {
       Knot.module.hook(m).intercept(openHook);
+    }
+  }
+
+  private void installBottomNavigationFileBridge() {
+    try {
+      Knot.module
+          .hook(Reflect.findMethodExact(File.class, "exists"))
+          .intercept(
+              chain -> {
+                Object original = chain.proceed();
+                if (Boolean.TRUE.equals(original) || !Main.options.useAmoledTheme.enabled) {
+                  return original;
+                }
+
+                File requested = (File) chain.getThisObject();
+                String name = requested.getName();
+                if (name == null
+                    || !name.startsWith("gnb_bottom_ic_")
+                    || !name.endsWith(".png")) {
+                  return original;
+                }
+
+                String path = requested.getAbsolutePath();
+                if (path == null || !looksLikeThemePath(path)) return original;
+
+                Context ctx = SettingsStore.getContext();
+                if (ctx == null) return original;
+                File cached =
+                    new File(new File(new File(ctx.getCacheDir(), CACHE_SUBDIR), "images"), name);
+                if (cached.length() <= 0L) return original;
+
+                Knot.log(
+                    "Knot: AmoledTheme: BottomNav File.exists "
+                        + requested
+                        + " -> "
+                        + cached);
+                return Boolean.TRUE;
+              });
+      Knot.log("Knot: AmoledTheme: BottomNav File.exists bridge installed");
+    } catch (Throwable t) {
+      Knot.log("Knot: AmoledTheme: BottomNav File.exists bridge unavailable: " + t);
     }
   }
 
