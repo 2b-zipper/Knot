@@ -18,6 +18,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
+import java.util.function.Predicate;
 
 public class FcmFixHook implements BaseHook {
 
@@ -340,33 +341,63 @@ public class FcmFixHook implements BaseHook {
    * returns true so LINE's token fetch path performs a fresh registration instead of returning the
    * cached token.
    */
-  private static void hookForceTokenRefresh(ClassLoader cl) {
+  private static boolean hasTokenRefreshMapping(LineVersion.Config.NotificationFix cfg) {
+    return !cfg.firebaseMessagingClass.isEmpty()
+        && !cfg.firebaseMessagingGetTokenMethod.isEmpty()
+        && !cfg.firebaseMessagingTokenFreshMethod.isEmpty()
+        && !cfg.firebaseAppClass.isEmpty()
+        && !cfg.firebaseAppGetInstanceMethod.isEmpty();
+  }
+
+  private static void hookForceTokenRefresh(
+      ClassLoader cl, LineVersion.Config.NotificationFix cfg) {
+    if (!hasTokenRefreshMapping(cfg)) {
+      Knot.log("Knot: FCM token refresh mapping missing, freshness hook not installed");
+      return;
+    }
     try {
-      Class<?> fmClass = Reflect.findClass("com.google.firebase.messaging.FirebaseMessaging", cl);
-      for (Method m : fmClass.getDeclaredMethods()) {
-        if ("i".equals(m.getName())
-            && m.getParameterTypes().length == 1
-            && m.getReturnType() == boolean.class) {
-          m.setAccessible(true);
-          Knot.module
-              .hook(m)
-              .intercept(
-                  chain -> {
-                    if (forceNextTokenRefresh) {
-                      forceNextTokenRefresh = false;
-                      return Boolean.TRUE;
-                    }
-                    return chain.proceed();
-                  });
-          refreshHookReady = true;
-          Knot.log("Knot: FirebaseMessaging token refresh hook installed");
-          return;
-        }
+      Method fresh =
+          findDeclaredMethod(
+              Reflect.findClass(cfg.firebaseMessagingClass, cl),
+              cfg.firebaseMessagingTokenFreshMethod,
+              m -> m.getParameterTypes().length == 1 && m.getReturnType() == boolean.class);
+      if (fresh == null) {
+        Knot.log("Knot: FirebaseMessaging freshness method not found");
+        return;
       }
-      Knot.log("Knot: FirebaseMessaging freshness method not found");
+      Knot.module
+          .hook(fresh)
+          .intercept(
+              chain -> {
+                if (forceNextTokenRefresh) {
+                  forceNextTokenRefresh = false;
+                  return Boolean.TRUE;
+                }
+                return chain.proceed();
+              });
+      refreshHookReady = true;
+      Knot.log("Knot: FirebaseMessaging token refresh hook installed");
     } catch (Throwable t) {
       Knot.log("Knot: failed to install FirebaseMessaging refresh hook: " + t);
     }
+  }
+
+  private static Method findDeclaredMethod(Class<?> clazz, String name, Predicate<Method> filter) {
+    for (Method m : clazz.getDeclaredMethods()) {
+      if (name.equals(m.getName()) && filter.test(m)) {
+        m.setAccessible(true);
+        return m;
+      }
+    }
+    return null;
+  }
+
+  private static boolean isBlockingGetToken(Method m) {
+    if (m.getReturnType() != String.class) {
+      return false;
+    }
+    Class<?>[] params = m.getParameterTypes();
+    return params.length == 0 || (params.length == 1 && params[0] == boolean.class);
   }
 
   /**
@@ -379,18 +410,40 @@ public class FcmFixHook implements BaseHook {
       Knot.log("Knot: FCM token refresh requested without a classloader");
       return false;
     }
+    LineVersion.Config versionConfig = LineVersion.get();
+    LineVersion.Config.NotificationFix cfg =
+        versionConfig == null ? null : versionConfig.notificationFix;
+    if (cfg == null || !hasTokenRefreshMapping(cfg)) {
+      Knot.log("Knot: FCM token refresh mapping missing for this LINE version");
+      return false;
+    }
+
     try {
-      Class<?> fmClass =
-          Reflect.findClass("com.google.firebase.messaging.FirebaseMessaging", loader);
-      Class<?> firebaseAppClass = Reflect.findClass("ur.e", loader);
-      Object defaultApp = Reflect.callStaticMethod(firebaseAppClass, "c");
+      Class<?> fmClass = Reflect.findClass(cfg.firebaseMessagingClass, loader);
+      Class<?> firebaseAppClass = Reflect.findClass(cfg.firebaseAppClass, loader);
+      Object defaultApp =
+          Reflect.callStaticMethod(firebaseAppClass, cfg.firebaseAppGetInstanceMethod);
       Object fm = Reflect.callStaticMethod(fmClass, "getInstance", defaultApp);
+      final Method getToken =
+          findDeclaredMethod(
+              fmClass, cfg.firebaseMessagingGetTokenMethod, FcmFixHook::isBlockingGetToken);
+      if (getToken == null) {
+        Knot.log(
+            "Knot: FirebaseMessaging."
+                + cfg.firebaseMessagingGetTokenMethod
+                + " not found on "
+                + cfg.firebaseMessagingClass);
+        return false;
+      }
+      // 26.13.0 added a "notify listeners on cache hit" flag; false keeps the old behaviour.
+      boolean takesNotifyFlag = getToken.getParameterTypes().length == 1;
+      final Object[] getTokenArgs = takesNotifyFlag ? new Object[] {Boolean.FALSE} : new Object[0];
       forceNextTokenRefresh = true;
       final Object fmRef = fm;
       new Thread(
               () -> {
                 try {
-                  Reflect.callMethod(fmRef, "a");
+                  getToken.invoke(fmRef, getTokenArgs);
                   Knot.log(
                       "Knot: FCM token refresh completed"
                           + (refreshHookReady ? "" : " (force hook not active)"));
@@ -425,7 +478,7 @@ public class FcmFixHook implements BaseHook {
 
     // Install the FirebaseMessaging freshness hook so a UI-triggered token
     // refresh can force a new registration.
-    hookForceTokenRefresh(cl);
+    hookForceTokenRefresh(cl, fixCfg);
 
     if (isFisMode(config)) {
       hookFisCertDigest(cl, config, fixCfg);
@@ -499,14 +552,14 @@ public class FcmFixHook implements BaseHook {
                 return chain.proceed();
               });
 
-      for (Method method : fcmServiceClass.getDeclaredMethods()) {
-        if (!fixCfg.lineFcmOwnershipMethod.equals(method.getName())
-            || method.getParameterTypes().length != 2) {
-          continue;
-        }
-        method.setAccessible(true);
+      Method ownership =
+          findDeclaredMethod(
+              fcmServiceClass,
+              fixCfg.lineFcmOwnershipMethod,
+              m -> m.getParameterTypes().length == 2);
+      if (ownership != null) {
         Knot.module
-            .hook(method)
+            .hook(ownership)
             .intercept(
                 chain -> {
                   if (isEnabled(config)) {
@@ -515,7 +568,6 @@ public class FcmFixHook implements BaseHook {
                   }
                   return chain.proceed();
                 });
-        break;
       }
 
       Knot.module

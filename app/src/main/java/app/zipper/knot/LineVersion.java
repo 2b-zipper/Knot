@@ -482,6 +482,11 @@ public class LineVersion {
       public String firebaseWakefulStartMethod = "";
       public String firebaseCompletedTaskClass = "";
       public String firebaseCompletedTaskMethod = "";
+      public String firebaseMessagingClass = "";
+      public String firebaseMessagingGetTokenMethod = "";
+      public String firebaseMessagingTokenFreshMethod = "";
+      public String firebaseAppClass = "";
+      public String firebaseAppGetInstanceMethod = "";
       public String legyStreamingStateClass = "";
       public String legyStreamingLifecycleClass = "";
       public String legyStreamingLifecycleMethod = "";

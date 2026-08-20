@@ -229,6 +229,11 @@ public class Version26130 {
     v.notificationFix.firebaseWakefulStartMethod = "c";
     v.notificationFix.firebaseCompletedTaskClass = "ko.n";
     v.notificationFix.firebaseCompletedTaskMethod = "e";
+    v.notificationFix.firebaseMessagingClass = "com.google.firebase.messaging.FirebaseMessaging";
+    v.notificationFix.firebaseMessagingGetTokenMethod = "a";
+    v.notificationFix.firebaseMessagingTokenFreshMethod = "i";
+    v.notificationFix.firebaseAppClass = "ns.e";
+    v.notificationFix.firebaseAppGetInstanceMethod = "c";
     v.foregroundKeepAlive.serviceClass = "androidx.work.impl.foreground.SystemForegroundService";
     v.notificationFix.legyStreamingStateClass = "com.linecorp.legy.streaming.h$a";
     v.notificationFix.legyStreamingLifecycleClass = "com.linecorp.legy.streaming.h$d";
