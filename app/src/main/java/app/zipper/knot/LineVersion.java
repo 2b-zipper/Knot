@@ -383,6 +383,7 @@ public class LineVersion {
       public String searchKeywordTypeClass = "";
       public String searchKeywordTypeMethod = "";
       public String searchResultClass = "";
+      public String searchResultCtorArgs = "";
       public String searchResultWrapperClass = "";
       public String searchBoxViewClass = "";
       public String searchBoxEditTextField = "";
@@ -390,6 +391,7 @@ public class LineVersion {
       public String searchKeywordEventKeywordField = "";
       public String searchPresenterKeywordChangedMethod = "";
       public String searchPresenterKeywordSubjectField = "";
+      public String searchKeywordSubjectValueMethod = "";
       public String searchResultWrapperResultOptionalField = "";
       public String searchResultCountField = "";
       public String searchResultTitleViewHolderClass = "";

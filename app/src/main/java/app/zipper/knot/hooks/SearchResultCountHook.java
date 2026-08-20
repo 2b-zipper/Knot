@@ -10,6 +10,7 @@ import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.utils.LineDBUtils;
+import app.zipper.knot.utils.SearchResultLayout;
 import io.github.libxposed.api.XposedInterface;
 import java.io.File;
 import java.util.ArrayList;
@@ -73,19 +74,13 @@ public class SearchResultCountHook implements BaseHook {
       return;
 
     try {
+      SearchResultLayout layout = SearchResultLayout.of(config.chat, classLoader);
       Knot.module
-          .hook(
-              Reflect.findConstructorExact(
-                  config.chat.searchResultClass,
-                  classLoader,
-                  String.class,
-                  int.class,
-                  String.class,
-                  List.class))
+          .hook(layout.constructor)
           .intercept(
               chain -> {
                 Object result = chain.proceed();
-                replaceCappedResultCount(chain, config);
+                replaceCappedResultCount(chain, config, layout);
                 return result;
               });
     } catch (Throwable t) {
@@ -178,15 +173,12 @@ public class SearchResultCountHook implements BaseHook {
   }
 
   private static void replaceCappedResultCount(
-      XposedInterface.Chain chain, LineVersion.Config config) {
+      XposedInterface.Chain chain, LineVersion.Config config, SearchResultLayout layout) {
     try {
       List<Object> args = chain.getArgs();
-      if (args.size() < 3) return;
-      if (!(args.get(1) instanceof Integer)) return;
-
-      String chatId = (String) args.get(0);
-      String keyword = (String) args.get(2);
-      int currentCount = (Integer) args.get(1);
+      String chatId = (String) args.get(layout.chatId);
+      String keyword = (String) args.get(layout.keyword);
+      int currentCount = (Integer) args.get(layout.count);
 
       if (currentCount == LINE_SEARCH_CAPPED_COUNT && !isOneCharacterKeyword(keyword)) {
         Integer actualCount = resolveActualCount(chatId, keyword);

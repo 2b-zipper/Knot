@@ -336,6 +336,7 @@ public class Version26101 {
     v.chat.searchKeywordTypeClass = "r11.a";
     v.chat.searchKeywordTypeMethod = "d";
     v.chat.searchResultClass = "r11.f";
+    v.chat.searchResultCtorArgs = "chatId,count,keyword,idList";
     v.chat.searchResultWrapperClass = "r11.g";
     v.chat.searchBoxViewClass = "jp.naver.line.android.customview.SearchBoxView";
     v.chat.searchBoxEditTextField = "b";
@@ -343,6 +344,7 @@ public class Version26101 {
     v.chat.searchKeywordEventKeywordField = "a";
     v.chat.searchPresenterKeywordChangedMethod = "onSearchInChatKeywordChangedEventReceived";
     v.chat.searchPresenterKeywordSubjectField = "t";
+    v.chat.searchKeywordSubjectValueMethod = "v";
     v.chat.searchResultWrapperResultOptionalField = "c";
     v.chat.searchResultCountField = "d";
     v.chat.searchResultTitleViewHolderClass = "lo1.i";

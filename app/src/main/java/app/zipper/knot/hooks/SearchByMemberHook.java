@@ -12,8 +12,8 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -28,9 +28,12 @@ import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.LineDBUtils;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.SearchResultLayout;
 import io.github.libxposed.api.XposedInterface;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -174,11 +177,11 @@ public class SearchByMemberHook implements BaseHook {
             .getIdentifier("chat_ui_header_search_box_container", "id", LINE_PKG);
     if (containerId == 0) return;
 
+    // 26.13.0 swapped this container from FrameLayout to LinearLayout.
     View container = headerView.findViewById(containerId);
-    if (!(container instanceof FrameLayout) || ((FrameLayout) container).getChildCount() == 0)
-      return;
+    if (!(container instanceof ViewGroup) || ((ViewGroup) container).getChildCount() == 0) return;
 
-    View searchBoxView = ((FrameLayout) container).getChildAt(0);
+    View searchBoxView = ((ViewGroup) container).getChildAt(0);
     int iconId = activity.getResources().getIdentifier("v2_common_search_icon", "id", LINE_PKG);
     if (iconId == 0) return;
 
@@ -281,19 +284,13 @@ public class SearchByMemberHook implements BaseHook {
 
   private void setupSearchResultHook(LineVersion.Config config, ClassLoader classLoader) {
     try {
+      SearchResultLayout layout = SearchResultLayout.of(config.chat, classLoader);
       Knot.module
-          .hook(
-              Reflect.findConstructorExact(
-                  config.chat.searchResultClass,
-                  classLoader,
-                  String.class,
-                  int.class,
-                  String.class,
-                  List.class))
+          .hook(layout.constructor)
           .intercept(
               chain -> {
                 Object[] args = chain.getArgs().toArray();
-                handleSearchResultCreation(args);
+                handleSearchResultCreation(args, layout);
                 return chain.proceed(args);
               });
     } catch (Throwable t) {
@@ -302,37 +299,38 @@ public class SearchByMemberHook implements BaseHook {
   }
 
   @SuppressWarnings("unchecked")
-  private void handleSearchResultCreation(Object[] args) {
+  private void handleSearchResultCreation(Object[] args, SearchResultLayout layout) {
     try {
       if (Boolean.TRUE.equals(creatingResult.get())) return;
 
-      String chatId = (String) args[0];
+      String chatId = (String) args[layout.chatId];
       if (chatId == null) return;
 
       String senderMid = chatMemberFilter.get(chatId);
       if (senderMid == null) return;
 
-      String keyword = (String) args[2];
-      List<Long> ids = (List<Long>) args[3];
+      String keyword = (String) args[layout.keyword];
+      List<Long> ids = (List<Long>) args[layout.idList];
       if (ids == null || ids.isEmpty()) {
-        handleEmptyIds(chatId, senderMid, keyword, args);
+        handleEmptyIds(chatId, senderMid, keyword, args, layout);
       } else {
         List<Long> filtered = filterLocalIdsByMid(ids, senderMid);
         cacheResults(chatId, filtered, keyword);
-        args[3] = filtered;
-        args[1] = filtered.size();
+        args[layout.idList] = filtered;
+        args[layout.count] = filtered.size();
       }
     } catch (Throwable t) {
       Knot.log("Knot: handleSearchResultCreation error: " + t);
     }
   }
 
-  private void handleEmptyIds(String chatId, String senderMid, String keyword, Object[] args) {
+  private void handleEmptyIds(
+      String chatId, String senderMid, String keyword, Object[] args, SearchResultLayout layout) {
     if (pendingFetchAll.remove(chatId) || !hasMeaningfulKeyword(keyword)) {
       List<Long> allIds = fetchAllMemberLocalIds(chatId, senderMid);
       cacheResults(chatId, allIds, keyword);
-      args[3] = allIds;
-      args[1] = allIds.size();
+      args[layout.idList] = allIds;
+      args[layout.count] = allIds.size();
     } else {
       cachedResults.remove(chatId);
       cachedKeywords.put(chatId, normalizeKeyword(keyword));
@@ -341,7 +339,7 @@ public class SearchByMemberHook implements BaseHook {
 
   private void setupSearchResultWrapperHook(LineVersion.Config config, ClassLoader classLoader) {
     try {
-      Class<?> resultCls = Reflect.findClass(config.chat.searchResultClass, classLoader);
+      SearchResultLayout layout = SearchResultLayout.of(config.chat, classLoader);
       Knot.module
           .hook(
               Reflect.findConstructorExact(
@@ -349,7 +347,7 @@ public class SearchByMemberHook implements BaseHook {
           .intercept(
               chain -> {
                 Object result = chain.proceed();
-                handleSearchResultWrapperCreated(chain, resultCls);
+                handleSearchResultWrapperCreated(chain, layout);
                 return result;
               });
 
@@ -363,12 +361,14 @@ public class SearchByMemberHook implements BaseHook {
     }
   }
 
-  private void handleSearchResultWrapperCreated(XposedInterface.Chain chain, Class<?> resultCls) {
+  private void handleSearchResultWrapperCreated(
+      XposedInterface.Chain chain, SearchResultLayout layout) {
     try {
       String chatId = (String) chain.getArg(0);
       if (chatId == null) return;
       String senderMid = chatMemberFilter.get(chatId);
       if (senderMid == null) return;
+
       String keyword = (String) chain.getArg(1);
       String resultKeyword = keyword != null ? keyword : "";
       String normalizedKeyword = normalizeKeyword(resultKeyword);
@@ -381,16 +381,20 @@ public class SearchByMemberHook implements BaseHook {
         ids = cachedResults.get(chatId);
       }
 
-      if (ids == null) return;
+      if (ids == null) {
+        Knot.log("Knot: SearchByMember wrapperCreated resolved no ids, skipping injection");
+        return;
+      }
 
       creatingResult.set(Boolean.TRUE);
       try {
         String injectKeyword = distinctifyShowAllKeyword(resultKeyword);
-        Object result = Reflect.newInstance(resultCls, chatId, ids.size(), injectKeyword, ids);
+        Object result = layout.newInstance(chatId, injectKeyword, ids.size(), ids);
         Reflect.setObjectField(
             chain.getThisObject(),
             lineVersionConfig.chat.searchResultWrapperResultOptionalField,
             Optional.of(result));
+        Knot.log("Knot: SearchByMember injected wrapperCreated ids=" + ids.size());
       } finally {
         creatingResult.remove();
       }
@@ -568,9 +572,20 @@ public class SearchByMemberHook implements BaseHook {
       if (helper == null) return;
 
       Object controller = getSearchController(helper);
-      if (controller == null) return;
+      if (controller == null) {
+        Knot.log(
+            "Knot: triggerReSearch aborted, no search controller in field ."
+                + lineVersionConfig.chat.searchHeaderControllerField);
+        return;
+      }
       Object sbView = getSearchBoxView(controller);
-      if (sbView == null) return;
+      if (sbView == null) {
+        Knot.log(
+            "Knot: triggerReSearch aborted, no search box from ."
+                + lineVersionConfig.chat.searchControllerSearchBoxMethod
+                + "()");
+        return;
+      }
       String currentText = (String) Reflect.callMethod(sbView, "getSearchText");
       if (currentText == null) currentText = "";
 
@@ -622,7 +637,11 @@ public class SearchByMemberHook implements BaseHook {
           Reflect.getObjectField(
               chain.getThisObject(), config.chat.searchPresenterKeywordSubjectField);
       AtomicReference<Object> currentValueRef = getBehaviorSubjectCurrentValueRef(keywordSubject);
-      if (currentValueRef == null) return;
+      if (currentValueRef == null) {
+        Knot.log(
+            "Knot: SearchByMember could not reach the keyword subject value, re-search deduped");
+        return;
+      }
 
       currentValueRef.lazySet("__knot_force_refresh__" + System.nanoTime());
     } catch (Throwable t) {
@@ -642,11 +661,21 @@ public class SearchByMemberHook implements BaseHook {
     return forcedKeywordRefreshes.remove(key, requestedAt);
   }
 
+  private static Object readBehaviorSubjectValue(Object subject) throws Throwable {
+    String name = lineVersionConfig.chat.searchKeywordSubjectValueMethod;
+    if (name.isEmpty()) return null;
+    Method getter = Reflect.findMethodExact(subject.getClass(), name);
+    // A stale mapping can land on the subject's static create(), which returns a fresh empty
+    // subject instead of throwing.
+    if (Modifier.isStatic(getter.getModifiers())) return null;
+    return getter.invoke(subject);
+  }
+
   @SuppressWarnings("unchecked")
   private AtomicReference<Object> getBehaviorSubjectCurrentValueRef(Object subject) {
     if (subject == null) return null;
     try {
-      Object currentValue = Reflect.callMethod(subject, "v");
+      Object currentValue = readBehaviorSubjectValue(subject);
       for (Field field : subject.getClass().getDeclaredFields()) {
         if (!AtomicReference.class.isAssignableFrom(field.getType())) continue;
         field.setAccessible(true);

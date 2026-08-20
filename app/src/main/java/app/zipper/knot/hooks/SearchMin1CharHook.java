@@ -9,6 +9,7 @@ import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.utils.LineDBUtils;
+import app.zipper.knot.utils.SearchResultLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,19 +83,13 @@ public class SearchMin1CharHook implements BaseHook {
 
   private void hookOneCharacterResults(LineVersion.Config config, ClassLoader classLoader) {
     try {
+      SearchResultLayout layout = SearchResultLayout.of(config.chat, classLoader);
       Knot.module
-          .hook(
-              Reflect.findConstructorExact(
-                  config.chat.searchResultClass,
-                  classLoader,
-                  String.class,
-                  int.class,
-                  String.class,
-                  List.class))
+          .hook(layout.constructor)
           .intercept(
               chain -> {
                 Object[] args = chain.getArgs().toArray();
-                replaceOneCharacterResults(args);
+                replaceOneCharacterResults(args, layout);
                 return chain.proceed(args);
               });
     } catch (Throwable t) {
@@ -102,17 +97,17 @@ public class SearchMin1CharHook implements BaseHook {
     }
   }
 
-  private static void replaceOneCharacterResults(Object[] args) {
+  private static void replaceOneCharacterResults(Object[] args, SearchResultLayout layout) {
     try {
-      String chatId = (String) args[0];
-      String keyword = normalizeOneCharacterKeyword((String) args[2]);
+      String chatId = (String) args[layout.chatId];
+      String keyword = normalizeOneCharacterKeyword((String) args[layout.keyword]);
       if (chatId == null || keyword == null) return;
 
       List<Long> localIds = fetchExactOneCharacterLocalIds(chatId, keyword);
       if (localIds == null) return;
 
-      args[1] = localIds.size();
-      args[3] = localIds;
+      args[layout.count] = localIds.size();
+      args[layout.idList] = localIds;
     } catch (Throwable t) {
       Knot.log("Knot: SearchMin1CharHook replace results error: " + t);
     }
