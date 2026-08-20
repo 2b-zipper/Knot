@@ -71,6 +71,10 @@ public class LineVersion {
       public String nightModeConfiguratorClass = "";
       public String methodApplyNightMode = "";
       public String fieldSystemDarkMode = "";
+      public String inputPassActivityClass = "";
+      public String darkThemeManagerClass = "";
+      public String methodIsDarkTheme = "";
+      public String methodThemeMode = "";
     }
 
     public static class HomeTab {

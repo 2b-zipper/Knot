@@ -1,11 +1,15 @@
 package app.zipper.knot.hooks;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
+import android.view.View;
+import android.view.Window;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
@@ -49,6 +53,11 @@ public class AmoledThemeHook implements BaseHook {
   private static final String SEMANTIC_SECTION = "theme.semantic";
   private static final String SEMANTIC_SUFFIX = ".background.color";
   private static final int[] NO_COLOR = new int[0];
+
+  private static final String PRIMARY_BACKGROUND = "primaryBackground";
+  private static final String[] PASSCODE_BACKGROUND_VIEWS = {
+    "passcode_bg", "passcode_top", "passcode_fake_status_bar"
+  };
 
   private static final Set<String> SEMANTIC_SKIP_TOKENS =
       Collections.unmodifiableSet(new HashSet<>(Arrays.asList("primaryFill")));
@@ -99,10 +108,20 @@ public class AmoledThemeHook implements BaseHook {
             + themeBundleBytes.length);
 
     installFileRedirects();
+    installBottomNavigationFileBridge();
     installThriftValidationHijack(lpparam);
     installNavigationBarBlackening();
-    NightModePin.install(lpparam, () -> Main.options.useAmoledTheme.enabled, "Knot: AmoledTheme");
+    installNightModePin(lpparam);
     installThemeSemanticColors();
+    installPasscodeBackgroundOverride(lpparam);
+  }
+
+  private void installNightModePin(LoadParam lpparam) {
+    try {
+      NightModePin.install(lpparam, () -> Main.options.useAmoledTheme.enabled, "Knot: AmoledTheme");
+    } catch (Throwable t) {
+      Knot.log("Knot: AmoledTheme: night mode pin failed: " + t);
+    }
   }
 
   private void installThemeSemanticColors() {
@@ -161,19 +180,61 @@ public class AmoledThemeHook implements BaseHook {
     return color;
   }
 
+  private void installPasscodeBackgroundOverride(LoadParam lpparam) {
+    LineVersion.Config cfg = LineVersion.get();
+    if (cfg == null || cfg.nightMode.inputPassActivityClass.isEmpty()) return;
+
+    try {
+      Class<?> inputPassActivity =
+          Reflect.findClass(cfg.nightMode.inputPassActivityClass, lpparam.classLoader);
+      Knot.module
+          .hook(Reflect.findMethodExact(inputPassActivity, "onStart"))
+          .intercept(
+              chain -> {
+                Object result = chain.proceed();
+                if (Main.options.useAmoledTheme.enabled) {
+                  applyPasscodeBackground((Activity) chain.getThisObject());
+                }
+                return result;
+              });
+    } catch (Throwable t) {
+      Knot.log("Knot: AmoledTheme: passcode background unavailable: " + t);
+    }
+  }
+
+  private static void applyPasscodeBackground(Activity activity) {
+    try {
+      Resources res = activity.getResources();
+      String pkg = activity.getPackageName();
+      int primaryBackgroundId = res.getIdentifier(PRIMARY_BACKGROUND, "color", pkg);
+      if (primaryBackgroundId == 0) return;
+
+      Integer color = resolve(res, primaryBackgroundId);
+      if (color == null) return;
+
+      for (String name : PASSCODE_BACKGROUND_VIEWS) {
+        int id = res.getIdentifier(name, "id", pkg);
+        if (id == 0) continue;
+        View view = activity.findViewById(id);
+        if (view != null) view.setBackgroundColor(color);
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: AmoledTheme: passcode background failed: " + t);
+    }
+  }
+
   private void installNavigationBarBlackening() {
     try {
       Knot.module
-          .hook(Reflect.findMethodExact(android.app.Activity.class, "onResume"))
+          .hook(Reflect.findMethodExact(Activity.class, "onResume"))
           .intercept(
               chain -> {
                 Object result = chain.proceed();
                 try {
-                  android.view.Window w =
-                      ((android.app.Activity) chain.getThisObject()).getWindow();
+                  Window w = ((Activity) chain.getThisObject()).getWindow();
                   if (w != null && !w.isFloating()) {
                     w.getDecorView().setBackgroundColor(0xFF000000);
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                       w.setNavigationBarContrastEnforced(false);
                     }
                   }
@@ -260,6 +321,41 @@ public class AmoledThemeHook implements BaseHook {
     }
     for (Executable m : decodeFileMethods()) {
       Knot.module.hook(m).intercept(openHook);
+    }
+  }
+
+  private void installBottomNavigationFileBridge() {
+    try {
+      Knot.module
+          .hook(Reflect.findMethodExact(File.class, "exists"))
+          .intercept(
+              chain -> {
+                Object original = chain.proceed();
+                if (Boolean.TRUE.equals(original) || !Main.options.useAmoledTheme.enabled) {
+                  return original;
+                }
+
+                File requested = (File) chain.getThisObject();
+                String name = requested.getName();
+                if (name == null || !name.startsWith("gnb_bottom_ic_") || !name.endsWith(".png")) {
+                  return original;
+                }
+
+                String path = requested.getAbsolutePath();
+                if (path == null || !looksLikeThemePath(path)) return original;
+
+                Context ctx = SettingsStore.getContext();
+                if (ctx == null) return original;
+                File cached =
+                    new File(new File(new File(ctx.getCacheDir(), CACHE_SUBDIR), "images"), name);
+                if (cached.length() <= 0L) return original;
+
+                Knot.log("Knot: AmoledTheme: BottomNav File.exists " + requested + " -> " + cached);
+                return Boolean.TRUE;
+              });
+      Knot.log("Knot: AmoledTheme: BottomNav File.exists bridge installed");
+    } catch (Throwable t) {
+      Knot.log("Knot: AmoledTheme: BottomNav File.exists bridge unavailable: " + t);
     }
   }
 

@@ -375,7 +375,6 @@ public class Version26101 {
     v.chatEditSelectAll.methodToggleItem = "m";
     v.chatEditSelectAll.methodIsItemSelected = "k";
 
-
     v.messageEditHistory.editRequestClass = "sz7.h";
     v.messageEditHistory.editRequestIdField = "b";
     v.messageEditHistory.editRequestTextField = "d";
@@ -404,6 +403,10 @@ public class Version26101 {
     v.nightMode.nightModeConfiguratorClass = "z00.a";
     v.nightMode.methodApplyNightMode = "a";
     v.nightMode.fieldSystemDarkMode = "a";
+    v.nightMode.inputPassActivityClass = "com.linecorp.line.passlock.InputPassActivity";
+    v.nightMode.darkThemeManagerClass = "oy5.j";
+    v.nightMode.methodIsDarkTheme = "n";
+    v.nightMode.methodThemeMode = "B";
 
     return v;
   }
