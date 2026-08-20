@@ -108,11 +108,7 @@ public class EditHistoryHook implements BaseHook {
       final Object placeholder = enumConstant(presentationEnum, PLACEHOLDER_ITEM);
       final Object action = buildAction(cl);
 
-      if (cfg.menuListField.isEmpty()) {
-        hookMenuList(cl, item);
-      } else {
-        hookMenuListField(cl, item);
-      }
+      hookMenuList(cl, item);
 
       Knot.module
           .hook(Reflect.findMethodExact(presentationEnum, cfg.methodMenuLabel, Context.class))
@@ -130,7 +126,6 @@ public class EditHistoryHook implements BaseHook {
     }
   }
 
-  // 26.10.0+ builds the item list in a method that returns it.
   private static void hookMenuList(ClassLoader cl, Object item) throws Throwable {
     Knot.hookAll(
         Reflect.findClass(cfg.menuListBuilderClass, cl),
@@ -139,28 +134,6 @@ public class EditHistoryHook implements BaseHook {
           Object result = chain.proceed();
           if (!Main.options.showEditHistory.enabled || !(result instanceof List)) return result;
           return isEdited(messageData(chain.getArg(2))) ? withItem((List<?>) result, item) : result;
-        });
-  }
-
-  // 26.8.0 / 26.9.0 build it inline in the popup constructor and keep it in a field.
-  private static void hookMenuListField(ClassLoader cl, Object item) throws Throwable {
-    final Class<?> contextClass = Reflect.findClass(cfg.menuContextClass, cl);
-    Knot.hookAllCtors(
-        Reflect.findClass(cfg.menuListBuilderClass, cl),
-        chain -> {
-          Object result = chain.proceed();
-          if (!Main.options.showEditHistory.enabled) return result;
-          try {
-            int index = Reflect.paramIndex(chain.getExecutable().getParameterTypes(), contextClass);
-            Object current =
-                index < 0 ? null : Reflect.getObjectField(chain.getThisObject(), cfg.menuListField);
-            if (current instanceof List && isEdited(messageData(chain.getArg(index)))) {
-              Reflect.setObjectField(
-                  chain.getThisObject(), cfg.menuListField, withItem((List<?>) current, item));
-            }
-          } catch (Throwable ignored) {
-          }
-          return result;
         });
   }
 

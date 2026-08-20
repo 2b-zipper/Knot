@@ -110,8 +110,6 @@ public class LineVersion {
       public String editRequestTextField = "";
       public String menuListBuilderClass = "";
       public String menuListMethod = "";
-      public String menuListField = "";
-      public String menuContextClass = "";
       public String menuItemEnumClass = "";
       public String menuPresentationEnumClass = "";
       public String methodMenuLabel = "";
@@ -552,8 +550,6 @@ public class LineVersion {
   private static final Map<String, Config> VERSION_TABLE = new HashMap<>();
 
   static {
-    VERSION_TABLE.put("26.8.0", app.zipper.knot.versions.Version2680.create());
-    VERSION_TABLE.put("26.9.0", app.zipper.knot.versions.Version2690.create());
     VERSION_TABLE.put("26.10.0", app.zipper.knot.versions.Version26100.create());
     VERSION_TABLE.put("26.10.1", app.zipper.knot.versions.Version26101.create());
     VERSION_TABLE.put("26.11.0", app.zipper.knot.versions.Version26110.create());
