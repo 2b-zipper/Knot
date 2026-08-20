@@ -405,6 +405,10 @@ public class Version26100 {
     v.nightMode.nightModeConfiguratorClass = "a10.a";
     v.nightMode.methodApplyNightMode = "a";
     v.nightMode.fieldSystemDarkMode = "a";
+    v.nightMode.inputPassActivityClass = "com.linecorp.line.passlock.InputPassActivity";
+    v.nightMode.darkThemeManagerClass = "py5.k";
+    v.nightMode.methodIsDarkTheme = "o";
+    v.nightMode.methodThemeMode = "B";
 
     return v;
   }
