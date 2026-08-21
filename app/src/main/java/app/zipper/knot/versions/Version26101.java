@@ -147,7 +147,7 @@ public class Version26101 {
     v.home.lypRecommendationSectionClass = "y52.e";
 
     v.home.home26FeedTypePrefixes =
-        "HomeFeed,HomeContentsRecommendation,GlobalHomePage,GlobalHomeDefault,AdModel,HomePerformanceAd,FLEX";
+        "HomeFeed,HomeContentsRecommendation,GlobalHomePage,GlobalHomeDefault,AdModel,HomePerformanceAd";
     v.home.home26ServiceTypePrefixes = "HomeServiceList,GlobalHomeServiceSection";
     v.home.home26LoadingMoreDataClass = "l62.h$a";
     v.home.home26ModuleBodyField = "e";
