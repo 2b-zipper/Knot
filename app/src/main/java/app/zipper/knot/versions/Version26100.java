@@ -279,6 +279,8 @@ public class Version26100 {
     v.searchBarAgentI.miniTabHeaderClass =
         "com.linecorp.line.wallet.impl.v3.view.WalletV3GrandDesignHeaderView";
     v.searchBarAgentI.miniTabAgentMethod = "o";
+    v.searchBarAgentI.commerceHeaderClass = "lv1.v";
+    v.searchBarAgentI.commerceHeaderMethod = "e";
     v.home26NavIcon.rendererClass = "x82.m";
     v.home26NavIcon.rendererMethod = "b";
     v.home26NavIcon.agentDrawableId = 0x7f080b6f;

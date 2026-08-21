@@ -539,6 +539,9 @@ public class LineVersion {
 
       public String miniTabHeaderClass = "";
       public String miniTabAgentMethod = "";
+
+      public String commerceHeaderClass = "";
+      public String commerceHeaderMethod = "";
     }
 
     public static class AgentIInChat {

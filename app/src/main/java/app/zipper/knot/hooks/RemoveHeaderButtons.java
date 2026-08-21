@@ -12,12 +12,18 @@ import io.github.libxposed.api.XposedInterface;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public class RemoveHeaderButtons implements BaseHook {
+
+  private static final String COMMERCE_AGENT_I = "AGENT_I";
+  private static final Map<Set<?>, Set<Object>> commerceActionCache = new WeakHashMap<>();
 
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
@@ -34,6 +40,7 @@ public class RemoveHeaderButtons implements BaseHook {
       hookHomeSearchBarAiButton(cfg, lpparam.classLoader);
       hookMiniTabAgentButton(cfg, lpparam.classLoader);
       hookHome26AgentButton(cfg, lpparam.classLoader);
+      hookCommerceTabAgentButton(cfg, lpparam.classLoader);
     }
 
     if (cfg.talkTabHeader.chatTabHeaderStateClass.isEmpty()) return;
@@ -245,6 +252,52 @@ public class RemoveHeaderButtons implements BaseHook {
     } catch (Throwable t) {
       Knot.log("Knot: RemoveHeaderButtons could not hook mini-app tab Agent i button: " + t);
     }
+  }
+
+  private static void hookCommerceTabAgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
+    if (cfg.searchBarAgentI.commerceHeaderClass.isEmpty()
+        || cfg.searchBarAgentI.commerceHeaderMethod.isEmpty()) return;
+
+    try {
+      Class<?> cls = Reflect.findClass(cfg.searchBarAgentI.commerceHeaderClass, classLoader);
+      Knot.hookAll(
+          cls,
+          cfg.searchBarAgentI.commerceHeaderMethod,
+          chain -> {
+            if (!Main.options.removeSearchBarAgentIButton.enabled) return chain.proceed();
+            Object[] args = chain.getArgs().toArray();
+            if (args.length == 0 || !(args[0] instanceof Set)) return chain.proceed();
+
+            Set<Object> filtered = withoutAgentI((Set<?>) args[0]);
+            if (filtered == null) return chain.proceed();
+
+            args[0] = filtered;
+            return chain.proceed(args);
+          });
+      Knot.log("Knot: RemoveHeaderButtons hooked shopping tab Agent i button.");
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveHeaderButtons could not hook shopping tab Agent i button: " + t);
+    }
+  }
+
+  // Compose skips recomposition on argument identity, so keep one filtered set per source set.
+  private static Set<Object> withoutAgentI(Set<?> actions) {
+    synchronized (commerceActionCache) {
+      Set<Object> cached = commerceActionCache.get(actions);
+      if (cached != null) return cached;
+    }
+
+    Set<Object> remaining = new LinkedHashSet<>();
+    for (Object action : actions) {
+      if (action instanceof Enum<?> && COMMERCE_AGENT_I.equals(((Enum<?>) action).name())) continue;
+      remaining.add(action);
+    }
+    if (remaining.size() == actions.size()) return null;
+
+    synchronized (commerceActionCache) {
+      commerceActionCache.put(actions, remaining);
+    }
+    return remaining;
   }
 
   private static void hookHome26AgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
