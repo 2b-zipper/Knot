@@ -194,7 +194,6 @@ public class Version26101 {
     v.res.idHeader = 0x7f0b1114;
     v.res.idStatusBarGuide = 0x7f0b2559;
     v.res.idTimestamp = 0x7f0b08a2;
-    v.res.idChatMessageText = 0x7f0b0798;
     v.res.resSettingsHeaderBtn = "settings_header_button";
     v.res.resSettingsBtn = "settings_button";
     v.res.resTooltipBackground = "home_tooltip_background";

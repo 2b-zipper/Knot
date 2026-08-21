@@ -62,8 +62,7 @@ public class FontUnlockHook implements BaseHook {
           if (chain.getThisObject() instanceof TextView) {
             TextView tv = (TextView) chain.getThisObject();
             tv.setIncludeFontPadding(false);
-            if (tv instanceof EditText
-                || (cfg.res.idChatMessageText != 0 && tv.getId() == cfg.res.idChatMessageText)) {
+            if (tv instanceof EditText) {
               tv.setPadding(tv.getPaddingLeft(), 0, tv.getPaddingRight(), 0);
             }
           }
