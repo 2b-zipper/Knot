@@ -225,7 +225,10 @@ public final class SettingsPage {
     try {
       switch (item.key) {
         case "custom_font_path":
-          addPickerRow(item, v -> SettingsFilePickers.openFontPicker(ctx));
+          addPickerRow(
+              item,
+              SettingsFilePickers.currentFontName(),
+              v -> SettingsFilePickers.openFontPicker(ctx));
           break;
         case "home_tab_type":
           String homeType = SettingsStore.getString(item.key, "");

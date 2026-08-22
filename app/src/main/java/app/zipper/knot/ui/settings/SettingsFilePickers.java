@@ -4,16 +4,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import androidx.documentfile.provider.DocumentFile;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.Main;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
+import app.zipper.knot.utils.FontFileUtil;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleStrings;
 import java.io.File;
@@ -26,6 +29,9 @@ public final class SettingsFilePickers {
   private static final int PICK_DIRECTORY_CODE = 0x4C58;
   private static final int PICK_FONT_CODE = 0x4C59;
   private static final int PICK_RESTORE_DB_CODE = 0x4C5A;
+
+  private static final String FONT_PATH_KEY = "custom_font_path";
+  private static final String FONT_NAME_KEY = "custom_font_name";
 
   private SettingsFilePickers() {}
 
@@ -122,13 +128,41 @@ public final class SettingsFilePickers {
       }
 
       String localPath = out.getAbsolutePath();
-      SettingsStore.save("custom_font_path", localPath);
-      KnotConfig.Item item = Main.options.find("custom_font_path");
+      SettingsStore.save(FONT_PATH_KEY, localPath);
+      SettingsStore.save(FONT_NAME_KEY, resolveFontName(ctx, out, fontUri));
+      KnotConfig.Item item = Main.options.find(FONT_PATH_KEY);
       if (item != null) item.value = localPath;
       KnotSettingsDialog.notifyConfigChanged();
     } catch (Throwable t) {
       Knot.log("Knot: Failed to copy font file: " + t.getMessage());
     }
+  }
+
+  public static String currentFontName() {
+    String stored = SettingsStore.getString(FONT_NAME_KEY, "");
+    if (!stored.isEmpty()) return stored;
+
+    String path = SettingsStore.getString(FONT_PATH_KEY, "");
+    String name = path.isEmpty() ? null : FontFileUtil.readFontName(new File(path));
+    if (name == null) return "";
+
+    SettingsStore.save(FONT_NAME_KEY, name);
+    return name;
+  }
+
+  private static String resolveFontName(Context ctx, File fontFile, Uri fontUri) {
+    String name = FontFileUtil.readFontName(fontFile);
+    if (name == null) name = queryDisplayName(ctx, fontUri);
+    return name == null ? "" : name;
+  }
+
+  private static String queryDisplayName(Context ctx, Uri uri) {
+    String[] columns = {OpenableColumns.DISPLAY_NAME};
+    try (Cursor cursor = ctx.getContentResolver().query(uri, columns, null, null, null)) {
+      if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) return cursor.getString(0);
+    } catch (Throwable ignored) {
+    }
+    return null;
   }
 
   private static void prepareRestoreDb(Context ctx, Uri dbUri) {
