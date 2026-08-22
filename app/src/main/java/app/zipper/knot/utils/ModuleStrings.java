@@ -2,6 +2,7 @@ package app.zipper.knot.utils;
 
 public class ModuleStrings {
 
+  public static final String BRAND_NAME = "Knot";
   public static final String SETTINGS_TITLE = "モジュール設定";
   public static final String SETTINGS_RESET = "設定のリセット";
   public static final String SETTINGS_RESET_CONFIRM = "すべての設定をデフォルトに戻しますか？";

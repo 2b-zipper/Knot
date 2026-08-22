@@ -192,7 +192,6 @@ public class Version26130 {
     v.res.layoutSectionHeader = 0x7f0e0545;
     v.res.layoutSettingsMain = 0x7f0e053f;
     v.res.idHeader = 0x7f0b1115;
-    v.res.idStatusBarGuide = 0x7f0b253a;
     v.res.idTimestamp = 0x7f0b088f;
     v.res.resSettingsHeaderBtn = "settings_header_button";
     v.res.resSettingsBtn = "settings_button";

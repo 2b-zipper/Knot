@@ -441,7 +441,6 @@ public class LineVersion {
       public int layoutSectionHeader = 0;
       public int layoutSettingsMain = 0;
       public int idHeader = 0;
-      public int idStatusBarGuide = 0;
       public int idTimestamp = 0;
       public String resSettingsHeaderBtn = "";
       public String resSettingsBtn = "";

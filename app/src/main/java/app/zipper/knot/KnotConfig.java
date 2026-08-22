@@ -117,4 +117,11 @@ public class KnotConfig {
   // @formatter:on
 
   public final Item[] items = _reg.toArray(new Item[0]);
+
+  public Item find(String key) {
+    for (Item i : items) {
+      if (i.key.equals(key)) return i;
+    }
+    return null;
+  }
 }
