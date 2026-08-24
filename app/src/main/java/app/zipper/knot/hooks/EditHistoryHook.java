@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.TypedValue;
+import android.widget.ImageView;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
@@ -34,6 +34,7 @@ public class EditHistoryHook implements BaseHook {
   private static final String PLACEHOLDER_ITEM = "INVALID";
   private static final String ICON_DRAWABLE = "clock_edit";
   private static final int ICON_ID = 0x64000010;
+  private static final String APPCOMPAT_IMAGE_VIEW = "androidx.appcompat.widget.AppCompatImageView";
 
   private static final Map<String, JSONArray> cache = new ConcurrentHashMap<>();
   private static final Object persistLock = new Object();
@@ -51,7 +52,7 @@ public class EditHistoryHook implements BaseHook {
     loadCache();
     hookCapture(lpparam.classLoader);
     hookMenu(lpparam.classLoader);
-    hookIcon();
+    hookIcon(lpparam.classLoader);
   }
 
   // LINE builds this request just before overwriting the row, so the DB still holds the old text.
@@ -196,31 +197,15 @@ public class EditHistoryHook implements BaseHook {
   }
 
   // Module drawables are unresolvable in LINE's Resources, so the icon is served under a fake id.
-  private static void hookIcon() {
+  private static void hookIcon(ClassLoader cl) {
     try {
       Knot.module
-          .hook(
-              Reflect.findMethodExact(
-                  Resources.class, "getValue", int.class, TypedValue.class, boolean.class))
+          .hook(Reflect.findMethodExact(APPCOMPAT_IMAGE_VIEW, cl, "setImageResource", int.class))
           .intercept(
               chain -> {
                 if ((int) chain.getArg(0) != ICON_ID) return chain.proceed();
-                TypedValue value = (TypedValue) chain.getArg(1);
-                value.string = ICON_DRAWABLE + ".png";
-                value.type = TypedValue.TYPE_STRING;
+                ((ImageView) chain.getThisObject()).setImageBitmap(icon());
                 return null;
-              });
-
-      Knot.module
-          .hook(
-              Reflect.findMethodExact(
-                  Resources.class, "getDrawable", int.class, Resources.Theme.class))
-          .intercept(
-              chain -> {
-                if ((int) chain.getArg(0) != ICON_ID) return chain.proceed();
-                Bitmap bitmap = icon();
-                if (bitmap == null) return chain.proceed();
-                return new BitmapDrawable((Resources) chain.getThisObject(), bitmap);
               });
     } catch (Throwable t) {
       Knot.log("Knot: edit history icon hook failed: " + t);
