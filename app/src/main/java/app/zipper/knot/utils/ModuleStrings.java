@@ -45,6 +45,8 @@ public class ModuleStrings {
   public static final String RESTART_OK = "再起動";
   public static final String RESTART_LATER = "後で";
 
+  public static final String RELEASE_NOTES_OPEN = "GitHubで見る";
+
   public static final String WARN_STORAGE_UNSET = "⚠ Knot: 保存先が未設定です。タップして設定してください。";
   public static final String UNSUPPORTED_VERSION_TITLE = "Knot: Unsupported Version";
   public static final String UNSUPPORTED_VERSION_MSG = "このバージョンのLINEはサポートされていません。";

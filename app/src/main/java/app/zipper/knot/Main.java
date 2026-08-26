@@ -70,6 +70,7 @@ public class Main extends XposedModule {
       applyHook(new SettingsUIInjector(), lpparam);
       applyHook(new SettingsButtonLongPress(), lpparam);
       applyHook(new ShowConfigWarning(), lpparam);
+      applyHook(new ReleaseNotesPopup(), lpparam);
       applyHook(new HomeSettingsTooltip(), lpparam);
       applyHook(new SafeResourceFix(), lpparam);
 
