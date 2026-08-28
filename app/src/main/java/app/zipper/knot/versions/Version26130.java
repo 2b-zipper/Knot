@@ -404,6 +404,11 @@ public class Version26130 {
     v.muteMessage.labFeatureClass = "s58.d";
     v.muteMessage.methodIsFeatureEnabled = "c";
     v.muteMessage.silentMessageFeatureClass = "s58.w";
+    v.muteMessage.sendModeClass = "sn1.e";
+    v.muteMessage.methodSendMode = "a";
+    v.muteMessage.sendModeEnumClass = "xt1.a";
+    v.muteMessage.silentFlagWriterClass = "se8.f1";
+    v.muteMessage.methodWriteSilentFlag = "a";
 
     v.iab.inAppBrowserActivityClass = "com.linecorp.line.iab.browser.impl.InAppBrowserActivity";
 

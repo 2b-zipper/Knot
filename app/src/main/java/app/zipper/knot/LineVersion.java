@@ -93,6 +93,11 @@ public class LineVersion {
       public String labFeatureClass = "";
       public String methodIsFeatureEnabled = "";
       public String silentMessageFeatureClass = "";
+      public String sendModeClass = "";
+      public String methodSendMode = "";
+      public String sendModeEnumClass = "";
+      public String silentFlagWriterClass = "";
+      public String methodWriteSilentFlag = "";
     }
 
     public static class ChatTimestamp {
