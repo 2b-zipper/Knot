@@ -59,8 +59,7 @@ Knotは、Android版LINEのユーザー体験を向上させるために設計�
 
 ### Root環境
 
-1. [Vector](https://github.com/JingMatrix/Vector/actions)などの、API 101と互換性のあるXposed環境をインストールします。
-   > 現時点でAPI 101対応版は正式リリースされていないため、GitHub ActionsからCanaryビルドをダウンロードしてください。
+1. [Vector](https://github.com/JingMatrix/Vector/releases)などの、API 102と互換性のあるXposed環境をインストールします。
 2. [Knot](https://github.com/2b-zipper/Knot/releases/latest)をインストールし、マネージャー上でモジュールを有効化します。
 3. 対象アプリとしてLINEを選択します。
 4. LINEを再起動し、Knotのモジュール設定から各機能を有効化してください。
