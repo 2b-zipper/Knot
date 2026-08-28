@@ -401,6 +401,10 @@ public class Version26130 {
     v.camera.cameraModuleClass = "d72.j";
     v.camera.methodUseExternalCamera = "d";
 
+    v.muteMessage.labFeatureClass = "s58.d";
+    v.muteMessage.methodIsFeatureEnabled = "c";
+    v.muteMessage.silentMessageFeatureClass = "s58.w";
+
     v.iab.inAppBrowserActivityClass = "com.linecorp.line.iab.browser.impl.InAppBrowserActivity";
 
     v.homeTab.tabListProviderClass = "l48.e";

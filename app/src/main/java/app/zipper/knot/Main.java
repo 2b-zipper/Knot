@@ -118,6 +118,9 @@ public class Main extends XposedModule {
       if (options.showEditHistory.enabled) {
         applyHook(new EditHistoryHook(), lpparam);
       }
+      if (options.enableMuteMessage.enabled) {
+        applyHook(new MuteMessageHook(), lpparam);
+      }
       if (options.useDefaultCamera.enabled) {
         applyHook(new UseDefaultCameraHook(), lpparam);
       }

@@ -27,6 +27,7 @@ public class ModuleStrings {
   public static final String SEC_PRIVACY_UNSEND = "送信取り消し";
   public static final String SEC_PRIVACY_PROFILE = "プロフィール";
 
+  public static final String SEC_CHAT_SEND = "送信";
   public static final String SEC_CHAT_MEDIA = "メディア";
   public static final String SEC_CHAT_SEARCH = "検索";
   public static final String SEC_CHAT_DISPLAY = "表示";
@@ -109,6 +110,8 @@ public class ModuleStrings {
       "写真送信時の自動圧縮・リサイズを回避し、最高品質で送信できるようにします。設定の「高画質」よりもさらに高品質な送信が可能になります。";
   public static final String OPT_LONG_VIDEO_LABEL = "5分以上の動画を送信可能にする";
   public static final String OPT_LONG_VIDEO_DESC = "動画送信時の5分の時間制限を解除し、長い動画を送信できるようにします。";
+  public static final String OPT_ENABLE_MUTE_MESSAGE_LABEL = "ミュートメッセージを有効化";
+  public static final String OPT_ENABLE_MUTE_MESSAGE_DESC = "LINEラボから削除されたミュートメッセージ機能を有効化します。";
   public static final String OPT_USE_DEFAULT_CAMERA_LABEL = "標準カメラを使用";
   public static final String OPT_USE_DEFAULT_CAMERA_DESC = "LINE内蔵カメラの代わりに端末の標準カメラアプリを使用します。";
   public static final String OPT_MUTE_CAMERA_SHUTTER_LABEL = "LINE内蔵カメラを無音化";

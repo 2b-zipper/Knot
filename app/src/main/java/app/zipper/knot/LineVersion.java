@@ -42,6 +42,7 @@ public class LineVersion {
     public ChatEditSelectAll chatEditSelectAll = new ChatEditSelectAll();
     public MessageEditHistory messageEditHistory = new MessageEditHistory();
     public Camera camera = new Camera();
+    public MuteMessage muteMessage = new MuteMessage();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
     public NightMode nightMode = new NightMode();
@@ -86,6 +87,12 @@ public class LineVersion {
     public static class Camera {
       public String cameraModuleClass = "";
       public String methodUseExternalCamera = "";
+    }
+
+    public static class MuteMessage {
+      public String labFeatureClass = "";
+      public String methodIsFeatureEnabled = "";
+      public String silentMessageFeatureClass = "";
     }
 
     public static class ChatTimestamp {
