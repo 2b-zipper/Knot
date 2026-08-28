@@ -59,7 +59,7 @@ body:
     attributes:
       label: LINEバージョン
       description: 使用しているLINEのバージョン
-      placeholder: "例: 26.9.0"
+      placeholder: "例: 26.11.0"
     validations:
       required: true
 
