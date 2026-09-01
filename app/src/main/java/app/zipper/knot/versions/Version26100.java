@@ -418,6 +418,7 @@ public class Version26100 {
     v.nightMode.darkThemeManagerClass = "py5.k";
     v.nightMode.methodIsDarkTheme = "o";
     v.nightMode.methodThemeMode = "B";
+    v.nightMode.methodIsDefaultTheme = "C";
 
     return v;
   }

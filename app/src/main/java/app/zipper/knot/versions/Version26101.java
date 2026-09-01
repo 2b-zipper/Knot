@@ -418,6 +418,7 @@ public class Version26101 {
     v.nightMode.darkThemeManagerClass = "oy5.j";
     v.nightMode.methodIsDarkTheme = "n";
     v.nightMode.methodThemeMode = "B";
+    v.nightMode.methodIsDefaultTheme = "C";
 
     return v;
   }

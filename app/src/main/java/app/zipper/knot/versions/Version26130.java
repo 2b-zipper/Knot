@@ -423,6 +423,7 @@ public class Version26130 {
     v.nightMode.darkThemeManagerClass = "o76.j";
     v.nightMode.methodIsDarkTheme = "j";
     v.nightMode.methodThemeMode = "t";
+    v.nightMode.methodIsDefaultTheme = "v";
 
     return v;
   }

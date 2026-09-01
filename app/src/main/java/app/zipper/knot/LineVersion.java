@@ -76,6 +76,7 @@ public class LineVersion {
       public String darkThemeManagerClass = "";
       public String methodIsDarkTheme = "";
       public String methodThemeMode = "";
+      public String methodIsDefaultTheme = "";
     }
 
     public static class HomeTab {
