@@ -1,3 +1,9 @@
 files:
   - source: /app/src/main/res/values/strings.xml
-    translation: /app/src/main/res/values-%android_code%/strings.xml
+    translation: /app/src/main/res/values-%two_letters_code%/strings.xml
+    type: android
+    skip_untranslated_strings: true
+    languages_mapping:
+      two_letters_code:
+        'zh-TW': 'b+zh+Hant'
+        'zh-HK': 'b+zh+Hant'
