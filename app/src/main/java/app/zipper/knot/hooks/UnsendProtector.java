@@ -17,6 +17,7 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import io.github.libxposed.api.XposedInterface;
@@ -243,7 +244,8 @@ public class UnsendProtector implements BaseHook {
                   currentToast =
                       Toast.makeText(
                           toastContext,
-                          app.zipper.knot.utils.ModuleStrings.UNSET_TIME_PREFIX + time,
+                          app.zipper.knot.utils.ModuleResources.get(R.string.unset_time_prefix)
+                              + time,
                           Toast.LENGTH_SHORT);
                   currentToast.show();
                 }

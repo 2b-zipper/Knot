@@ -9,9 +9,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import app.zipper.knot.Knot;
+import app.zipper.knot.R;
 import app.zipper.knot.hooks.EditHistoryHook;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,7 +34,7 @@ public class EditHistoryViewer {
       scrollView.addView(container);
 
       TextView header = new TextView(activity);
-      header.setText(ModuleStrings.EDIT_HISTORY_TITLE);
+      header.setText(ModuleResources.get(R.string.edit_history_title));
       header.setTextSize(18);
       header.setTextColor(LineTheme.primaryTextColor(activity));
       header.setPadding(0, 12, 0, 24);
@@ -52,19 +53,19 @@ public class EditHistoryViewer {
       AlertDialog.Builder builder =
           new AlertDialog.Builder(activity, themeId)
               .setView(scrollView)
-              .setPositiveButton(ModuleStrings.COMMON_CLOSE, null);
+              .setPositiveButton(ModuleResources.get(R.string.common_close), null);
       if (hasHistory) {
         builder.setNeutralButton(
-            ModuleStrings.READ_HISTORY_DELETE,
+            ModuleResources.get(R.string.read_history_delete),
             (d, which) ->
                 LineTheme.applyDialogColors(
                     new AlertDialog.Builder(activity, themeId)
-                        .setTitle(ModuleStrings.READ_HISTORY_DELETE_CONFIRM_TITLE)
-                        .setMessage(ModuleStrings.EDIT_HISTORY_DELETE_CONFIRM_MSG)
+                        .setTitle(ModuleResources.get(R.string.read_history_delete_confirm_title))
+                        .setMessage(ModuleResources.get(R.string.edit_history_delete_confirm_msg))
                         .setPositiveButton(
-                            ModuleStrings.SETTINGS_YES,
+                            ModuleResources.get(R.string.settings_yes),
                             (dd, w) -> EditHistoryHook.clearHistory(msgId))
-                        .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, null)
+                        .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
                         .show(),
                     activity));
       }
@@ -78,7 +79,7 @@ public class EditHistoryViewer {
 
   private static TextView buildEmptyRow(Context ctx) {
     TextView empty = new TextView(ctx);
-    empty.setText(ModuleStrings.EDIT_HISTORY_EMPTY);
+    empty.setText(ModuleResources.get(R.string.edit_history_empty));
     empty.setPadding(0, 80, 0, 80);
     empty.setGravity(Gravity.CENTER);
     empty.setTextColor(LineTheme.secondaryTextColor(ctx));
@@ -89,8 +90,8 @@ public class EditHistoryViewer {
     String timestamp = version.optString("ts", "");
     String label =
         index == 0
-            ? ModuleStrings.EDIT_HISTORY_ORIGINAL
-            : ModuleStrings.EDIT_HISTORY_EDITED + " " + index;
+            ? ModuleResources.get(R.string.edit_history_original)
+            : ModuleResources.get(R.string.edit_history_edited) + " " + index;
     if (!timestamp.isEmpty()) label = label + "  " + timestamp;
     String text = version.optString("t", "");
 

@@ -18,9 +18,10 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.utils.LineDBUtils;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import io.github.libxposed.api.XposedInterface;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -153,13 +154,13 @@ public class ReactionNotification implements BaseHook {
 
     String messageSnippet = LineDBUtils.resolveMessageContent(messageId);
     if (messageSnippet == null || messageSnippet.isEmpty()) {
-      messageSnippet = ModuleStrings.READ_HISTORY_UNKNOWN_MSG;
+      messageSnippet = ModuleResources.get(R.string.read_history_unknown_msg);
     }
 
     long timestamp = Reflect.getLongField(op, cfg.unsend.operationCreatedTimeField);
     int notifId = NOTIFICATION_BASE_ID + (chatMid + messageId + reactorMid).hashCode();
 
-    String title = String.format(ModuleStrings.REACTION_NOTIF_TITLE, reactorName);
+    String title = ModuleResources.get(R.string.reaction_notif_title, reactorName);
 
     issueNotification(context, title, messageSnippet, chatMid, reactionIcon, notifId, timestamp);
   }

@@ -10,11 +10,12 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.ui.EditHistoryViewer;
 import app.zipper.knot.utils.LineDBUtils;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import io.github.libxposed.api.XposedInterface;
 import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
@@ -113,7 +114,10 @@ public class EditHistoryHook implements BaseHook {
 
       Knot.module
           .hook(Reflect.findMethodExact(presentationEnum, cfg.methodMenuLabel, Context.class))
-          .intercept(chain -> forPlaceholder(chain, placeholder, ModuleStrings.EDIT_HISTORY_TITLE));
+          .intercept(
+              chain ->
+                  forPlaceholder(
+                      chain, placeholder, ModuleResources.get(R.string.edit_history_title)));
 
       Knot.module
           .hook(Reflect.findMethodExact(presentationEnum, cfg.methodMenuIcon))

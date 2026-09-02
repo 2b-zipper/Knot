@@ -14,11 +14,12 @@ import androidx.documentfile.provider.DocumentFile;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
 import app.zipper.knot.utils.FontFileUtil;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -116,6 +117,8 @@ public final class SettingsFilePickers {
     }
     SettingsStore.setSettingsDir(treeUri.toString());
     SettingsStore.load(Main.options);
+    // The new directory carries its own settings file, language included
+    ModuleResources.invalidate();
     KnotSettingsDialog.notifyConfigChanged();
   }
 
@@ -184,11 +187,13 @@ public final class SettingsFilePickers {
   private static void confirmRestore(Context ctx, File file) {
     LineTheme.applyDialogColors(
         new AlertDialog.Builder(ctx, LineTheme.dialogTheme(ctx))
-            .setTitle(ModuleStrings.RESTORE_CONFIRM_TITLE)
-            .setMessage(ModuleStrings.RESTORE_CONFIRM_MSG)
+            .setTitle(ModuleResources.get(R.string.restore_confirm_title))
+            .setMessage(ModuleResources.get(R.string.restore_confirm_msg))
             .setPositiveButton(
-                ModuleStrings.SETTINGS_YES, (d, w) -> BackupRestoreHook.runRestore(ctx, file))
-            .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, (d, w) -> file.delete())
+                ModuleResources.get(R.string.settings_yes),
+                (d, w) -> BackupRestoreHook.runRestore(ctx, file))
+            .setNegativeButton(
+                ModuleResources.get(R.string.settings_cancel), (d, w) -> file.delete())
             .show(),
         ctx);
   }

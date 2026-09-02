@@ -1,5 +1,283 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Knot</string>
-    <string name="xposed_desc">Knot - LINE用機能拡張モジュール</string>
+    <string name="app_name" translatable="false">Knot</string>
+    <string name="xposed_desc">Knot - a feature extension module for LINE</string>
+
+    <!-- Language -->
+    <string name="opt_language_label">Language</string>
+    <string name="opt_language_desc">Language used by Knot\'s own screens and dialogs. Choose \"System default\" to follow the device language.</string>
+    <string name="language_system">System default</string>
+    <!-- Name of this language, shown in the picker -->
+    <string name="language_name">English</string>
+
+    <!-- Common -->
+    <string name="settings_title">Module settings</string>
+    <string name="settings_reset">Reset settings</string>
+    <string name="settings_reset_confirm">Restore all settings to their defaults?</string>
+    <string name="settings_reset_ok">Reset</string>
+    <string name="settings_yes">Yes</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="common_close">Close</string>
+    <string name="settings_path_picker_hint">Select a storage location</string>
+    <string name="settings_search_hint">Search settings…</string>
+
+    <!-- Categories -->
+    <string name="cat_privacy">Privacy</string>
+    <string name="cat_chat">Chat</string>
+    <string name="cat_display">Appearance</string>
+    <string name="cat_notification">Notifications</string>
+    <string name="cat_storage">Storage</string>
+    <string name="cat_backup">Backup</string>
+    <string name="cat_system">System</string>
+    <string name="cat_other">Other</string>
+
+    <!-- Sections -->
+    <string name="sec_privacy_read">Read receipts</string>
+    <string name="sec_privacy_edit">Message editing</string>
+    <string name="sec_privacy_unsend">Unsend</string>
+    <string name="sec_privacy_profile">Profile</string>
+    <string name="sec_chat_send">Sending</string>
+    <string name="sec_chat_media">Media</string>
+    <string name="sec_chat_search">Search</string>
+    <string name="sec_chat_display">Display</string>
+    <string name="sec_ads">Ads and recommendations</string>
+    <string name="sec_tabs">Tabs</string>
+    <string name="sec_header_btn">Header buttons</string>
+    <string name="sec_font">Font</string>
+    <string name="sec_theme">Theme</string>
+
+    <!-- Restart / warnings -->
+    <string name="manager_restart_required">LINE needs to be restarted</string>
+    <string name="restart_title">Restart required</string>
+    <string name="restart_message">LINE has to restart before these settings take effect. Restart now?</string>
+    <string name="restart_ok">Restart</string>
+    <string name="restart_later">Later</string>
+    <string name="release_notes_open">View on GitHub</string>
+    <string name="warn_storage_unset">⚠ Knot: no storage location is set. Tap here to choose one.</string>
+    <string name="unsupported_version_title" translatable="false">Knot: Unsupported Version</string>
+    <string name="unsupported_version_msg">This version of LINE is not supported.</string>
+
+    <!-- Backup / restore -->
+    <string name="backup_success">Backup completed.</string>
+    <string name="backup_error">Backup failed.</string>
+    <string name="restore_success">Restore completed.</string>
+    <string name="restore_error">An error occurred while restoring.</string>
+    <string name="restore_confirm_title">Confirm restore</string>
+    <string name="restore_confirm_msg">Restore chat history from this backup? All current data will be overwritten and the app will restart when it finishes.</string>
+    <string name="restore_processing">Restoring…</string>
+    <string name="restore_preparing">Preparing…</string>
+
+    <!-- Read receipts -->
+    <string name="label_prevent_read">Read avoidance</string>
+    <string name="label_send_mark_read">Mark read after sending</string>
+    <string name="read_receipt_viewer">Read receipts</string>
+    <string name="unset_time_prefix">"Unsent at: "</string>
+
+    <string name="read_history_title">Read history</string>
+    <string name="read_history_empty">No history yet</string>
+    <string name="read_history_delete">Delete history</string>
+    <string name="read_history_delete_confirm_title">Delete history</string>
+    <string name="read_history_delete_confirm_msg">Delete all read history for this chat?</string>
+    <string name="read_history_unknown_msg">(unknown message)</string>
+    <string name="read_history_show_all">Show %1$d more ▼</string>
+    <string name="read_history_collapse">Collapse ▲</string>
+
+    <!-- Message type placeholders -->
+    <string name="msg_sticker">[Sticker]</string>
+    <string name="msg_image">[Photo]</string>
+    <string name="msg_video">[Video]</string>
+    <string name="msg_file">[File]</string>
+    <string name="msg_location">[Location]</string>
+
+    <!-- Privacy options -->
+    <string name="opt_prevent_mark_as_read_label">Add \"Read avoidance\" to the plus menu</string>
+    <string name="opt_prevent_mark_as_read_desc">Lets you turn read avoidance on and off from the \"+\" menu at the top right of the Chats tab. When it is on, a \"Mark read after sending\" option appears as well.</string>
+    <string name="opt_record_read_history_label">Record read history</string>
+    <string name="opt_record_read_history_desc">Records who read each message and when. Open it from the book icon at the top of the chat screen.</string>
+
+    <string name="opt_prevent_unsend_message_label">Keep unsent messages</string>
+    <string name="opt_prevent_unsend_message_desc">Keeps messages on your device even after the sender unsends them. Unsent messages get an icon you can tap to see when they were withdrawn.</string>
+
+    <string name="opt_show_profile_timestamps_label">Show details on profiles</string>
+    <string name="opt_show_profile_timestamps_desc">Adds an ⓘ icon to the top right of a friend\'s profile screen. Tapping it shows the MID and the dates the friend was added, favorited, and last updated their profile. Entries with no record show \"—\".</string>
+    <string name="profile_ts_friend_created">Added</string>
+    <string name="profile_ts_favorite">Favorited</string>
+    <string name="profile_ts_profile_updated">Profile updated</string>
+    <string name="profile_ts_empty" translatable="false">—</string>
+    <string name="profile_ts_dialog_title">Profile details</string>
+    <string name="profile_ts_mid" translatable="false">MID</string>
+    <string name="profile_ts_copy_mid">Copy MID</string>
+    <string name="profile_ts_mid_copied">MID copied</string>
+
+    <!-- Chat options -->
+    <string name="opt_high_quality_photo_label">Improve photo send quality</string>
+    <string name="opt_high_quality_photo_desc">Skips the automatic compression and resizing applied when sending photos, so they are sent at maximum quality — better than LINE\'s own \"High quality\" setting.</string>
+    <string name="opt_long_video_label">Allow videos longer than 5 minutes</string>
+    <string name="opt_long_video_desc">Removes the 5-minute limit on video uploads so you can send longer videos.</string>
+    <string name="opt_enable_mute_message_label">Enable mute messages</string>
+    <string name="opt_enable_mute_message_desc">Re-enables the mute message feature that was removed from LINE Labs.</string>
+    <string name="opt_use_default_camera_label">Use the system camera</string>
+    <string name="opt_use_default_camera_desc">Uses your device\'s default camera app instead of the camera built into LINE.</string>
+    <string name="opt_mute_camera_shutter_label">Mute the in-app camera</string>
+    <string name="opt_mute_camera_shutter_desc">Silences the shutter sound of LINE\'s built-in camera. Has no effect while the system camera is in use.</string>
+
+    <string name="opt_search_by_member_label">Search chats by member</string>
+    <string name="opt_search_by_member_desc">Tap the magnifier icon inside the search box to pick a member and search only their messages.</string>
+    <string name="opt_search_min_1_char_label">Search chats from one character</string>
+    <string name="opt_search_min_1_char_desc">Lowers the minimum in-chat search length from two characters to one.</string>
+
+    <string name="opt_show_seconds_in_chat_time_label">Show seconds on chat timestamps</string>
+    <string name="opt_show_seconds_in_chat_time_desc">Adds seconds to the time shown next to each message (for example 12:34 → 12:34:56).</string>
+    <string name="opt_select_all_in_edit_mode_label">Add a select-all button when deleting messages</string>
+    <string name="opt_select_all_in_edit_mode_desc">Adds a button at the bottom of the message deletion screen that selects or deselects every message.</string>
+    <string name="opt_show_edit_history_label">Record message edit history</string>
+    <string name="opt_show_edit_history_desc">Saves the previous text whenever a message is edited and adds \"Edit history\" to the long-press menu of edited messages.</string>
+    <string name="edit_history_title">Edit history</string>
+    <string name="edit_history_empty">No edit history.</string>
+    <string name="edit_history_original">Original message</string>
+    <string name="edit_history_edited">Edit</string>
+    <string name="edit_history_delete_confirm_msg">Delete the edit history of this message?</string>
+    <string name="opt_fix_announcement_name_label">Fix the announcer name</string>
+    <string name="opt_fix_announcement_name_desc">On patched builds of LINE the system message for a new announcement shows an empty name (\"announced this\"). This restores the correct name.</string>
+
+    <string name="opt_hide_ai_icon_permanently_label">Hide Agent i in chat rooms permanently</string>
+    <string name="opt_hide_ai_icon_permanently_desc">Always hides the Agent i entry in the chat room message field. LINE normally only lets you hide it for 30 days; with this option it stays hidden regardless of that setting.</string>
+
+    <string name="opt_open_url_in_default_browser_label">Open links in the default browser</string>
+    <string name="opt_open_url_in_default_browser_desc">Opens URLs in your system default browser instead of the in-app browser.</string>
+
+    <!-- Appearance options -->
+    <string name="opt_remove_ads_label">Hide ads</string>
+    <string name="opt_remove_ads_desc">Hides the ads shown at the top of the chat list, on the Home screen, and elsewhere.</string>
+    <string name="opt_remove_home_recommendations_label">Hide Home recommendations and feed</string>
+    <string name="opt_remove_home_recommendations_desc">Hides the recommended content and feed shown on the Home screen (including HOME26).</string>
+    <string name="opt_remove_home_services_label">Hide the Home service list</string>
+    <string name="opt_remove_home_services_desc">Hides the service list shown on the Home screen.</string>
+    <string name="opt_remove_home_accordion_label">Hide the accordion at the top of Home</string>
+    <string name="opt_remove_home_accordion_desc">Hides the accordion panel (LYP benefits and similar) between the search bar and the friend list at the top of the Home tab.</string>
+    <string name="opt_remove_tab_voom_label">Hide the VOOM tab</string>
+    <string name="opt_remove_tab_voom_desc">Hides the VOOM tab in the bottom bar.</string>
+    <string name="opt_remove_tab_news_label">Hide the News/Calls tab</string>
+    <string name="opt_remove_tab_news_desc">Hides the News/Calls tab in the bottom bar.</string>
+    <string name="opt_remove_tab_mini_label">Hide the Apps tab</string>
+    <string name="opt_remove_tab_mini_desc">Hides the Apps tab in the bottom bar.</string>
+    <string name="opt_remove_tab_commerce_label">Hide the Shopping tab</string>
+    <string name="opt_remove_tab_commerce_desc">Hides the Shopping tab in the bottom bar.</string>
+    <string name="opt_remove_tab_wallet_label">Hide the Wallet tab</string>
+    <string name="opt_remove_tab_wallet_desc">Hides the Wallet tab in the bottom bar.</string>
+    <string name="opt_extend_tab_click_area_label">Extend the tab tap area</string>
+    <string name="opt_extend_tab_click_area_desc">Widens the touch target of the bottom tabs so they are easier to hit.</string>
+    <string name="opt_hide_tab_text_label">Hide tab labels</string>
+    <string name="opt_hide_tab_text_desc">Hides the text under the bottom tab icons.</string>
+    <string name="opt_home_tab_type_label">Change the Home layout</string>
+    <string name="opt_home_tab_type_desc">Changes which Home tab variant is used. Choose \"HOME\" to go back to the classic Home screen.</string>
+    <string name="home_type_default">Default</string>
+
+    <string name="opt_remove_ai_friends_button_label">Hide the AI Friends button</string>
+    <string name="opt_remove_ai_friends_button_desc">Hides the \"AI Friends\" button at the top right of the Chats tab.</string>
+    <string name="opt_remove_search_bar_agent_i_button_label">Hide Agent i buttons</string>
+    <string name="opt_remove_search_bar_agent_i_button_desc">Hides the \"Agent i\" button on every tab together with the \"Show Agent i in chat rooms\" toggle in the chat room \"+\" menu.</string>
+    <string name="opt_remove_open_chat_button_label">Hide the OpenChat button</string>
+    <string name="opt_remove_open_chat_button_desc">Hides the \"OpenChat\" button at the top right of the Chats tab.</string>
+    <string name="opt_remove_calendar_button_label">Hide the Calendar button</string>
+    <string name="opt_remove_calendar_button_desc">Hides the \"Calendar\" button at the top right of the Chats tab.</string>
+    <string name="opt_remove_album_button_label">Hide the Album button (sub-devices)</string>
+    <string name="opt_remove_album_button_desc">Hides the \"Album\" button shown at the top right of the Chats tab on sub-devices.</string>
+
+    <string name="opt_use_custom_font_label">Enable a custom font</string>
+    <string name="opt_use_custom_font_desc">Applies the selected font file across the whole app. Restart the app for it to take effect.</string>
+    <string name="opt_custom_font_path_label">Select a font file</string>
+    <string name="opt_custom_font_path_desc">Choose the font file (.ttf / .otf) to use.</string>
+
+    <string name="opt_use_amoled_theme_label">Apply the AMOLED theme</string>
+    <string name="opt_use_amoled_theme_desc">Applies the AMOLED theme. You have to turn off \"Apply the Black theme in dark mode\". Menus and dialogs are matched to the AMOLED palette as well.</string>
+
+    <string name="opt_force_dark_mode_ui_label">Keep the dark UI while a theme is applied</string>
+    <string name="opt_force_dark_mode_ui_desc">Keeps long-press menus and dialogs dark — they otherwise turn light when a theme is applied — regardless of the \"Apply the Black theme in dark mode\" setting. Not needed when \"Apply the AMOLED theme\" is on, which already covers it.</string>
+
+    <string name="opt_show_theme_on_sub_device_label">Show themes on sub-devices</string>
+    <string name="opt_show_theme_on_sub_device_desc">Shows the \"Themes\" entry that LINE hides when you are signed in on a sub-device. Note: the theme shop cannot be opened; buy themes on your main device.</string>
+
+    <!-- Notification options -->
+    <string name="opt_reaction_notification_label">Reaction notifications</string>
+    <string name="opt_reaction_notification_desc">Notifies you about reactions to your messages. Note: they are delivered when you open the app. If LINE is running as a foreground service, they arrive even while LINE is closed.</string>
+
+    <string name="opt_stack_message_notifications_label">Do not overwrite notifications</string>
+    <string name="opt_stack_message_notifications_desc">Groups up to seven messages in a single notification instead of replacing the previous one.</string>
+
+    <string name="opt_remove_notification_mute_button_label">Hide the \"Mute\" notification button</string>
+    <string name="opt_remove_notification_mute_button_desc">Removes the \"Mute\" action button from LINE notifications.</string>
+
+    <string name="opt_fix_settings_talk_crash_label">Fix the chat settings crash</string>
+    <string name="opt_fix_settings_talk_crash_desc">Fixes the crash when opening \"Chats\" in LINE\'s own settings on patched builds.</string>
+
+    <string name="opt_experimental_fcm_fix_label" translatable="false">FCM Fix</string>
+    <string name="opt_experimental_fcm_fix_desc">Hands LINE\'s FCM notification handling directly to the service, working around notifications that stop arriving after about a minute on non-rooted devices.</string>
+    <string name="opt_fcm_fix_mode_label" translatable="false">FCM Fix Mode</string>
+    <string name="opt_fcm_fix_mode_desc">Chooses how FCM Fix works. Legacy (keep Legy) keeps LINE\'s own streaming connection alive to deliver notifications. FIS (certificate spoof) spoofs the signature as the official certificate when the FCM token is issued.</string>
+    <string name="fcm_fix_mode_legy">Legacy (keep Legy)</string>
+    <string name="fcm_fix_mode_fis">FIS (certificate spoof)</string>
+    <string name="opt_fcm_force_registration_label">Re-register the FCM token</string>
+    <string name="opt_fcm_force_registration_desc">Requests a new FCM token for LINE when notifications are not arriving.</string>
+    <string name="fcm_force_registration_needs_fix">Enable FCM Fix first</string>
+    <string name="fcm_force_registration_started">Started re-registering the FCM token</string>
+    <string name="fcm_force_registration_failed">Could not start FCM token re-registration</string>
+    <string name="opt_line_foreground_keep_alive_label">Always run LINE as a foreground service</string>
+    <string name="opt_line_foreground_keep_alive_desc">May increase battery use, but keeps FCM Fix working after the task is killed. Useful when notifications stop arriving on non-rooted devices. You may need to force stop or pause it when updating Knot.</string>
+
+    <!-- System options -->
+    <string name="opt_spoof_version_unsend_only_label">Extend the unsend time limit</string>
+    <string name="opt_spoof_version_unsend_only_desc">Reports the app version as 15.12.2 during unsend only, restoring the 24-hour limit instead of one hour.</string>
+    <string name="opt_spoof_version_label">Spoof the app version (always)</string>
+    <string name="opt_spoof_version_desc">Always reports the app version as 15.12.2. Do not use this unless you have a specific reason.</string>
+
+    <string name="opt_fix_signature_mismatch_label">Spoof the official signature</string>
+    <string name="opt_fix_signature_mismatch_desc">Works around failures on patched builds of LINE, such as font downloads and biometric authentication.</string>
+
+    <!-- Storage / backup rows -->
+    <string name="desc_path_row">Choose the directory where the module keeps its settings and other files.</string>
+    <string name="desc_reset_row">Restores every module setting to its default state.</string>
+    <string name="opt_backup_label">Back up chat history</string>
+    <string name="opt_backup_desc">Backs up your current chat history to the storage location.</string>
+    <string name="opt_restore_label">Restore chat history</string>
+    <string name="opt_restore_desc">Restores chat history from a backup file. Your current history is overwritten.</string>
+
+    <!-- Foreground keep-alive notification -->
+    <string name="keep_alive_channel_name">LINE background</string>
+    <string name="keep_alive_notification_text">This permanent notification can be hidden from the notification settings.</string>
+    <string name="keep_alive_notification_settings">Notification settings</string>
+
+    <!-- Stacked message notifications -->
+    <plurals name="notification_message_count">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
+
+    <!-- Notifications / tooltips -->
+    <string name="reaction_notif_title">%1$s reacted to the following message</string>
+    <string name="tooltip_settings_long_press">Long-press to open Knot settings</string>
+    <string name="tooltip_search_by_member">Tap to filter by member</string>
+
+    <string name="search_by_member_title">Filter by member</string>
+    <string name="search_by_member_empty">No members found</string>
+    <string name="search_by_member_filtering">"Filtering: "</string>
+    <string name="search_by_member_filter_cleared">Filter cleared</string>
+
+    <!-- About -->
+    <string name="opt_about_label">About Knot</string>
+    <string name="opt_about_desc">Version and other information</string>
+    <string name="about_tagline" translatable="false">A brand-new Xposed module for LINE</string>
+    <string name="about_sec_developers">Developers</string>
+    <string name="about_sec_contributors">Contributors</string>
+    <string name="about_sec_links">Links</string>
+    <string name="about_link_repo">GitHub repository</string>
+    <string name="about_link_license">License</string>
+    <string name="about_license_value" translatable="false">GNU GPLv3</string>
+    <string name="about_disclaimer">The developers accept no responsibility for any disadvantage resulting from the use of this module. Use it at your own risk.</string>
+
+    <!-- Module launcher screen -->
+    <string name="main_title" translatable="false">Knot for LINE</string>
+    <string name="main_description">Enable the module, then restart the LINE app.\n\nYou can configure the features and choose where data is stored by long-pressing the settings (gear) icon at the top right of LINE\'s Home screen, or from the extra entries inside LINE\'s settings.</string>
+    <string name="main_open_line">Open LINE</string>
+    <string name="main_line_not_installed">LINE is not installed</string>
 </resources>

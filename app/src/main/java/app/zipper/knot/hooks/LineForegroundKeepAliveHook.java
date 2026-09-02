@@ -17,14 +17,15 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
+import app.zipper.knot.utils.ModuleResources;
 
 public class LineForegroundKeepAliveHook implements BaseHook {
 
   private static final String KEEP_ALIVE_ACTION = "app.zipper.knot.action.LINE_KEEP_ALIVE";
   private static final String KEEP_ALIVE_CHANNEL_ID = "knot_line_keep_alive";
   private static final int KEEP_ALIVE_NOTIFICATION_ID = 0x4b4e5446;
-  private static final String NOTIFICATION_TEXT = "この常設通知は通知設定から非表示にできます。";
 
   private static final int MAX_RESTART_ATTEMPTS = 5;
   private static final long RESTART_BASE_DELAY_MS = 5000L;
@@ -49,8 +50,10 @@ public class LineForegroundKeepAliveHook implements BaseHook {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notificationManager != null) {
       NotificationChannel channel =
           new NotificationChannel(
-              KEEP_ALIVE_CHANNEL_ID, "LINE background", NotificationManager.IMPORTANCE_LOW);
-      channel.setDescription(NOTIFICATION_TEXT);
+              KEEP_ALIVE_CHANNEL_ID,
+              ModuleResources.get(R.string.keep_alive_channel_name),
+              NotificationManager.IMPORTANCE_LOW);
+      channel.setDescription(ModuleResources.get(R.string.keep_alive_notification_text));
       channel.setShowBadge(false);
       notificationManager.createNotificationChannel(channel);
     }
@@ -60,6 +63,7 @@ public class LineForegroundKeepAliveHook implements BaseHook {
       smallIcon = android.R.drawable.stat_notify_sync;
     }
 
+    String notificationText = ModuleResources.get(R.string.keep_alive_notification_text);
     Notification.Builder builder =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
             ? new Notification.Builder(context, KEEP_ALIVE_CHANNEL_ID)
@@ -67,13 +71,16 @@ public class LineForegroundKeepAliveHook implements BaseHook {
     builder
         .setSmallIcon(smallIcon)
         .setContentTitle("LINE")
-        .setContentText(NOTIFICATION_TEXT)
-        .setStyle(new Notification.BigTextStyle().bigText(NOTIFICATION_TEXT))
+        .setContentText(notificationText)
+        .setStyle(new Notification.BigTextStyle().bigText(notificationText))
         .setOngoing(true)
         .setShowWhen(false)
         .setLocalOnly(true)
         .setCategory(Notification.CATEGORY_SERVICE)
-        .addAction(android.R.drawable.ic_menu_manage, "通知設定", buildSettingsPendingIntent(context));
+        .addAction(
+            android.R.drawable.ic_menu_manage,
+            ModuleResources.get(R.string.keep_alive_notification_settings),
+            buildSettingsPendingIntent(context));
 
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
       builder.setPriority(Notification.PRIORITY_LOW);

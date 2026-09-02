@@ -14,13 +14,14 @@ import android.widget.Toast;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
 import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.HomeTabTypeHook;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,13 +117,13 @@ public final class SettingsPage {
 
       if (expandAll) {
         for (KnotConfig.Category cat : DISPLAY_CATEGORIES) {
-          sectionHeader(cat.label);
+          sectionHeader(cat.label());
           addCategoryItems(cat);
         }
       } else {
-        sectionHeader(ModuleStrings.SETTINGS_TITLE);
+        sectionHeader(ModuleResources.get(R.string.settings_title));
         for (KnotConfig.Category cat : DISPLAY_CATEGORIES) {
-          row().title(cat.label).onClick(v -> dialog.openCategory(ctx, cat)).add();
+          row().title(cat.label()).onClick(v -> dialog.openCategory(ctx, cat)).add();
         }
       }
 
@@ -145,46 +146,59 @@ public final class SettingsPage {
   }
 
   private void addStorageSection() {
-    sectionHeader(ModuleStrings.CAT_STORAGE);
+    sectionHeader(ModuleResources.get(R.string.cat_storage));
 
     String activePath = SettingsStore.getSettingsDir();
     row()
-        .title(activePath == null ? ModuleStrings.SETTINGS_PATH_PICKER_HINT : activePath)
-        .description(ModuleStrings.DESC_PATH_ROW)
+        .title(
+            activePath == null
+                ? ModuleResources.get(R.string.settings_path_picker_hint)
+                : activePath)
+        .description(ModuleResources.get(R.string.desc_path_row))
         .titleColor(activePath == null ? Color.RED : LineTheme.accentGreen(ctx))
-        .searchTag(SettingsViews.searchTag(ModuleStrings.CAT_STORAGE, ModuleStrings.DESC_PATH_ROW))
+        .searchTag(
+            SettingsViews.searchTag(
+                ModuleResources.get(R.string.cat_storage),
+                ModuleResources.get(R.string.desc_path_row)))
         .onClick(v -> SettingsFilePickers.openFolderPicker(ctx))
         .add();
   }
 
   private void addBackupSection() {
-    sectionHeader(ModuleStrings.CAT_BACKUP);
+    sectionHeader(ModuleResources.get(R.string.cat_backup));
 
     row()
-        .title(ModuleStrings.OPT_BACKUP_LABEL)
-        .description(ModuleStrings.OPT_BACKUP_DESC)
+        .title(ModuleResources.get(R.string.opt_backup_label))
+        .description(ModuleResources.get(R.string.opt_backup_desc))
         .onClick(v -> BackupRestoreHook.runBackup(ctx))
         .add();
 
     row()
-        .title(ModuleStrings.OPT_RESTORE_LABEL)
-        .description(ModuleStrings.OPT_RESTORE_DESC)
+        .title(ModuleResources.get(R.string.opt_restore_label))
+        .description(ModuleResources.get(R.string.opt_restore_desc))
         .onClick(v -> SettingsFilePickers.openRestorePicker(ctx))
         .add();
   }
 
   private void addOtherSection() {
-    sectionHeader(ModuleStrings.CAT_OTHER);
+    sectionHeader(ModuleResources.get(R.string.cat_other));
 
     row()
-        .title(ModuleStrings.OPT_ABOUT_LABEL)
-        .description(ModuleStrings.OPT_ABOUT_DESC)
+        .title(ModuleResources.get(R.string.opt_language_label))
+        .description(ModuleResources.get(R.string.opt_language_desc))
+        .value(languageLabel())
+        .onClick(v -> openLanguagePicker())
+        .add();
+
+    row()
+        .title(ModuleResources.get(R.string.opt_about_label))
+        .description(ModuleResources.get(R.string.opt_about_desc))
         .onClick(v -> dialog.openAbout(dialog.dialogContext()))
         .add();
 
     row()
-        .title(ModuleStrings.SETTINGS_RESET)
-        .description(ModuleStrings.DESC_RESET_ROW)
+        .title(ModuleResources.get(R.string.settings_reset))
+        .description(ModuleResources.get(R.string.desc_reset_row))
         .titleColor(Color.RED)
         .noArrow()
         .onClick(v -> confirmReset())
@@ -195,27 +209,28 @@ public final class SettingsPage {
     Context dialogCtx = dialog.dialogContext();
     LineTheme.applyDialogColors(
         new AlertDialog.Builder(dialogCtx, LineTheme.dialogTheme(dialogCtx))
-            .setTitle(ModuleStrings.SETTINGS_RESET)
-            .setMessage(ModuleStrings.SETTINGS_RESET_CONFIRM)
+            .setTitle(ModuleResources.get(R.string.settings_reset))
+            .setMessage(ModuleResources.get(R.string.settings_reset_confirm))
             .setPositiveButton(
-                ModuleStrings.SETTINGS_RESET_OK,
+                ModuleResources.get(R.string.settings_reset_ok),
                 (d, w) -> {
                   SettingsStore.reset();
                   SettingsStore.load(Main.options);
+                  ModuleResources.invalidate();
                   dialog.onConfigChanged();
                 })
-            .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, null)
+            .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
             .show(),
         dialogCtx);
   }
 
   private void addCategoryItems(KnotConfig.Category category) {
-    String lastSection = null;
+    int lastSectionRes = 0;
     for (KnotConfig.Item item : Main.options.items) {
       if (item.category != category) continue;
-      if (item.section != null && !item.section.isEmpty() && !item.section.equals(lastSection)) {
-        sectionHeader(item.section);
-        lastSection = item.section;
+      if (item.sectionRes != 0 && item.sectionRes != lastSectionRes) {
+        sectionHeader(item.section());
+        lastSectionRes = item.sectionRes;
       }
       addItemRow(item);
     }
@@ -234,14 +249,11 @@ public final class SettingsPage {
           String homeType = SettingsStore.getString(item.key, "");
           addPickerRow(
               item,
-              homeType.isEmpty() ? ModuleStrings.HOME_TYPE_DEFAULT : homeType,
+              homeType.isEmpty() ? ModuleResources.get(R.string.home_type_default) : homeType,
               v -> openHomeTypePicker(item));
           break;
         case "fcm_fix_mode":
-          addPickerRow(
-              item,
-              SettingsStore.getString(item.key, ModuleStrings.FCM_FIX_MODE_LEGY),
-              v -> openFcmFixModePicker(item));
+          addPickerRow(item, fcmFixModeLabel(), v -> openFcmFixModePicker(item));
           break;
         case "fcm_force_registration":
           addPickerRow(item, v -> forceFcmRegistration());
@@ -259,15 +271,15 @@ public final class SettingsPage {
 
   private void addPickerRow(
       KnotConfig.Item item, CharSequence value, View.OnClickListener onClick) {
-    row().title(item.label).description(item.description).value(value).onClick(onClick).add();
+    row().title(item.label()).description(item.description()).value(value).onClick(onClick).add();
   }
 
   private void addToggleRow(KnotConfig.Item item) {
     LineVersion.Config cfg = LineVersion.get();
     View row = LayoutInflater.from(ctx).inflate(cfg.res.layoutCheckbox, list, false);
 
-    Reflect.callMethod(row, cfg.settings.methodSetTitleText, item.label);
-    Reflect.callMethod(row, cfg.settings.methodSetDescription, item.description, null, null);
+    Reflect.callMethod(row, cfg.settings.methodSetTitleText, item.label());
+    Reflect.callMethod(row, cfg.settings.methodSetDescription, item.description(), null, null);
 
     cacheToggleConstants(cfg);
     if (toggleType != null) Reflect.callMethod(row, cfg.settings.methodSetItemType, toggleType);
@@ -282,7 +294,7 @@ public final class SettingsPage {
     refreshState.run();
 
     row.setOnClickListener(v -> toggleItem(row, item, cfg));
-    row.setTag(SettingsViews.searchTag(item.label, item.description));
+    row.setTag(SettingsViews.searchTag(item.label(), item.description()));
     list.addView(row);
   }
 
@@ -341,28 +353,75 @@ public final class SettingsPage {
 
   private void forceFcmRegistration() {
     if (!SettingsStore.get("experimental_fcm_fix", false)) {
-      toast(ModuleStrings.FCM_FORCE_REGISTRATION_NEEDS_FIX);
+      toast(ModuleResources.get(R.string.fcm_force_registration_needs_fix));
       return;
     }
     toast(
         FcmFixHook.requestFcmTokenRefresh(ctx.getClassLoader())
-            ? ModuleStrings.FCM_FORCE_REGISTRATION_STARTED
-            : ModuleStrings.FCM_FORCE_REGISTRATION_FAILED);
+            ? ModuleResources.get(R.string.fcm_force_registration_started)
+            : ModuleResources.get(R.string.fcm_force_registration_failed));
   }
 
   private void toast(String message) {
     Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show();
   }
 
+  private static String languageLabel() {
+    String tag = ModuleResources.language();
+    return tag.isEmpty()
+        ? ModuleResources.get(R.string.language_system)
+        : ModuleResources.displayName(tag);
+  }
+
+  private void openLanguagePicker() {
+    List<String> values = new ArrayList<>();
+    List<String> labels = new ArrayList<>();
+    values.add(ModuleResources.LANGUAGE_SYSTEM);
+    labels.add(ModuleResources.get(R.string.language_system));
+    for (String tag : ModuleResources.SUPPORTED_LANGUAGES) {
+      values.add(tag);
+      labels.add(ModuleResources.displayName(tag));
+    }
+
+    Context dialogCtx = dialog.dialogContext();
+    LineTheme.applyDialogColors(
+        new AlertDialog.Builder(dialogCtx, LineTheme.dialogTheme(dialogCtx))
+            .setTitle(ModuleResources.get(R.string.opt_language_label))
+            .setSingleChoiceItems(
+                labels.toArray(new String[0]),
+                Math.max(values.indexOf(ModuleResources.language()), 0),
+                (d, which) -> {
+                  ModuleResources.setLanguage(values.get(which));
+                  d.dismiss();
+                  dialog.onLanguageChanged();
+                })
+            .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
+            .show(),
+        dialogCtx);
+  }
+
+  private static String fcmFixMode() {
+    return FcmFixHook.normalizeMode(SettingsStore.getString("fcm_fix_mode", FcmFixHook.MODE_LEGY));
+  }
+
+  private static String fcmFixModeLabel() {
+    return ModuleResources.get(
+        FcmFixHook.MODE_FIS.equals(fcmFixMode())
+            ? R.string.fcm_fix_mode_fis
+            : R.string.fcm_fix_mode_legy);
+  }
+
   private void openFcmFixModePicker(KnotConfig.Item item) {
     List<String> values = new ArrayList<>();
-    values.add(ModuleStrings.FCM_FIX_MODE_LEGY);
-    values.add(ModuleStrings.FCM_FIX_MODE_FIS);
-    showChoicePicker(
-        item,
-        values,
-        values.toArray(new String[0]),
-        SettingsStore.getString(item.key, ModuleStrings.FCM_FIX_MODE_LEGY));
+    values.add(FcmFixHook.MODE_LEGY);
+    values.add(FcmFixHook.MODE_FIS);
+
+    String[] labels = {
+      ModuleResources.get(R.string.fcm_fix_mode_legy),
+      ModuleResources.get(R.string.fcm_fix_mode_fis)
+    };
+
+    showChoicePicker(item, values, labels, fcmFixMode());
   }
 
   private void openHomeTypePicker(KnotConfig.Item item) {
@@ -371,7 +430,7 @@ public final class SettingsPage {
     values.addAll(HomeTabTypeHook.availableHomeTypes(ctx.getClassLoader()));
 
     String[] labels = values.toArray(new String[0]);
-    labels[0] = ModuleStrings.HOME_TYPE_DEFAULT;
+    labels[0] = ModuleResources.get(R.string.home_type_default);
 
     showChoicePicker(item, values, labels, SettingsStore.getString(item.key, ""));
   }
@@ -380,7 +439,7 @@ public final class SettingsPage {
       KnotConfig.Item item, List<String> values, String[] labels, String current) {
     LineTheme.applyDialogColors(
         new AlertDialog.Builder(ctx, LineTheme.dialogTheme(ctx))
-            .setTitle(item.label)
+            .setTitle(item.label())
             .setSingleChoiceItems(
                 labels,
                 Math.max(values.indexOf(current), 0),
@@ -389,7 +448,7 @@ public final class SettingsPage {
                   d.dismiss();
                   dialog.onConfigChanged();
                 })
-            .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, null)
+            .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
             .show(),
         ctx);
   }

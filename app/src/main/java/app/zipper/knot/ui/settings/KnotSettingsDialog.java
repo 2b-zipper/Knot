@@ -19,11 +19,14 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.hooks.FcmFixHook;
+import app.zipper.knot.hooks.SettingsUIInjector;
 import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +60,7 @@ public final class KnotSettingsDialog {
       LineTheme.invalidate();
       SettingsStore.init(host);
       SettingsStore.load(Main.options);
+      FcmFixHook.migrateStoredMode(Main.options);
       new KnotSettingsDialog(host).open();
     } catch (Throwable e) {
       Knot.log("Knot: Dialog display failed: " + e.getMessage());
@@ -154,11 +158,11 @@ public final class KnotSettingsDialog {
     Context ctx = dialogContext();
     LineTheme.applyDialogColors(
         new AlertDialog.Builder(ctx, LineTheme.dialogTheme(ctx))
-            .setTitle(ModuleStrings.RESTART_TITLE)
-            .setMessage(ModuleStrings.RESTART_MESSAGE)
-            .setPositiveButton(ModuleStrings.RESTART_OK, (d, w) -> System.exit(0))
+            .setTitle(ModuleResources.get(R.string.restart_title))
+            .setMessage(ModuleResources.get(R.string.restart_message))
+            .setPositiveButton(ModuleResources.get(R.string.restart_ok), (d, w) -> System.exit(0))
             .setNegativeButton(
-                ModuleStrings.RESTART_LATER,
+                ModuleResources.get(R.string.restart_later),
                 (d, w) -> {
                   restartPending = false;
                   close();
@@ -195,11 +199,34 @@ public final class KnotSettingsDialog {
     reloadItems();
   }
 
+  // Knot's own views are rebuilt on demand, so a language switch needs no LINE restart
+  void onLanguageChanged() {
+    reloadItems();
+    SettingsUIInjector.refreshInjectedRow();
+  }
+
+  private void refreshNavHeader() {
+    if (navHeader == null) return;
+    Context ctx = dialogContext();
+    if (aboutActive) {
+      setNavHeader(ctx, ModuleResources.get(R.string.opt_about_label), v -> closeAbout(ctx));
+      return;
+    }
+    setNavHeader(
+        ctx,
+        currentCategory == null
+            ? ModuleResources.get(R.string.settings_title)
+            : currentCategory.label(),
+        backListener(ctx));
+  }
+
   private void reloadItems() {
     if (itemHost == null || searchBar == null) return;
     host.runOnUiThread(
         () -> {
           searchPage = null;
+          searchBar.refreshHint();
+          refreshNavHeader();
           String query = searchBar.query();
           View page = buildPage(query);
           itemHost.removeAllViews();
@@ -253,7 +280,7 @@ public final class KnotSettingsDialog {
       Reflect.callMethod(navHeader, cfg.main.methodHeaderSetButtonVisibility, true);
     } catch (Throwable ignored) {
     }
-    setNavHeader(host, ModuleStrings.SETTINGS_TITLE, v -> close());
+    setNavHeader(host, ModuleResources.get(R.string.settings_title), v -> close());
   }
 
   private void fitNavHeaderToWindow() {
@@ -361,7 +388,9 @@ public final class KnotSettingsDialog {
 
     fitNavHeaderToWindow();
     setNavHeader(
-        ctx, category == null ? ModuleStrings.SETTINGS_TITLE : category.label, backListener(ctx));
+        ctx,
+        category == null ? ModuleResources.get(R.string.settings_title) : category.label(),
+        backListener(ctx));
   }
 
   void openAbout(Context ctx) {
@@ -380,7 +409,7 @@ public final class KnotSettingsDialog {
     SettingsViews.slide(about, 0, () -> settingsPage.setVisibility(View.GONE));
 
     fitNavHeaderToWindow();
-    setNavHeader(ctx, ModuleStrings.OPT_ABOUT_LABEL, v -> closeAbout(ctx));
+    setNavHeader(ctx, ModuleResources.get(R.string.opt_about_label), v -> closeAbout(ctx));
   }
 
   private void closeAbout(Context ctx) {
@@ -404,7 +433,9 @@ public final class KnotSettingsDialog {
     fitNavHeaderToWindow();
     setNavHeader(
         ctx,
-        currentCategory == null ? ModuleStrings.SETTINGS_TITLE : currentCategory.label,
+        currentCategory == null
+            ? ModuleResources.get(R.string.settings_title)
+            : currentCategory.label(),
         backListener(ctx));
   }
 }

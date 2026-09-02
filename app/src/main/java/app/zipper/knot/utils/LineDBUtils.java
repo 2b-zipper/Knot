@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import app.zipper.knot.Knot;
 import app.zipper.knot.LineVersion;
+import app.zipper.knot.R;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -181,15 +182,15 @@ public class LineDBUtils {
 
     if (parameter != null) {
       if (parameter.contains("STKPKGID")) {
-        return ModuleStrings.MSG_STICKER;
+        return ModuleResources.get(R.string.msg_sticker);
       } else if (parameter.contains("IMAGE") || parameter.contains("image")) {
-        return ModuleStrings.MSG_IMAGE;
+        return ModuleResources.get(R.string.msg_image);
       } else if (parameter.contains("VIDEO") || parameter.contains("video")) {
-        return ModuleStrings.MSG_VIDEO;
+        return ModuleResources.get(R.string.msg_video);
       } else if (parameter.contains("FILE") || parameter.contains("file")) {
-        return ModuleStrings.MSG_FILE;
+        return ModuleResources.get(R.string.msg_file);
       } else if (parameter.contains("LOCATION") || parameter.contains("location")) {
-        return ModuleStrings.MSG_LOCATION;
+        return ModuleResources.get(R.string.msg_location);
       }
     }
     return null;

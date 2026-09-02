@@ -9,11 +9,12 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import app.zipper.knot.Knot;
+import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.ChatJumpUtil;
 import app.zipper.knot.utils.LineDBUtils;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import org.json.JSONObject;
 
 public class ReadHistoryViewer {
@@ -33,7 +34,8 @@ public class ReadHistoryViewer {
       scrollView.addView(container);
 
       TextView header = new TextView(activity);
-      header.setText(chatName != null ? chatName : ModuleStrings.READ_HISTORY_TITLE);
+      header.setText(
+          chatName != null ? chatName : ModuleResources.get(R.string.read_history_title));
       header.setTextSize(18);
       header.setTextColor(LineTheme.primaryTextColor(activity));
       header.setPadding(0, 20, 0, 30);
@@ -70,7 +72,7 @@ public class ReadHistoryViewer {
 
       if (!found) {
         TextView empty = new TextView(activity);
-        empty.setText(ModuleStrings.READ_HISTORY_EMPTY);
+        empty.setText(ModuleResources.get(R.string.read_history_empty));
         empty.setPadding(0, 100, 0, 100);
         empty.setGravity(Gravity.CENTER);
         empty.setTextColor(LineTheme.secondaryTextColor(activity));
@@ -80,18 +82,19 @@ public class ReadHistoryViewer {
       int themeId = LineTheme.dialogTheme(activity);
       AlertDialog.Builder builder = new AlertDialog.Builder(activity, themeId);
       builder.setView(scrollView);
-      builder.setPositiveButton(ModuleStrings.COMMON_CLOSE, null);
+      builder.setPositiveButton(ModuleResources.get(R.string.common_close), null);
       if (targetChatId != null && found) {
         builder.setNeutralButton(
-            ModuleStrings.READ_HISTORY_DELETE,
+            ModuleResources.get(R.string.read_history_delete),
             (dialog, which) ->
                 LineTheme.applyDialogColors(
                     new AlertDialog.Builder(activity, themeId)
-                        .setTitle(ModuleStrings.READ_HISTORY_DELETE_CONFIRM_TITLE)
-                        .setMessage(ModuleStrings.READ_HISTORY_DELETE_CONFIRM_MSG)
+                        .setTitle(ModuleResources.get(R.string.read_history_delete_confirm_title))
+                        .setMessage(ModuleResources.get(R.string.read_history_delete_confirm_msg))
                         .setPositiveButton(
-                            ModuleStrings.SETTINGS_YES, (d, w) -> clearChatHistory(targetChatId))
-                        .setNegativeButton(ModuleStrings.SETTINGS_CANCEL, null)
+                            ModuleResources.get(R.string.settings_yes),
+                            (d, w) -> clearChatHistory(targetChatId))
+                        .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
                         .show(),
                     activity));
       }
@@ -161,7 +164,7 @@ public class ReadHistoryViewer {
     contentText.setText(
         messageText != null && !messageText.isEmpty()
             ? messageText
-            : ModuleStrings.READ_HISTORY_UNKNOWN_MSG);
+            : ModuleResources.get(R.string.read_history_unknown_msg));
     contentText.setTextColor(LineTheme.primaryTextColor(activity));
     contentText.setTextSize(17);
     contentText.setPadding(0, 0, 0, 15);
@@ -212,9 +215,7 @@ public class ReadHistoryViewer {
 
   private static void addReaderToggle(
       Activity activity, LinearLayout card, java.util.List<View> overflow) {
-    final String showAll =
-        String.format(
-            java.util.Locale.getDefault(), ModuleStrings.READ_HISTORY_SHOW_ALL, overflow.size());
+    final String showAll = ModuleResources.get(R.string.read_history_show_all, overflow.size());
 
     TextView toggle = new TextView(activity);
     toggle.setText(showAll);
@@ -230,7 +231,8 @@ public class ReadHistoryViewer {
           for (View row : overflow) {
             row.setVisibility(expanded[0] ? View.VISIBLE : View.GONE);
           }
-          toggle.setText(expanded[0] ? ModuleStrings.READ_HISTORY_COLLAPSE : showAll);
+          toggle.setText(
+              expanded[0] ? ModuleResources.get(R.string.read_history_collapse) : showAll);
         });
     card.addView(toggle);
   }

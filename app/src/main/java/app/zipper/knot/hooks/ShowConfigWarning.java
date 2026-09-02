@@ -13,6 +13,7 @@ import android.widget.TextView;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 
 public class ShowConfigWarning implements BaseHook {
@@ -97,7 +98,7 @@ public class ShowConfigWarning implements BaseHook {
   private View constructWarningBanner(Activity host) {
     TextView label = new TextView(host);
     label.setTag(WARNING_BANNER_TAG);
-    label.setText(app.zipper.knot.utils.ModuleStrings.WARN_STORAGE_UNSET);
+    label.setText(app.zipper.knot.utils.ModuleResources.get(R.string.warn_storage_unset));
     label.setTextColor(Color.WHITE);
     label.setTextSize(12);
     label.setTypeface(null, Typeface.BOLD);

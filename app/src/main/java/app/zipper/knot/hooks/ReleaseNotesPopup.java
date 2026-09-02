@@ -8,10 +8,11 @@ import app.zipper.knot.BuildConfig;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -66,10 +67,11 @@ public class ReleaseNotesPopup implements BaseHook {
     try {
       LineTheme.applyDialogColors(
           new AlertDialog.Builder(host, LineTheme.dialogTheme(host))
-              .setTitle(ModuleStrings.BRAND_NAME + " v" + BuildConfig.VERSION_NAME)
+              .setTitle(ModuleResources.BRAND_NAME + " v" + BuildConfig.VERSION_NAME)
               .setMessage(notes)
-              .setPositiveButton(ModuleStrings.COMMON_CLOSE, null)
-              .setNeutralButton(ModuleStrings.RELEASE_NOTES_OPEN, (d, w) -> openReleasePage(host))
+              .setPositiveButton(ModuleResources.get(R.string.common_close), null)
+              .setNeutralButton(
+                  ModuleResources.get(R.string.release_notes_open), (d, w) -> openReleasePage(host))
               .show(),
           host);
       SettingsStore.save(SHOWN_VERSION_KEY, BuildConfig.VERSION_NAME);

@@ -17,9 +17,10 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.lang.ref.WeakReference;
 
 public class HomeSettingsTooltip implements BaseHook {
@@ -314,7 +315,7 @@ public class HomeSettingsTooltip implements BaseHook {
       arrowLp.rightMargin = Math.max(0, anchorWidth / 2 - arrow.getMeasuredWidth() / 2);
 
       TextView text = new TextView(host);
-      text.setText(ModuleStrings.TOOLTIP_SETTINGS_LONG_PRESS);
+      text.setText(ModuleResources.get(R.string.tooltip_settings_long_press));
       text.setTextColor(Color.WHITE);
       text.setTextSize(13f);
       int ph = (int) (12 * dp), pv = (int) (7 * dp);

@@ -5,7 +5,7 @@ import android.content.ContextWrapper;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import app.zipper.knot.hooks.*;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import io.github.libxposed.api.XposedModule;
 import java.lang.reflect.Method;
 
@@ -41,6 +41,8 @@ public class Main extends XposedModule {
                 Context context = (Context) chain.getArg(0);
                 if (context == null) return result;
 
+                ModuleResources.attach(context);
+
                 LineVersion.Config cfg = LineVersion.detectWithContext(context);
                 if (cfg == null) {
                   cfg = LineVersion.detect(lpparam.classLoader);
@@ -64,6 +66,8 @@ public class Main extends XposedModule {
       SettingsStore.setContext(context);
       SettingsStore.load(options);
       SettingsStore.setLoaded(true);
+      // Re-read the language now that the store can serve it
+      ModuleResources.invalidate();
 
       Knot.log("Knot: Initializing Knot hooks...");
 
@@ -203,7 +207,8 @@ public class Main extends XposedModule {
 
   private void handleUnsupportedVersion(LoadParam lpparam, Context context) {
     final String supported = LineVersion.getSupportedVersions();
-    final String msg = ModuleStrings.UNSUPPORTED_VERSION_MSG + " (Supported: " + supported + ")";
+    final String msg =
+        ModuleResources.get(R.string.unsupported_version_msg) + " (Supported: " + supported + ")";
 
     try {
       Method onCreate =
@@ -220,7 +225,7 @@ public class Main extends XposedModule {
                 int themeId = app.zipper.knot.utils.LineTheme.dialogTheme(activity);
                 app.zipper.knot.utils.LineTheme.applyDialogColors(
                     new android.app.AlertDialog.Builder(activity, themeId)
-                        .setTitle(ModuleStrings.UNSUPPORTED_VERSION_TITLE)
+                        .setTitle(ModuleResources.get(R.string.unsupported_version_title))
                         .setMessage(msg)
                         .setPositiveButton("OK", null)
                         .show(),

@@ -10,9 +10,10 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.documentfile.provider.DocumentFile;
+import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -46,7 +47,8 @@ public final class BackupRestoreHook {
   private static final int COPY_BUFFER_SIZE = 64 * 1024;
 
   public static void runBackup(Context context) {
-    final ProgressDialog pd = createSyncProgress(context, ModuleStrings.RESTORE_PREPARING);
+    final ProgressDialog pd =
+        createSyncProgress(context, ModuleResources.get(R.string.restore_preparing));
     pd.show();
     LineTheme.applyDialogColors(pd, context);
 
@@ -57,13 +59,17 @@ public final class BackupRestoreHook {
               () -> {
                 pd.dismiss();
                 notifySyncResult(
-                    context, result, ModuleStrings.BACKUP_SUCCESS, ModuleStrings.BACKUP_ERROR);
+                    context,
+                    result,
+                    ModuleResources.get(R.string.backup_success),
+                    ModuleResources.get(R.string.backup_error));
               });
         });
   }
 
   public static void runRestore(Context context, File backupFile) {
-    final ProgressDialog pd = createSyncProgress(context, ModuleStrings.RESTORE_PROCESSING);
+    final ProgressDialog pd =
+        createSyncProgress(context, ModuleResources.get(R.string.restore_processing));
     pd.show();
     LineTheme.applyDialogColors(pd, context);
 
@@ -76,17 +82,20 @@ public final class BackupRestoreHook {
                 if (result) {
                   LineTheme.applyDialogColors(
                       new AlertDialog.Builder(context, LineTheme.dialogTheme(context))
-                          .setTitle(ModuleStrings.RESTORE_SUCCESS)
-                          .setMessage(ModuleStrings.MANAGER_RESTART_REQUIRED)
+                          .setTitle(ModuleResources.get(R.string.restore_success))
+                          .setMessage(ModuleResources.get(R.string.manager_restart_required))
                           .setPositiveButton(
-                              ModuleStrings.RESTART_OK,
+                              ModuleResources.get(R.string.restart_ok),
                               (d, w) -> android.os.Process.killProcess(android.os.Process.myPid()))
                           .setCancelable(false)
                           .show(),
                       context);
                 } else {
                   notifySyncResult(
-                      context, false, ModuleStrings.RESTORE_SUCCESS, ModuleStrings.RESTORE_ERROR);
+                      context,
+                      false,
+                      ModuleResources.get(R.string.restore_success),
+                      ModuleResources.get(R.string.restore_error));
                 }
                 if (backupFile.getName().startsWith("knot_restore_")) {
                   backupFile.delete();

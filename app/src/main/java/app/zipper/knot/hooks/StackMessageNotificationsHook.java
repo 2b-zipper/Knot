@@ -10,7 +10,9 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
+import app.zipper.knot.utils.ModuleResources;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -180,7 +182,9 @@ public class StackMessageNotificationsHook implements BaseHook {
     Notification.InboxStyle style = new Notification.InboxStyle();
     CharSequence title = extras.getCharSequence(Notification.EXTRA_TITLE);
     if (hasText(title)) style.setBigContentTitle(title);
-    style.setSummaryText(lines.size() + "件のメッセージ");
+    style.setSummaryText(
+        ModuleResources.getQuantity(
+            R.plurals.notification_message_count, lines.size(), lines.size()));
     for (MessageLine line : lines) {
       style.addLine(line.text);
     }

@@ -13,9 +13,10 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
@@ -70,7 +71,7 @@ public class PlusMenuHook implements BaseHook {
             lpparam.classLoader,
             callbackCls,
             "prevent_read_state",
-            ModuleStrings.LABEL_PREVENT_READ,
+            ModuleResources.get(R.string.label_prevent_read),
             true,
             null);
     final Object markToggleCallback =
@@ -78,7 +79,7 @@ public class PlusMenuHook implements BaseHook {
             lpparam.classLoader,
             callbackCls,
             "send_mark_state",
-            ModuleStrings.LABEL_SEND_MARK_READ,
+            ModuleResources.get(R.string.label_send_mark_read),
             false,
             "prevent_read_state");
 
@@ -136,7 +137,10 @@ public class PlusMenuHook implements BaseHook {
               try {
                 if (Main.options.preventMarkAsRead.enabled) {
                   boolean readOn = currentReadState;
-                  String labelR = ModuleStrings.LABEL_PREVENT_READ + ": " + (readOn ? "ON" : "OFF");
+                  String labelR =
+                      ModuleResources.get(R.string.label_prevent_read)
+                          + ": "
+                          + (readOn ? "ON" : "OFF");
                   addPlusMenuItem(
                       itemEntry,
                       composerCls,
@@ -149,7 +153,9 @@ public class PlusMenuHook implements BaseHook {
                   if (readOn) {
                     boolean markOn = currentSendMarkState;
                     String labelM =
-                        ModuleStrings.LABEL_SEND_MARK_READ + ": " + (markOn ? "ON" : "OFF");
+                        ModuleResources.get(R.string.label_send_mark_read)
+                            + ": "
+                            + (markOn ? "ON" : "OFF");
                     addPlusMenuItem(
                         itemEntry,
                         composerCls,

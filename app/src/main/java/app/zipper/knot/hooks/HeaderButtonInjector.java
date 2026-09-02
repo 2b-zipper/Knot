@@ -10,9 +10,10 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.lang.reflect.Proxy;
 
 public class HeaderButtonInjector implements BaseHook {
@@ -238,7 +239,10 @@ public class HeaderButtonInjector implements BaseHook {
       Reflect.callMethod(headerButton, "setButtonImageViewDrawable", icon);
 
       Reflect.callMethod(
-          headerHelper, config.main.methodSetHeaderLabel, slot, ModuleStrings.READ_RECEIPT_VIEWER);
+          headerHelper,
+          config.main.methodSetHeaderLabel,
+          slot,
+          ModuleResources.get(R.string.read_receipt_viewer));
 
       Reflect.callMethod(headerHelper, config.main.methodSetHeaderButtonVisibility, slot, 0);
 

@@ -17,8 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import app.zipper.knot.R;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.util.function.Consumer;
 
 final class SettingsSearchBar {
@@ -65,9 +66,13 @@ final class SettingsSearchBar {
     return input.getText().toString().toLowerCase();
   }
 
+  void refreshHint() {
+    input.setHint(ModuleResources.get(R.string.settings_search_hint));
+  }
+
   private static EditText buildInput(Context ctx) {
     EditText input = new EditText(ctx);
-    input.setHint(ModuleStrings.SETTINGS_SEARCH_HINT);
+    input.setHint(ModuleResources.get(R.string.settings_search_hint));
     input.setSingleLine(true);
     input.setTextSize(14);
     input.setImeOptions(EditorInfo.IME_ACTION_SEARCH);

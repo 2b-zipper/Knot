@@ -17,9 +17,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import app.zipper.knot.BuildConfig;
+import app.zipper.knot.R;
 import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +29,11 @@ public final class AboutPage {
   private static final String REPO_URL = "https://github.com/2b-zipper/Knot";
   private static final String LICENSE_URL = REPO_URL + "/blob/main/LICENSE";
   private static final String[][] CONTRIBUTOR_SECTIONS = {
-    {ModuleStrings.ABOUT_SEC_DEVELOPERS, "2b-zipper", "Nich87"},
-    {ModuleStrings.ABOUT_SEC_CONTRIBUTORS, "atuy1219"},
+    {"2b-zipper", "Nich87"}, {"atuy1219"},
+  };
+
+  private static final int[] CONTRIBUTOR_SECTION_TITLES = {
+    R.string.about_sec_developers, R.string.about_sec_contributors,
   };
 
   private final Context ctx;
@@ -47,7 +51,7 @@ public final class AboutPage {
   public static String[] contributorHandles() {
     List<String> handles = new ArrayList<>();
     for (String[] section : CONTRIBUTOR_SECTIONS) {
-      for (int i = 1; i < section.length; i++) handles.add(section[i]);
+      for (String handle : section) handles.add(handle);
     }
     return handles.toArray(new String[0]);
   }
@@ -60,10 +64,10 @@ public final class AboutPage {
 
     root.addView(buildHero());
 
-    for (String[] section : CONTRIBUTOR_SECTIONS) {
-      SettingsViews.sectionHeader(ctx, root, section[0]);
-      for (int i = 1; i < section.length; i++) {
-        addContributorRow(section[i]);
+    for (int s = 0; s < CONTRIBUTOR_SECTIONS.length; s++) {
+      SettingsViews.sectionHeader(ctx, root, ModuleResources.get(CONTRIBUTOR_SECTION_TITLES[s]));
+      for (String handle : CONTRIBUTOR_SECTIONS[s]) {
+        addContributorRow(handle);
       }
     }
 
@@ -92,13 +96,14 @@ public final class AboutPage {
       hero.addView(logo);
     }
 
-    TextView name = centeredLabel(ModuleStrings.BRAND_NAME, 26, LineTheme.primaryTextColor(ctx), 0);
+    TextView name =
+        centeredLabel(ModuleResources.BRAND_NAME, 26, LineTheme.primaryTextColor(ctx), 0);
     name.setTypeface(null, Typeface.BOLD);
     hero.addView(name);
 
     int subColor = LineTheme.secondaryTextColor(ctx);
     hero.addView(centeredLabel("v" + BuildConfig.VERSION_NAME, 13, subColor, 4));
-    hero.addView(centeredLabel(ModuleStrings.ABOUT_TAGLINE, 13, subColor, 10));
+    hero.addView(centeredLabel(ModuleResources.get(R.string.about_tagline), 13, subColor, 10));
 
     return hero;
   }
@@ -119,7 +124,7 @@ public final class AboutPage {
 
   private TextView buildDisclaimer() {
     TextView disclaimer = new TextView(ctx);
-    disclaimer.setText(ModuleStrings.ABOUT_DISCLAIMER);
+    disclaimer.setText(ModuleResources.get(R.string.about_disclaimer));
     disclaimer.setTextSize(12);
     disclaimer.setTextColor(LineTheme.secondaryTextColor(ctx));
     disclaimer.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -133,15 +138,15 @@ public final class AboutPage {
   }
 
   private void addLinks() {
-    SettingsViews.sectionHeader(ctx, root, ModuleStrings.ABOUT_SEC_LINKS);
+    SettingsViews.sectionHeader(ctx, root, ModuleResources.get(R.string.about_sec_links));
     SettingsViews.row(ctx, root)
-        .title(ModuleStrings.ABOUT_LINK_REPO)
+        .title(ModuleResources.get(R.string.about_link_repo))
         .description("github.com/2b-zipper/Knot")
         .onClick(v -> openUrl(REPO_URL))
         .add();
     SettingsViews.row(ctx, root)
-        .title(ModuleStrings.ABOUT_LINK_LICENSE)
-        .description(ModuleStrings.ABOUT_LICENSE_VALUE)
+        .title(ModuleResources.get(R.string.about_link_license))
+        .description(ModuleResources.get(R.string.about_license_value))
         .onClick(v -> openUrl(LICENSE_URL))
         .add();
   }

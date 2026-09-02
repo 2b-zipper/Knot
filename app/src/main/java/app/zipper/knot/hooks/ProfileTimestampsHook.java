@@ -20,10 +20,11 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.utils.LineDBUtils;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -123,19 +124,27 @@ public class ProfileTimestampsHook implements BaseHook {
       LineTheme.invalidate();
       LineDBUtils.ContactTimes t = LineDBUtils.getContactTimes(mid);
       StringBuilder sb = new StringBuilder();
-      appendRow(sb, ModuleStrings.PROFILE_TS_MID, mid);
-      appendRow(sb, ModuleStrings.PROFILE_TS_FRIEND_CREATED, t == null ? null : t.friendCreated);
-      appendRow(sb, ModuleStrings.PROFILE_TS_FAVORITE, t == null ? null : t.favorite);
-      appendRow(sb, ModuleStrings.PROFILE_TS_PROFILE_UPDATED, t == null ? null : t.profileUpdated);
+      appendRow(sb, ModuleResources.get(R.string.profile_ts_mid), mid);
+      appendRow(
+          sb,
+          ModuleResources.get(R.string.profile_ts_friend_created),
+          t == null ? null : t.friendCreated);
+      appendRow(
+          sb, ModuleResources.get(R.string.profile_ts_favorite), t == null ? null : t.favorite);
+      appendRow(
+          sb,
+          ModuleResources.get(R.string.profile_ts_profile_updated),
+          t == null ? null : t.profileUpdated);
 
       int themeId = LineTheme.dialogTheme(activity);
       LineTheme.applyDialogColors(
           new AlertDialog.Builder(activity, themeId)
-              .setTitle(ModuleStrings.PROFILE_TS_DIALOG_TITLE)
+              .setTitle(ModuleResources.get(R.string.profile_ts_dialog_title))
               .setMessage(sb.toString().trim())
               .setNeutralButton(
-                  ModuleStrings.PROFILE_TS_COPY_MID, (d, which) -> copyMid(activity, mid))
-              .setPositiveButton(ModuleStrings.COMMON_CLOSE, null)
+                  ModuleResources.get(R.string.profile_ts_copy_mid),
+                  (d, which) -> copyMid(activity, mid))
+              .setPositiveButton(ModuleResources.get(R.string.common_close), null)
               .show(),
           activity);
     } catch (Throwable e) {
@@ -148,8 +157,11 @@ public class ProfileTimestampsHook implements BaseHook {
       ClipboardManager clipboard =
           (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
       if (clipboard == null) return;
-      clipboard.setPrimaryClip(ClipData.newPlainText(ModuleStrings.PROFILE_TS_MID, mid));
-      Toast.makeText(activity, ModuleStrings.PROFILE_TS_MID_COPIED, Toast.LENGTH_SHORT).show();
+      clipboard.setPrimaryClip(
+          ClipData.newPlainText(ModuleResources.get(R.string.profile_ts_mid), mid));
+      Toast.makeText(
+              activity, ModuleResources.get(R.string.profile_ts_mid_copied), Toast.LENGTH_SHORT)
+          .show();
     } catch (Throwable e) {
       Knot.log("Knot: ProfileTimestampsHook copyMid error: " + e);
     }
@@ -164,7 +176,7 @@ public class ProfileTimestampsHook implements BaseHook {
   }
 
   private static String format(Long millis) {
-    if (millis == null || millis <= 0) return ModuleStrings.PROFILE_TS_EMPTY;
+    if (millis == null || millis <= 0) return ModuleResources.get(R.string.profile_ts_empty);
     return FMT.format(new Date(millis));
   }
 

@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
     }
 
     TextView titleLabel = new TextView(this);
-    titleLabel.setText("Knot for LINE");
+    titleLabel.setText(R.string.main_title);
     titleLabel.setTextSize(26);
     titleLabel.setTextColor(Color.parseColor("#222222"));
     titleLabel.setTypeface(null, Typeface.BOLD);
@@ -74,11 +74,7 @@ public class MainActivity extends Activity {
     cardLayout.setBackground(cardBg);
 
     TextView descLabel = new TextView(this);
-    descLabel.setText(
-        "モジュールを有効化し、LINEアプリを再起動してください。"
-            + "\n\n各種機能の設定やデータ保存先の指定は、LINEのホーム"
-            + "画面右上にある「設定（歯車）」アイコンを長押しするか、"
-            + "LINE設定内の追加項目から行うことができます。");
+    descLabel.setText(R.string.main_description);
     descLabel.setTextSize(15);
     descLabel.setTextColor(Color.parseColor("#555555"));
     descLabel.setLineSpacing(0, 1.4f);
@@ -88,7 +84,7 @@ public class MainActivity extends Activity {
     parentLayout.addView(cardLayout);
 
     Button openLineBtn = new Button(this);
-    openLineBtn.setText("LINEを開く");
+    openLineBtn.setText(R.string.main_open_line);
     openLineBtn.setTextColor(Color.WHITE);
     openLineBtn.setTextSize(16);
     openLineBtn.setTypeface(null, Typeface.BOLD);
@@ -112,7 +108,7 @@ public class MainActivity extends Activity {
             startActivity(launchIntent);
           } else {
             android.widget.Toast.makeText(
-                    this, "LINEがインストールされていません", android.widget.Toast.LENGTH_SHORT)
+                    this, R.string.main_line_not_installed, android.widget.Toast.LENGTH_SHORT)
                 .show();
           }
         });
@@ -133,7 +129,7 @@ public class MainActivity extends Activity {
           FrameLayout overlay = (FrameLayout) provider.getView();
 
           TextView label = new TextView(this);
-          label.setText("Knot");
+          label.setText(R.string.app_name);
           label.setTextSize(40);
           label.setLetterSpacing(0.03f);
           label.setTextColor(Color.parseColor("#333333"));

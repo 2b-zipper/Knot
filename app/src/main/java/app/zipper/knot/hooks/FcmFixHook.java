@@ -12,6 +12,7 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
+import app.zipper.knot.SettingsStore;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -21,6 +22,13 @@ import java.util.Queue;
 import java.util.function.Predicate;
 
 public class FcmFixHook implements BaseHook {
+
+  public static final String MODE_LEGY = "legy";
+  public static final String MODE_FIS = "fis";
+
+  // Label persisted by v2.7.0-beta1 through v2.8.0-beta2; dropping it downgrades FIS users to Legy
+  // TODO: delete with the isFisMode branch and migrateStoredMode a few releases from now
+  private static final String LEGACY_MODE_FIS = "FIS（証明書偽装）";
 
   private static final boolean VERBOSE_LOGGING = false;
 
@@ -35,7 +43,27 @@ public class FcmFixHook implements BaseHook {
   }
 
   private static boolean isFisMode(KnotConfig config) {
-    return app.zipper.knot.utils.ModuleStrings.FCM_FIX_MODE_FIS.equals(config.fcmFixMode.value);
+    return isFisMode(config.fcmFixMode.value);
+  }
+
+  public static boolean isFisMode(String storedValue) {
+    return MODE_FIS.equals(storedValue) || LEGACY_MODE_FIS.equals(storedValue);
+  }
+
+  public static String normalizeMode(String storedValue) {
+    return isFisMode(storedValue) ? MODE_FIS : MODE_LEGY;
+  }
+
+  public static void migrateStoredMode(KnotConfig config) {
+    String stored = config.fcmFixMode.value;
+    if (stored == null || stored.isEmpty()) return;
+
+    String normalized = normalizeMode(stored);
+    if (normalized.equals(stored)) return;
+
+    SettingsStore.save("fcm_fix_mode", normalized);
+    config.fcmFixMode.value = normalized;
+    Knot.log("Knot: migrated fcm_fix_mode to " + normalized);
   }
 
   private static byte[] hexDecode(String hex) {

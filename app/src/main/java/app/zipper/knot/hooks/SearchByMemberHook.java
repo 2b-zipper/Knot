@@ -23,11 +23,12 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.LineDBUtils;
 import app.zipper.knot.utils.LineTheme;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import app.zipper.knot.utils.SearchResultLayout;
 import io.github.libxposed.api.XposedInterface;
 import java.io.File;
@@ -207,7 +208,11 @@ public class SearchByMemberHook implements BaseHook {
       } else {
         List<LineDBUtils.MemberInfo> members = LineDBUtils.getChatMembers(chatId);
         if (members.isEmpty()) {
-          Toast.makeText(activity, ModuleStrings.SEARCH_BY_MEMBER_EMPTY, Toast.LENGTH_SHORT).show();
+          Toast.makeText(
+                  activity,
+                  ModuleResources.get(R.string.search_by_member_empty),
+                  Toast.LENGTH_SHORT)
+              .show();
           return;
         }
         showMemberPicker(activity, chatId, members, icon);
@@ -492,7 +497,7 @@ public class SearchByMemberHook implements BaseHook {
 
   private void setFilteringHint(Activity activity, String name) {
     EditText et = getSearchEditText(activity);
-    if (et != null) et.setHint(ModuleStrings.SEARCH_BY_MEMBER_FILTERING + name);
+    if (et != null) et.setHint(ModuleResources.get(R.string.search_by_member_filtering) + name);
   }
 
   private void showMemberPicker(
@@ -502,7 +507,7 @@ public class SearchByMemberHook implements BaseHook {
     int themeId = LineTheme.dialogTheme(activity);
     LineTheme.applyDialogColors(
         new AlertDialog.Builder(activity, themeId)
-            .setTitle(ModuleStrings.SEARCH_BY_MEMBER_TITLE)
+            .setTitle(ModuleResources.get(R.string.search_by_member_title))
             .setItems(
                 names,
                 (d, i) -> {
@@ -527,7 +532,10 @@ public class SearchByMemberHook implements BaseHook {
     EditText et = getSearchEditText(activity);
     if (et != null) et.setHint("");
     triggerReSearch(activity, chatId);
-    Toast.makeText(activity, ModuleStrings.SEARCH_BY_MEMBER_FILTER_CLEARED, Toast.LENGTH_SHORT)
+    Toast.makeText(
+            activity,
+            ModuleResources.get(R.string.search_by_member_filter_cleared),
+            Toast.LENGTH_SHORT)
         .show();
   }
 
@@ -745,7 +753,7 @@ public class SearchByMemberHook implements BaseHook {
                 Math.max(0, anchor.getWidth() / 2 - arrowView.getMeasuredWidth() / 2);
 
             TextView text = new TextView(activity);
-            text.setText(ModuleStrings.TOOLTIP_SEARCH_BY_MEMBER);
+            text.setText(ModuleResources.get(R.string.tooltip_search_by_member));
             text.setTextColor(Color.WHITE);
             text.setTextSize(13f);
             int ph = (int) (12 * dp), pv = (int) (7 * dp);

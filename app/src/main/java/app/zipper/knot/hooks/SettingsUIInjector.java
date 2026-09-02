@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -12,11 +14,12 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
+import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.ui.settings.KnotSettingsDialog;
 import app.zipper.knot.ui.settings.SettingsFilePickers;
 import app.zipper.knot.ui.settings.SettingsViews;
-import app.zipper.knot.utils.ModuleStrings;
+import app.zipper.knot.utils.ModuleResources;
 import io.github.libxposed.api.XposedInterface;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -27,11 +30,11 @@ import java.util.List;
 
 public class SettingsUIInjector implements BaseHook {
 
-  private static final String BRAND_TAG = ModuleStrings.BRAND_NAME;
+  private static final String BRAND_TAG = ModuleResources.BRAND_NAME;
 
   private static volatile WeakReference<Activity> foregroundActivity = null;
 
-  private volatile Object targetAdapter = null;
+  private static volatile WeakReference<Object> targetAdapter = null;
 
   public static void openSettings(Activity activity) {
     KnotSettingsDialog.show(activity);
@@ -41,6 +44,26 @@ public class SettingsUIInjector implements BaseHook {
     WeakReference<Activity> ref = foregroundActivity;
     Activity activity = ref == null ? null : ref.get();
     return activity == null || activity.isFinishing() ? null : activity;
+  }
+
+  private static Object adapter() {
+    WeakReference<Object> ref = targetAdapter;
+    return ref == null ? null : ref.get();
+  }
+
+  // LINE owns the row we inject, so it keeps the old text until its adapter rebinds
+  public static void refreshInjectedRow() {
+    Object adapter = adapter();
+    if (adapter == null) return;
+    new Handler(Looper.getMainLooper())
+        .post(
+            () -> {
+              try {
+                Reflect.callMethod(adapter, "notifyDataSetChanged");
+              } catch (Throwable t) {
+                Knot.log("Knot: settings row refresh failed: " + t);
+              }
+            });
   }
 
   @Override
@@ -114,7 +137,8 @@ public class SettingsUIInjector implements BaseHook {
     Object result = chain.proceed();
     try {
       View listView = ((View) chain.getArg(0)).findViewById(LineVersion.get().res.idSettingList);
-      if (listView != null) targetAdapter = Reflect.callMethod(listView, "getAdapter");
+      Object adapter = listView == null ? null : Reflect.callMethod(listView, "getAdapter");
+      if (adapter != null) targetAdapter = new WeakReference<>(adapter);
     } catch (Throwable ignored) {
     }
     return result;
@@ -148,8 +172,7 @@ public class SettingsUIInjector implements BaseHook {
       Class<?> searchHelperCls,
       LoadParam lpparam)
       throws Throwable {
-    if (chain.getThisObject() != targetAdapter
-        && !searchHelperCls.isInstance(chain.getThisObject())) {
+    if (chain.getThisObject() != adapter() && !searchHelperCls.isInstance(chain.getThisObject())) {
       return chain.proceed();
     }
     LineVersion.Config c = LineVersion.get();
@@ -260,8 +283,7 @@ public class SettingsUIInjector implements BaseHook {
 
   private Object bindKnotViewHolder(XposedInterface.Chain chain, Class<?> searchHelperCls)
       throws Throwable {
-    if (chain.getThisObject() != targetAdapter
-        && !searchHelperCls.isInstance(chain.getThisObject())) {
+    if (chain.getThisObject() != adapter() && !searchHelperCls.isInstance(chain.getThisObject())) {
       return chain.proceed();
     }
     LineVersion.Config c = LineVersion.get();
@@ -307,7 +329,7 @@ public class SettingsUIInjector implements BaseHook {
     if (iconView != null) applyKnotIcon(itemView, iconView);
 
     TextView title = itemView.findViewById(c.res.idTitle);
-    if (title != null) title.setText(ModuleStrings.SETTINGS_TITLE);
+    if (title != null) title.setText(ModuleResources.get(R.string.settings_title));
     itemView.setOnClickListener(v -> KnotSettingsDialog.show(v.getContext()));
   }
 
