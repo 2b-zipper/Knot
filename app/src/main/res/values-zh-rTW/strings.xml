@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="xposed_desc">Knot - LINE功能擴充模組</string>
+    <!-- Language -->
+    <string name="opt_language_label">語言</string>
+    <string name="opt_language_desc">Knot本身的畫面與對話框所使用的語言。選擇「系統預設」即可跟隨裝置的語言設定。</string>
+    <string name="language_system">系統預設</string>
+    <!-- Name of this language, shown in the picker -->
+    <string name="language_name">繁體中文</string>
+    <!-- Common -->
+    <string name="settings_title">模組設定</string>
+    <string name="settings_reset">重設設定</string>
+    <string name="settings_reset_confirm">要將所有設定恢復為預設值嗎？</string>
+    <string name="settings_reset_ok">重設</string>
+    <string name="settings_yes">是</string>
+    <string name="settings_cancel">取消</string>
+    <string name="common_close">關閉</string>
+    <string name="settings_path_picker_hint">請選擇儲存位置</string>
+    <string name="settings_search_hint">搜尋設定…</string>
+    <!-- Categories -->
+    <string name="cat_privacy">隱私</string>
+    <string name="cat_chat">聊天</string>
+    <string name="cat_display">畫面顯示</string>
+    <string name="cat_notification">通知</string>
+    <string name="cat_storage">儲存位置</string>
+    <string name="cat_backup">備份</string>
+    <string name="cat_system">系統</string>
+    <string name="cat_other">其他</string>
+    <!-- Sections -->
+    <string name="sec_privacy_read">已讀</string>
+    <string name="sec_privacy_edit">訊息編輯</string>
+    <string name="sec_privacy_unsend">收回訊息</string>
+    <string name="sec_privacy_profile">個人檔案</string>
+    <string name="sec_chat_send">傳送</string>
+    <string name="sec_chat_media">媒體</string>
+    <string name="sec_chat_search">搜尋</string>
+    <string name="sec_chat_display">顯示</string>
+    <string name="sec_ads">廣告與推薦</string>
+    <string name="sec_tabs">分頁</string>
+    <string name="sec_header_btn">標題列按鈕</string>
+    <string name="sec_font">字型</string>
+    <string name="sec_theme">主題</string>
+    <!-- Restart / warnings -->
+    <string name="manager_restart_required">需要重新啟動LINE</string>
+    <string name="restart_title">確認重新啟動</string>
+    <string name="restart_message">設定必須重新啟動LINE才會生效。要立即重新啟動嗎？</string>
+    <string name="restart_ok">重新啟動</string>
+    <string name="restart_later">稍後</string>
+    <string name="release_notes_open">在GitHub上檢視</string>
+    <string name="warn_storage_unset">⚠ Knot：尚未設定儲存位置。請點擊此處進行設定。</string>
+    <string name="unsupported_version_msg">不支援此版本的LINE。</string>
+    <!-- Backup / restore -->
+    <string name="backup_success">備份完成。</string>
+    <string name="backup_error">備份失敗。</string>
+    <string name="restore_success">還原完成。</string>
+    <string name="restore_error">還原過程中發生錯誤。</string>
+    <string name="restore_confirm_title">確認還原</string>
+    <string name="restore_confirm_msg">要從備份還原聊天記錄嗎？目前的資料將全部被覆蓋，完成後應用程式會重新啟動。</string>
+    <string name="restore_processing">還原中…</string>
+    <string name="restore_preparing">準備中…</string>
+    <!-- Read receipts -->
+    <string name="label_prevent_read">避免已讀</string>
+    <string name="label_send_mark_read">傳送後標示已讀</string>
+    <string name="read_receipt_viewer">已讀成員</string>
+    <string name="unset_time_prefix">"收回時間："</string>
+    <string name="read_history_title">已讀記錄</string>
+    <string name="read_history_empty">沒有記錄</string>
+    <string name="read_history_delete">刪除記錄</string>
+    <string name="read_history_delete_confirm_title">刪除記錄</string>
+    <string name="read_history_delete_confirm_msg">要刪除此聊天室的所有已讀記錄嗎？</string>
+    <string name="read_history_unknown_msg">(未知的訊息)</string>
+    <string name="read_history_show_all">顯示其餘%1$d人 ▼</string>
+    <string name="read_history_collapse">收合 ▲</string>
+    <!-- Message type placeholders -->
+    <string name="msg_sticker">[貼圖]</string>
+    <string name="msg_image">[照片]</string>
+    <string name="msg_video">[影片]</string>
+    <string name="msg_file">[檔案]</string>
+    <string name="msg_location">[位置資訊]</string>
+    <!-- Privacy options -->
+    <string name="opt_prevent_mark_as_read_label">在加號選單中加入「避免已讀」</string>
+    <string name="opt_prevent_mark_as_read_desc">可從聊天分頁右上角的「+」選單開關避免已讀功能。開啟後會一併顯示「傳送後標示已讀」選項。</string>
+    <string name="opt_record_read_history_label">記錄已讀記錄</string>
+    <string name="opt_record_read_history_desc">記錄誰在何時已讀了訊息。可從聊天畫面上方的書本圖示查看。</string>
+    <string name="opt_prevent_unsend_message_label">停用訊息收回</string>
+    <string name="opt_prevent_unsend_message_desc">即使對方收回訊息，訊息仍會保留在你的裝置上。被收回的訊息會顯示圖示，點擊即可查看收回時間。</string>
+    <string name="opt_show_profile_timestamps_label">在個人檔案中顯示詳細資訊</string>
+    <string name="opt_show_profile_timestamps_desc">在好友個人檔案畫面右上角加入ⓘ圖示。點擊後會以對話框顯示MID、加入好友、加入我的最愛與個人檔案更新的時間。沒有記錄的項目會顯示「—」。</string>
+    <string name="profile_ts_friend_created">加入好友</string>
+    <string name="profile_ts_favorite">我的最愛</string>
+    <string name="profile_ts_profile_updated">檔案更新</string>
+    <string name="profile_ts_dialog_title">個人檔案資訊</string>
+    <string name="profile_ts_copy_mid">複製MID</string>
+    <string name="profile_ts_mid_copied">已複製MID</string>
+    <!-- Chat options -->
+    <string name="opt_high_quality_photo_label">提升照片傳送品質</string>
+    <string name="opt_high_quality_photo_desc">略過傳送照片時的自動壓縮與縮放，以最高品質傳送。品質比LINE設定中的「高畫質」更好。</string>
+    <string name="opt_long_video_label">允許傳送5分鐘以上的影片</string>
+    <string name="opt_long_video_desc">解除傳送影片時的5分鐘限制，讓你可以傳送較長的影片。</string>
+    <string name="opt_enable_mute_message_label">啟用靜音訊息</string>
+    <string name="opt_enable_mute_message_desc">重新啟用已從LINE Labs移除的靜音訊息功能。</string>
+    <string name="opt_use_default_camera_label">使用系統相機</string>
+    <string name="opt_use_default_camera_desc">使用裝置的預設相機應用程式，取代LINE內建的相機。</string>
+    <string name="opt_mute_camera_shutter_label">將LINE內建相機靜音</string>
+    <string name="opt_mute_camera_shutter_desc">將LINE內建相機的快門聲設為靜音。使用系統相機時無效。</string>
+    <string name="opt_search_by_member_label">依成員搜尋聊天內容</string>
+    <string name="opt_search_by_member_desc">點擊搜尋框中的放大鏡圖示，即可選擇成員並只搜尋該使用者的訊息。</string>
+    <string name="opt_search_min_1_char_label">可用1個字搜尋聊天內容</string>
+    <string name="opt_search_min_1_char_desc">將聊天室內搜尋的最少字數從2個字放寬為1個字。</string>
+    <string name="opt_show_seconds_in_chat_time_label">在聊天時間中顯示秒數</string>
+    <string name="opt_show_seconds_in_chat_time_desc">在每則訊息旁的時間顯示中加入秒數。（例如12:34 → 12:34:56）</string>
+    <string name="opt_select_all_in_edit_mode_label">在刪除訊息畫面加入全選按鈕</string>
+    <string name="opt_select_all_in_edit_mode_desc">在刪除訊息畫面下方加入可全選或取消全選所有訊息的按鈕。</string>
+    <string name="opt_show_edit_history_label">記錄訊息編輯記錄</string>
+    <string name="opt_show_edit_history_desc">訊息被編輯時記錄編輯前的文字，並在已編輯訊息的長按選單中加入「編輯記錄」。</string>
+    <string name="edit_history_title">編輯記錄</string>
+    <string name="edit_history_empty">沒有編輯記錄。</string>
+    <string name="edit_history_original">原始訊息</string>
+    <string name="edit_history_edited">編輯</string>
+    <string name="edit_history_delete_confirm_msg">要刪除這則訊息的編輯記錄嗎？</string>
+    <string name="opt_fix_announcement_name_label">修正公告者名稱的顯示</string>
+    <string name="opt_fix_announcement_name_desc">修正已修補的LINE中，建立公告時系統訊息的名稱變成空白（顯示為「發布了公告」）的問題，讓名稱正確顯示。</string>
+    <string name="opt_hide_ai_icon_permanently_label">永久隱藏聊天室的Agent i</string>
+    <string name="opt_hide_ai_icon_permanently_desc">永遠隱藏聊天室訊息輸入欄中的Agent i。一般只能隱藏30天，啟用此選項後將不受該設定影響而永久隱藏。</string>
+    <string name="opt_open_url_in_default_browser_label">以預設瀏覽器開啟連結</string>
+    <string name="opt_open_url_in_default_browser_desc">以系統的預設瀏覽器開啟網址，而非應用程式內建瀏覽器。</string>
+    <!-- Appearance options -->
+    <string name="opt_remove_ads_label">隱藏廣告</string>
+    <string name="opt_remove_ads_desc">隱藏顯示於聊天清單上方與主頁畫面等處的廣告。</string>
+    <string name="opt_remove_home_recommendations_label">隱藏主頁的推薦與動態</string>
+    <string name="opt_remove_home_recommendations_desc">隱藏主頁畫面（含HOME26）中顯示的推薦內容與動態。</string>
+    <string name="opt_remove_home_services_label">隱藏主頁的服務清單</string>
+    <string name="opt_remove_home_services_desc">隱藏主頁畫面中顯示的服務清單。</string>
+    <string name="opt_remove_home_accordion_label">隱藏主頁上方的摺疊區塊</string>
+    <string name="opt_remove_home_accordion_desc">隱藏主頁分頁上方（搜尋列與好友清單之間）顯示的LYP優惠等摺疊區塊。</string>
+    <string name="opt_remove_tab_voom_label">隱藏VOOM分頁</string>
+    <string name="opt_remove_tab_voom_desc">隱藏下方的VOOM分頁。</string>
+    <string name="opt_remove_tab_news_label">隱藏新聞／通話分頁</string>
+    <string name="opt_remove_tab_news_desc">隱藏下方的新聞／通話分頁。</string>
+    <string name="opt_remove_tab_mini_label">隱藏應用程式分頁</string>
+    <string name="opt_remove_tab_mini_desc">隱藏下方的應用程式分頁。</string>
+    <string name="opt_remove_tab_commerce_label">隱藏購物分頁</string>
+    <string name="opt_remove_tab_commerce_desc">隱藏下方的購物分頁。</string>
+    <string name="opt_remove_tab_wallet_label">隱藏錢包分頁</string>
+    <string name="opt_remove_tab_wallet_desc">隱藏下方的錢包分頁。</string>
+    <string name="opt_extend_tab_click_area_label">擴大分頁的點擊範圍</string>
+    <string name="opt_extend_tab_click_area_desc">擴大下方分頁的感應範圍，讓分頁更容易點擊。</string>
+    <string name="opt_hide_tab_text_label">隱藏分頁標籤</string>
+    <string name="opt_hide_tab_text_desc">隱藏下方分頁圖示下的文字。</string>
+    <string name="opt_home_tab_type_label">變更主頁的版面</string>
+    <string name="opt_home_tab_type_desc">變更主頁分頁的類型。若要恢復為傳統主頁，請選擇\"HOME\"。</string>
+    <string name="home_type_default">預設</string>
+    <string name="opt_remove_ai_friends_button_label">隱藏AI Friends按鈕</string>
+    <string name="opt_remove_ai_friends_button_desc">隱藏聊天分頁右上角的「AI Friends」按鈕。</string>
+    <string name="opt_remove_search_bar_agent_i_button_label">隱藏Agent i相關按鈕</string>
+    <string name="opt_remove_search_bar_agent_i_button_desc">一併隱藏各分頁的「Agent i」按鈕，以及聊天室「+」選單中的「顯示聊天室的Agent i」開關。</string>
+    <string name="opt_remove_open_chat_button_label">隱藏OpenChat按鈕</string>
+    <string name="opt_remove_open_chat_button_desc">隱藏聊天分頁右上角的「OpenChat」按鈕。</string>
+    <string name="opt_remove_calendar_button_label">隱藏行事曆按鈕</string>
+    <string name="opt_remove_calendar_button_desc">隱藏聊天分頁右上角的「行事曆」按鈕。</string>
+    <string name="opt_remove_album_button_label">隱藏相簿按鈕（副裝置用）</string>
+    <string name="opt_remove_album_button_desc">隱藏副裝置聊天分頁右上角顯示的「相簿」按鈕。</string>
+    <string name="opt_use_custom_font_label">啟用自訂字型</string>
+    <string name="opt_use_custom_font_desc">將選取的字型檔套用至整個應用程式。需要重新啟動應用程式才會生效。</string>
+    <string name="opt_custom_font_path_label">選擇字型檔</string>
+    <string name="opt_custom_font_path_desc">選擇要使用的字型檔（.ttf / .otf）。</string>
+    <string name="opt_use_amoled_theme_label">套用AMOLED主題</string>
+    <string name="opt_use_amoled_theme_desc">套用AMOLED主題。必須關閉\"深色模式時套用「黑色」主題\"。選單與對話框也會套用AMOLED的配色。</string>
+    <string name="opt_force_dark_mode_ui_label">套用主題時仍維持深色介面</string>
+    <string name="opt_force_dark_mode_ui_desc">將套用主題時會變成淺色的長按選單與對話框固定為深色，不受\"深色模式時套用「黑色」主題\"設定影響。啟用「套用AMOLED主題」時已包含此功能，因此無須開啟。</string>
+    <string name="opt_show_theme_on_sub_device_label">在副裝置顯示主題項目</string>
+    <string name="opt_show_theme_on_sub_device_desc">顯示以副裝置登入時會被LINE隱藏的「主題」項目。※無法開啟主題小舖，請在主要裝置上購買。</string>
+    <!-- Notification options -->
+    <string name="opt_reaction_notification_label">表情貼通知</string>
+    <string name="opt_reaction_notification_desc">通知訊息收到的表情貼。※開啟應用程式時才會送出。若已設為前景服務，即使未開啟LINE也會收到通知。</string>
+    <string name="opt_stack_message_notifications_label">不覆蓋通知</string>
+    <string name="opt_stack_message_notifications_desc">不覆蓋先前的通知，最多將7則訊息合併顯示於同一則通知中。</string>
+    <string name="opt_remove_notification_mute_button_label">隱藏「關閉通知」按鈕</string>
+    <string name="opt_remove_notification_mute_button_desc">移除LINE通知中顯示的「關閉通知」按鈕。</string>
+    <string name="opt_fix_settings_talk_crash_label">修正聊天設定的當機問題</string>
+    <string name="opt_fix_settings_talk_crash_desc">修正已修補的LINE中，開啟LINE設定的「聊天」時會當機的問題。</string>
+    <string name="opt_experimental_fcm_fix_desc">將LINE的FCM通知接收處理直接交給服務，以迴避在非root環境下通知約1分鐘後就收不到的問題。</string>
+    <string name="opt_fcm_fix_mode_desc">選擇FCM Fix的運作模式。傳統（維持Legy）會維持LINE專屬的串流連線來傳送通知。FIS（偽裝憑證）會在發行FCM權杖時將簽章偽裝為官方憑證。</string>
+    <string name="fcm_fix_mode_legy">傳統（維持Legy）</string>
+    <string name="fcm_fix_mode_fis">FIS（偽裝憑證）</string>
+    <string name="opt_fcm_force_registration_label">重新註冊FCM權杖</string>
+    <string name="opt_fcm_force_registration_desc">在收不到通知時，重新取得LINE的FCM權杖。</string>
+    <string name="fcm_force_registration_needs_fix">請先啟用FCM Fix</string>
+    <string name="fcm_force_registration_started">已開始重新註冊FCM權杖</string>
+    <string name="fcm_force_registration_failed">無法開始重新註冊FCM權杖</string>
+    <string name="opt_line_foreground_keep_alive_label">讓LINE常駐為前景服務</string>
+    <string name="opt_line_foreground_keep_alive_desc">耗電量可能增加，但FCM Fix在應用程式被關閉後仍可運作。有助於迴避非root環境下收不到通知的問題。更新Knot時可能需要強制停止或暫停。</string>
+    <!-- System options -->
+    <string name="opt_spoof_version_unsend_only_label">延長訊息收回的時間限制</string>
+    <string name="opt_spoof_version_unsend_only_desc">僅在收回訊息時將版本偽裝為15.12.2，將1小時的時間限制恢復為24小時。</string>
+    <string name="opt_spoof_version_label">偽裝應用程式版本（永久）</string>
+    <string name="opt_spoof_version_desc">永遠將應用程式版本偽裝為15.12.2。若無特殊目的請勿使用。</string>
+    <string name="opt_fix_signature_mismatch_label">偽裝官方簽章</string>
+    <string name="opt_fix_signature_mismatch_desc">迴避已修補的LINE中，下載字型或生物辨識連動等功能失敗的問題。</string>
+    <!-- Storage / backup rows -->
+    <string name="desc_path_row">選擇模組用來存放設定檔等資料的目錄。</string>
+    <string name="desc_reset_row">將所有模組設定恢復為預設狀態。</string>
+    <string name="opt_backup_label">備份聊天記錄</string>
+    <string name="opt_backup_desc">將目前的聊天記錄備份至儲存位置。</string>
+    <string name="opt_restore_label">還原聊天記錄</string>
+    <string name="opt_restore_desc">從備份檔還原聊天記錄。目前的記錄將被覆蓋。</string>
+    <!-- Foreground keep-alive notification -->
+    <string name="keep_alive_channel_name">LINE背景執行</string>
+    <string name="keep_alive_notification_text">這則常駐通知可從通知設定中隱藏。</string>
+    <string name="keep_alive_notification_settings">通知設定</string>
+    <!-- Stacked message notifications -->
+    <plurals name="notification_message_count">
+        <item quantity="other">%1$d則訊息</item>
+    </plurals>
+    <!-- Notifications / tooltips -->
+    <string name="reaction_notif_title">%1$s對以下訊息做出了表情貼回應</string>
+    <string name="tooltip_settings_long_press">長按即可開啟Knot的設定</string>
+    <string name="tooltip_search_by_member">點擊以依成員篩選</string>
+    <string name="search_by_member_title">依成員篩選</string>
+    <string name="search_by_member_empty">找不到成員</string>
+    <string name="search_by_member_filtering">"篩選中："</string>
+    <string name="search_by_member_filter_cleared">已解除篩選</string>
+    <!-- About -->
+    <string name="opt_about_label">關於Knot</string>
+    <string name="opt_about_desc">版本資訊等</string>
+    <string name="about_sec_developers">開發者</string>
+    <string name="about_sec_contributors">貢獻者</string>
+    <string name="about_sec_links">連結</string>
+    <string name="about_link_repo">GitHub儲存庫</string>
+    <string name="about_link_license">授權條款</string>
+    <string name="about_disclaimer">對於使用本模組所造成的任何不利影響，開發者概不負責。請自行承擔使用風險。</string>
+    <!-- Module launcher screen -->
+    <string name="main_description">請啟用模組，然後重新啟動LINE應用程式。\n\n若要設定各項功能或指定資料儲存位置，可長按LINE主頁畫面右上角的「設定（齒輪）」圖示，或從LINE設定中的追加項目進入。</string>
+    <string name="main_open_line">開啟LINE</string>
+    <string name="main_line_not_installed">尚未安裝LINE</string>
+</resources>
