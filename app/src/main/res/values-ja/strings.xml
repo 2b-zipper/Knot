@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="xposed_desc">Knot - LINE用機能拡張モジュール</string>
-
-    <!-- 言語 -->
+    <!-- Language -->
     <string name="opt_language_label">言語</string>
     <string name="opt_language_desc">Knotの画面やダイアログで使用する言語です。「システムのデフォルト」を選ぶと端末の言語設定に従います。</string>
     <string name="language_system">システムのデフォルト</string>
+    <!-- Name of this language, shown in the picker -->
     <string name="language_name">日本語</string>
-
-    <!-- 共通 -->
+    <!-- Common -->
     <string name="settings_title">モジュール設定</string>
     <string name="settings_reset">設定のリセット</string>
     <string name="settings_reset_confirm">すべての設定をデフォルトに戻しますか？</string>
@@ -18,8 +17,7 @@
     <string name="common_close">閉じる</string>
     <string name="settings_path_picker_hint">保存先を選択してください</string>
     <string name="settings_search_hint">設定を検索...</string>
-
-    <!-- カテゴリ -->
+    <!-- Categories -->
     <string name="cat_privacy">プライバシー</string>
     <string name="cat_chat">チャット</string>
     <string name="cat_display">画面表示</string>
@@ -28,8 +26,7 @@
     <string name="cat_backup">バックアップ</string>
     <string name="cat_system">システム</string>
     <string name="cat_other">その他</string>
-
-    <!-- セクション -->
+    <!-- Sections -->
     <string name="sec_privacy_read">既読</string>
     <string name="sec_privacy_edit">メッセージ編集</string>
     <string name="sec_privacy_unsend">送信取り消し</string>
@@ -43,8 +40,7 @@
     <string name="sec_header_btn">ヘッダボタン</string>
     <string name="sec_font">フォント</string>
     <string name="sec_theme">テーマ</string>
-
-    <!-- 再起動・警告 -->
+    <!-- Restart / warnings -->
     <string name="manager_restart_required">LINEの再起動が必要です</string>
     <string name="restart_title">再起動の確認</string>
     <string name="restart_message">設定を反映させるにはLINEの再起動が必要です。今すぐ再起動しますか？</string>
@@ -53,8 +49,7 @@
     <string name="release_notes_open">GitHubで見る</string>
     <string name="warn_storage_unset">⚠ Knot: 保存先が未設定です。タップして設定してください。</string>
     <string name="unsupported_version_msg">このバージョンのLINEはサポートされていません。</string>
-
-    <!-- バックアップ・復元 -->
+    <!-- Backup / restore -->
     <string name="backup_success">バックアップが完了しました。</string>
     <string name="backup_error">バックアップに失敗しました。</string>
     <string name="restore_success">復元が完了しました。</string>
@@ -63,13 +58,11 @@
     <string name="restore_confirm_msg">バックアップからトーク履歴を復元しますか？現在のデータはすべて上書きされ、完了後にアプリが再起動されます。</string>
     <string name="restore_processing">復元処理中...</string>
     <string name="restore_preparing">準備中...</string>
-
-    <!-- 既読 -->
+    <!-- Read receipts -->
     <string name="label_prevent_read">既読回避</string>
     <string name="label_send_mark_read">送信後既読</string>
     <string name="read_receipt_viewer">既読者確認</string>
     <string name="unset_time_prefix">"取消日時: "</string>
-
     <string name="read_history_title">既読履歴</string>
     <string name="read_history_empty">履歴はありません</string>
     <string name="read_history_delete">履歴を削除</string>
@@ -78,23 +71,19 @@
     <string name="read_history_unknown_msg">(不明なメッセージ)</string>
     <string name="read_history_show_all">残り%1$d人を表示 ▼</string>
     <string name="read_history_collapse">折りたたむ ▲</string>
-
-    <!-- メッセージ種別 -->
+    <!-- Message type placeholders -->
     <string name="msg_sticker">[スタンプ]</string>
     <string name="msg_image">[画像]</string>
     <string name="msg_video">[動画]</string>
     <string name="msg_file">[ファイル]</string>
     <string name="msg_location">[位置情報]</string>
-
-    <!-- プライバシー -->
+    <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">プラスメニューに「既読回避」を追加</string>
     <string name="opt_prevent_mark_as_read_desc">トークタブ右上の「+」メニューから既読回避をON/OFFできるようになります。ONにすると「送信後既読」オプションも表示されます。</string>
     <string name="opt_record_read_history_label">既読履歴を記録</string>
     <string name="opt_record_read_history_desc">誰がいつメッセージを既読にしたかを記録します。チャット画面上部の本アイコンから確認できます。</string>
-
     <string name="opt_prevent_unsend_message_label">送信取り消し無効化</string>
     <string name="opt_prevent_unsend_message_desc">相手がメッセージの送信を取り消しても、自分の端末には残るようにします。取り消されたメッセージにはアイコンが表示され、タップすることで取消日時を確認できます。</string>
-
     <string name="opt_show_profile_timestamps_label">プロフィールに詳細情報を表示</string>
     <string name="opt_show_profile_timestamps_desc">友だちのプロフィール画面の右上にⓘアイコンを追加します。タップすると、MID・友だち追加・お気に入り登録・プロフィール更新の日時をダイアログで表示します。記録がない項目は「—」と表示されます。</string>
     <string name="profile_ts_friend_created">友だち追加</string>
@@ -103,8 +92,7 @@
     <string name="profile_ts_dialog_title">プロフィール情報</string>
     <string name="profile_ts_copy_mid">MIDをコピー</string>
     <string name="profile_ts_mid_copied">MIDをコピーしました</string>
-
-    <!-- チャット -->
+    <!-- Chat options -->
     <string name="opt_high_quality_photo_label">写真の送信品質を向上</string>
     <string name="opt_high_quality_photo_desc">写真送信時の自動圧縮・リサイズを回避し、最高品質で送信できるようにします。設定の「高画質」よりもさらに高品質な送信が可能になります。</string>
     <string name="opt_long_video_label">5分以上の動画を送信可能にする</string>
@@ -115,12 +103,10 @@
     <string name="opt_use_default_camera_desc">LINE内蔵カメラの代わりに端末の標準カメラアプリを使用します。</string>
     <string name="opt_mute_camera_shutter_label">LINE内蔵カメラを無音化</string>
     <string name="opt_mute_camera_shutter_desc">LINE内蔵カメラのシャッター音を無音にします。標準カメラ使用時は無効です。</string>
-
     <string name="opt_search_by_member_label">メンバーでトーク内検索</string>
     <string name="opt_search_by_member_desc">検索ボックス内の虫眼鏡アイコンを押すことで、メンバーを選んでそのユーザーのメッセージのみを絞り込み検索できるようにします。</string>
     <string name="opt_search_min_1_char_label">1文字からトーク内検索</string>
     <string name="opt_search_min_1_char_desc">トーク内検索の最低文字数を2文字から1文字に緩和します。</string>
-
     <string name="opt_show_seconds_in_chat_time_label">チャットの時刻に秒を表示</string>
     <string name="opt_show_seconds_in_chat_time_desc">各メッセージ横の時刻表示に秒を追加します。 (例: 12:34 → 12:34:56)</string>
     <string name="opt_select_all_in_edit_mode_label">メッセージ削除画面に全選択ボタンを追加</string>
@@ -134,14 +120,11 @@
     <string name="edit_history_delete_confirm_msg">このメッセージの編集履歴を削除しますか？</string>
     <string name="opt_fix_announcement_name_label">アナウンス者名の表示を修正</string>
     <string name="opt_fix_announcement_name_desc">パッチ済みのLINEで、アナウンス登録時のシステムメッセージが「がアナウンスしました」と名前が空になる不具合を修正し、正しく表示されるようにします。</string>
-
     <string name="opt_hide_ai_icon_permanently_label">トークルームのAgent iを永久に非表示</string>
     <string name="opt_hide_ai_icon_permanently_desc">トークルームのメッセージ入力欄に表示されるAgent iを常に非表示にします。通常は30日間のみ非表示にできますが、このオプションを有効にすると設定に関わらず永続的に非表示になります。</string>
-
     <string name="opt_open_url_in_default_browser_label">URLをデフォルトブラウザで開く</string>
     <string name="opt_open_url_in_default_browser_desc">URLをアプリ内ブラウザではなく、システムのデフォルトブラウザで開くようにします。</string>
-
-    <!-- 画面表示 -->
+    <!-- Appearance options -->
     <string name="opt_remove_ads_label">広告を非表示</string>
     <string name="opt_remove_ads_desc">トークリスト上部やホーム画面などに表示される広告を非表示にします。</string>
     <string name="opt_remove_home_recommendations_label">ホームのおすすめ/フィードを非表示</string>
@@ -167,7 +150,6 @@
     <string name="opt_home_tab_type_label">ホームの種類を変更</string>
     <string name="opt_home_tab_type_desc">ホームタブの種類を変更します。従来のホームに戻す場合は\"HOME\"を選択してください。</string>
     <string name="home_type_default">デフォルト</string>
-
     <string name="opt_remove_ai_friends_button_label">AI Friendsボタンを非表示</string>
     <string name="opt_remove_ai_friends_button_desc">トークタブ右上の「AI Friends」ボタンを非表示にします。</string>
     <string name="opt_remove_search_bar_agent_i_button_label">Agent i関連のボタンを非表示</string>
@@ -178,34 +160,25 @@
     <string name="opt_remove_calendar_button_desc">トークタブ右上の「カレンダー」ボタンを非表示にします。</string>
     <string name="opt_remove_album_button_label">アルバムボタンを非表示(サブ端末用)</string>
     <string name="opt_remove_album_button_desc">サブ端末のトークタブ右上に表示される「アルバム」ボタンを非表示にします。</string>
-
     <string name="opt_use_custom_font_label">カスタムフォントを有効にする</string>
     <string name="opt_use_custom_font_desc">選択したフォントファイルをアプリ全体に適用します。反映にはアプリの再起動が必要です。</string>
     <string name="opt_custom_font_path_label">フォントファイルを選択</string>
     <string name="opt_custom_font_path_desc">使用するフォントファイル (.ttf / .otf) を選択します。</string>
-
     <string name="opt_use_amoled_theme_label">AMOLEDテーマを適用する</string>
     <string name="opt_use_amoled_theme_desc">AMOLEDテーマを適用します。\"ダークモードでは「ブラック」着せかえを適用\"をオフにする必要があります。メニューやダイアログもAMOLEDの配色に揃えます。</string>
-
     <string name="opt_force_dark_mode_ui_label">着せかえ適用中もダークモードUIを維持</string>
     <string name="opt_force_dark_mode_ui_desc">着せかえ適用時にライト表示になる長押しメニューやダイアログを、\"ダークモードでは「ブラック」着せかえを適用\"設定に関わらずダークに固定します。「AMOLEDテーマを適用する」有効時はそちらに含まれるため無効です。</string>
-
     <string name="opt_show_theme_on_sub_device_label">サブ端末で着せかえ項目を表示</string>
     <string name="opt_show_theme_on_sub_device_desc">サブ端末でログインした際、公式設定で非表示になる「着せかえ」項目を表示します。※着せかえショップは開けません。購入はメイン端末で行ってください。</string>
-
-    <!-- 通知 -->
+    <!-- Notification options -->
     <string name="opt_reaction_notification_label">リアクション通知</string>
     <string name="opt_reaction_notification_desc">メッセージについたリアクションを通知します。※アプリを開くと送信されます。フォアグラウンドサービス化している場合、LINEを起動していなくても通知が届きます。</string>
-
     <string name="opt_stack_message_notifications_label">通知を上書きしない</string>
     <string name="opt_stack_message_notifications_desc">通知を上書きせず、最大7件まで一つの通知の中にまとめて表示します。</string>
-
     <string name="opt_remove_notification_mute_button_label">「通知をオフ」ボタンを非表示</string>
     <string name="opt_remove_notification_mute_button_desc">LINEの通知に表示される「通知をオフ」ボタンを削除します。</string>
-
     <string name="opt_fix_settings_talk_crash_label">トーク設定のクラッシュを修正</string>
     <string name="opt_fix_settings_talk_crash_desc">パッチ済みのLINEで、公式設定の「トーク」を開くとクラッシュする問題を修正します。</string>
-
     <string name="opt_experimental_fcm_fix_desc">非root環境で通知が1分程度で届かなくなる問題を回避するため、LINEのFCM通知受信処理を直接サービスに引き渡す挙動を有効にします。</string>
     <string name="opt_fcm_fix_mode_desc">FCM Fixの動作モードを選択します。従来（Legy維持）はLINE独自のストリーミング接続を維持して通知を届けます。FIS（証明書偽装）はFCMトークン発行時の署名を公式証明書に偽装します。</string>
     <string name="fcm_fix_mode_legy">従来（Legy維持）</string>
@@ -217,45 +190,37 @@
     <string name="fcm_force_registration_failed">FCMトークンの再登録を開始できませんでした</string>
     <string name="opt_line_foreground_keep_alive_label">LINEを常にフォアグラウンドサービス化する</string>
     <string name="opt_line_foreground_keep_alive_desc">バッテリー使用量が増加する可能性がありますが、FCMFixがタスクキル後も動作します。非root環境で通知が届かなくなる問題の回避に有効です。Knotアップデート時は強制停止か一時停止が必要になる場合があります。</string>
-
-    <!-- システム -->
+    <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">送信取り消しの時間制限を延長</string>
     <string name="opt_spoof_version_unsend_only_desc">送信取り消し時のみバージョンを15.12.2に偽装し、1時間の時間制限を24時間に戻します。</string>
     <string name="opt_spoof_version_label">アプリバージョンの偽装 (常時)</string>
     <string name="opt_spoof_version_desc">常にアプリバージョンを15.12.2に偽装します。なにか特別な目的がない限り使用しないでください。</string>
-
     <string name="opt_fix_signature_mismatch_label">公式署名を偽装</string>
     <string name="opt_fix_signature_mismatch_desc">パッチ済みのLINEで、フォントのダウンロードや生体認証の連携などに失敗する問題を回避します。</string>
-
-    <!-- 保存先・バックアップ -->
+    <!-- Storage / backup rows -->
     <string name="desc_path_row">モジュールの設定ファイルなどが保存されるディレクトリを選択します。</string>
     <string name="desc_reset_row">すべてのモジュール設定をデフォルト状態に戻します。</string>
     <string name="opt_backup_label">トーク履歴のバックアップ</string>
     <string name="opt_backup_desc">現在のトーク履歴を保存先にバックアップします。</string>
     <string name="opt_restore_label">トーク履歴の復元</string>
     <string name="opt_restore_desc">バックアップファイルからトーク履歴を復元します。現在の履歴が上書きされます。</string>
-
-    <!-- 常駐通知 -->
+    <!-- Foreground keep-alive notification -->
     <string name="keep_alive_channel_name">LINE background</string>
     <string name="keep_alive_notification_text">この常設通知は通知設定から非表示にできます。</string>
     <string name="keep_alive_notification_settings">通知設定</string>
-
-    <!-- 通知のまとめ表示 -->
+    <!-- Stacked message notifications -->
     <plurals name="notification_message_count">
         <item quantity="other">%1$d件のメッセージ</item>
     </plurals>
-
-    <!-- 通知・ツールチップ -->
+    <!-- Notifications / tooltips -->
     <string name="reaction_notif_title">%1$sが以下のメッセージにリアクションしました</string>
     <string name="tooltip_settings_long_press">長押しでKnotの設定を開けます</string>
     <string name="tooltip_search_by_member">タップしてメンバーごとに絞り込み検索</string>
-
     <string name="search_by_member_title">メンバーで絞り込み</string>
     <string name="search_by_member_empty">メンバーが見つかりません</string>
     <string name="search_by_member_filtering">"絞り込み中: "</string>
     <string name="search_by_member_filter_cleared">絞り込みを解除しました</string>
-
-    <!-- Knotについて -->
+    <!-- About -->
     <string name="opt_about_label">Knotについて</string>
     <string name="opt_about_desc">バージョン情報など</string>
     <string name="about_sec_developers">開発者</string>
@@ -264,8 +229,7 @@
     <string name="about_link_repo">GitHubリポジトリ</string>
     <string name="about_link_license">ライセンス</string>
     <string name="about_disclaimer">このモジュールを使用したことによる不利益について、開発者は一切の責任を負いません。自己責任で使用してください。</string>
-
-    <!-- モジュール起動画面 -->
+    <!-- Module launcher screen -->
     <string name="main_description">モジュールを有効化し、LINEアプリを再起動してください。\n\n各種機能の設定やデータ保存先の指定は、LINEのホーム画面右上にある「設定（歯車）」アイコンを長押しするか、LINE設定内の追加項目から行うことができます。</string>
     <string name="main_open_line">LINEを開く</string>
     <string name="main_line_not_installed">LINEがインストールされていません</string>
