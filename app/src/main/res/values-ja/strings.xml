@@ -227,7 +227,7 @@
     <string name="about_sec_contributors">コントリビュータ</string>
     <string name="about_sec_links">リンク</string>
     <string name="about_link_repo">GitHubリポジトリ</string>
-    <string name="about_link_translate">Help translate</string>
+    <string name="about_link_translate">翻訳に協力</string>
     <string name="about_link_license">ライセンス</string>
     <string name="about_disclaimer">このモジュールを使用したことによる不利益について、開発者は一切の責任を負いません。自己責任で使用してください。</string>
     <!-- Module launcher screen -->
