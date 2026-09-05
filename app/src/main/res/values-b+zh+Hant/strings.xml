@@ -227,6 +227,7 @@
     <string name="about_sec_contributors">貢獻者</string>
     <string name="about_sec_links">連結</string>
     <string name="about_link_repo">GitHub儲存庫</string>
+    <string name="about_link_translate">Help translate</string>
     <string name="about_link_license">授權條款</string>
     <string name="about_disclaimer">對於使用本模組所造成的任何不利影響，開發者概不負責。請自行承擔使用風險。</string>
     <!-- Module launcher screen -->
