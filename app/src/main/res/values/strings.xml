@@ -271,6 +271,7 @@
     <string name="about_sec_contributors">Contributors</string>
     <string name="about_sec_links">Links</string>
     <string name="about_link_repo">GitHub repository</string>
+    <string name="about_link_translate">Help translate</string>
     <string name="about_link_license">License</string>
     <string name="about_license_value" translatable="false">GNU GPLv3</string>
     <string name="about_disclaimer">The developers accept no responsibility for any disadvantage resulting from the use of this module. Use it at your own risk.</string>
