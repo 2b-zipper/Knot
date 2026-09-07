@@ -200,7 +200,7 @@ public final class SettingsPage {
     row()
         .title(ModuleResources.get(R.string.opt_about_label))
         .description(ModuleResources.get(R.string.opt_about_desc))
-        .onClick(v -> dialog.openAbout(dialog.dialogContext()))
+        .onClick(v -> dialog.openAbout(ctx))
         .add();
 
     row()
