@@ -22,6 +22,7 @@ import app.zipper.knot.LineVersion;
 import app.zipper.knot.Main;
 import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
+import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.SettingsUIInjector;
@@ -176,10 +177,15 @@ public final class KnotSettingsDialog {
         new AlertDialog.Builder(ctx, LineTheme.dialogTheme(ctx))
             .setTitle(ModuleResources.get(R.string.restart_title))
             .setMessage(ModuleResources.get(messageRes))
-            .setPositiveButton(ModuleResources.get(R.string.restart_ok), (d, w) -> System.exit(0))
+            .setPositiveButton(ModuleResources.get(R.string.restart_ok), (d, w) -> restartLine())
             .setNegativeButton(ModuleResources.get(negativeRes), onNegative)
             .show(),
         ctx);
+  }
+
+  private void restartLine() {
+    RestartActivity.requestRestart(host);
+    System.exit(0);
   }
 
   private void dismissNow() {

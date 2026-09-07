@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.documentfile.provider.DocumentFile;
 import app.zipper.knot.R;
+import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
@@ -86,7 +87,10 @@ public final class BackupRestoreHook {
                           .setMessage(ModuleResources.get(R.string.manager_restart_required))
                           .setPositiveButton(
                               ModuleResources.get(R.string.restart_ok),
-                              (d, w) -> android.os.Process.killProcess(android.os.Process.myPid()))
+                              (d, w) -> {
+                                RestartActivity.requestRestart(context);
+                                android.os.Process.killProcess(android.os.Process.myPid());
+                              })
                           .setCancelable(false)
                           .show(),
                       context);
