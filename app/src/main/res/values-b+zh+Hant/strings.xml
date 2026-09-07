@@ -42,8 +42,11 @@
     <string name="sec_theme">主題</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">需要重新啟動LINE</string>
+    <string name="opt_restart_label">Restart LINE</string>
+    <string name="opt_restart_desc">Restarts LINE so that Knot is loaded again.</string>
     <string name="restart_title">確認重新啟動</string>
     <string name="restart_message">設定必須重新啟動LINE才會生效。要立即重新啟動嗎？</string>
+    <string name="restart_now_confirm">Restart LINE now?</string>
     <string name="restart_ok">重新啟動</string>
     <string name="restart_later">稍後</string>
     <string name="release_notes_open">在GitHub上檢視</string>
@@ -231,7 +234,9 @@
     <string name="about_link_license">授權條款</string>
     <string name="about_disclaimer">對於使用本模組所造成的任何不利影響，開發者概不負責。請自行承擔使用風險。</string>
     <!-- Module launcher screen -->
-    <string name="main_description">請啟用模組，然後重新啟動LINE應用程式。\n\n若要設定各項功能或指定資料儲存位置，可長按LINE主頁畫面右上角的「設定（齒輪）」圖示，或從LINE設定中的追加項目進入。</string>
+    <string name="main_setup_hint">Enable the module in your Xposed manager, then restart LINE.</string>
+    <string name="main_row_settings_title">Opening Knot settings</string>
+    <string name="main_row_settings_desc">Long-press the gear icon on LINE\'s Home screen</string>
     <string name="main_open_line">開啟LINE</string>
     <string name="main_line_not_installed">尚未安裝LINE</string>
 </resources>
