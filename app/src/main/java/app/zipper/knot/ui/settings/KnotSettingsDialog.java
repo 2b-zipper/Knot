@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -141,7 +142,7 @@ public final class KnotSettingsDialog {
     if (!dialog.isShowing()) return;
 
     if (restartPending) {
-      promptRestart();
+      promptPendingRestart();
       return;
     }
 
@@ -154,19 +155,29 @@ public final class KnotSettingsDialog {
     SettingsViews.slide(rootPane, rootPane.getWidth(), this::dismissNow);
   }
 
-  private void promptRestart() {
+  private void promptPendingRestart() {
+    showRestartDialog(
+        R.string.restart_message,
+        R.string.restart_later,
+        (d, w) -> {
+          restartPending = false;
+          close();
+        });
+  }
+
+  void promptRestart() {
+    showRestartDialog(R.string.restart_now_confirm, R.string.settings_cancel, null);
+  }
+
+  private void showRestartDialog(
+      int messageRes, int negativeRes, DialogInterface.OnClickListener onNegative) {
     Context ctx = dialogContext();
     LineTheme.applyDialogColors(
         new AlertDialog.Builder(ctx, LineTheme.dialogTheme(ctx))
             .setTitle(ModuleResources.get(R.string.restart_title))
-            .setMessage(ModuleResources.get(R.string.restart_message))
+            .setMessage(ModuleResources.get(messageRes))
             .setPositiveButton(ModuleResources.get(R.string.restart_ok), (d, w) -> System.exit(0))
-            .setNegativeButton(
-                ModuleResources.get(R.string.restart_later),
-                (d, w) -> {
-                  restartPending = false;
-                  close();
-                })
+            .setNegativeButton(ModuleResources.get(negativeRes), onNegative)
             .show(),
         ctx);
   }

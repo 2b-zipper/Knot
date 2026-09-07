@@ -191,6 +191,13 @@ public final class SettingsPage {
         .add();
 
     row()
+        .title(ModuleResources.get(R.string.opt_restart_label))
+        .description(ModuleResources.get(R.string.opt_restart_desc))
+        .noArrow()
+        .onClick(v -> dialog.promptRestart())
+        .add();
+
+    row()
         .title(ModuleResources.get(R.string.opt_about_label))
         .description(ModuleResources.get(R.string.opt_about_desc))
         .onClick(v -> dialog.openAbout(dialog.dialogContext()))

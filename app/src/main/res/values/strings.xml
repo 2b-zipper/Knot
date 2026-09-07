@@ -48,8 +48,11 @@
 
     <!-- Restart / warnings -->
     <string name="manager_restart_required">LINE needs to be restarted</string>
+    <string name="opt_restart_label">Restart LINE</string>
+    <string name="opt_restart_desc">Restarts LINE so that Knot is loaded again.</string>
     <string name="restart_title">Restart required</string>
     <string name="restart_message">LINE has to restart before these settings take effect. Restart now?</string>
+    <string name="restart_now_confirm">Restart LINE now?</string>
     <string name="restart_ok">Restart</string>
     <string name="restart_later">Later</string>
     <string name="release_notes_open">View on GitHub</string>
