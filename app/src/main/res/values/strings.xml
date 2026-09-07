@@ -278,7 +278,9 @@
 
     <!-- Module launcher screen -->
     <string name="main_title" translatable="false">Knot for LINE</string>
-    <string name="main_description">Enable the module, then restart the LINE app.\n\nYou can configure the features and choose where data is stored by long-pressing the settings (gear) icon at the top right of LINE\'s Home screen, or from the extra entries inside LINE\'s settings.</string>
+    <string name="main_setup_hint">Enable the module in your Xposed manager, then restart LINE.</string>
+    <string name="main_row_settings_title">Opening Knot settings</string>
+    <string name="main_row_settings_desc">Long-press the gear icon on LINE\'s Home screen</string>
     <string name="main_open_line">Open LINE</string>
     <string name="main_line_not_installed">LINE is not installed</string>
 </resources>

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Without icon_preferred some launch paths show a splash with no icon. -->
     <style name="Theme.App.Splash" parent="Theme.SplashScreen">
         <item name="android:windowSplashScreenBackground">@color/knot_splash_background</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_knot_anim</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 </resources>

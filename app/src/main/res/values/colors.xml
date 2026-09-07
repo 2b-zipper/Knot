@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
+
+    <color name="knot_background">#F5F6F8</color>
+    <color name="knot_surface">#FFFFFF</color>
+    <color name="knot_stroke">#EAEAEA</color>
+    <color name="knot_text_primary">#222222</color>
+    <color name="knot_text_secondary">#555555</color>
+    <color name="knot_accent">#06C755</color>
+    <color name="knot_on_accent">#FFFFFF</color>
+    <color name="knot_splash_background">#FFFFFF</color>
+    <color name="knot_logo_cut">#FFFFFF</color>
+    <color name="knot_ripple">#1F000000</color>
 </resources>

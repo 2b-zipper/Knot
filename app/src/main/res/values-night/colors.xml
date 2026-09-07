@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="knot_background">#121212</color>
+    <color name="knot_surface">#1E1E1E</color>
+    <color name="knot_stroke">#2E2E2E</color>
+    <color name="knot_text_primary">#ECECEC</color>
+    <color name="knot_text_secondary">#A5A5A5</color>
+    <color name="knot_accent">#06C755</color>
+    <color name="knot_on_accent">#FFFFFF</color>
+    <color name="knot_splash_background">#121212</color>
+    <color name="knot_logo_cut">#121212</color>
+    <color name="knot_ripple">#26FFFFFF</color>
+</resources>

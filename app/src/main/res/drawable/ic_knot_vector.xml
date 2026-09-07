@@ -19,7 +19,7 @@
         android:name="cutA_top"
         android:pathData="M91.73,77.16 L108.27,60.62"
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="@color/knot_logo_cut"
         android:strokeWidth="15.6"
         android:strokeLineCap="butt"
         android:strokeAlpha="0" />
@@ -28,7 +28,7 @@
         android:name="cutA_bottom"
         android:pathData="M91.73,139.38 L108.27,122.84"
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="@color/knot_logo_cut"
         android:strokeWidth="15.6"
         android:strokeLineCap="butt"
         android:strokeAlpha="0" />
@@ -47,7 +47,7 @@
         android:name="cutB_right"
         android:pathData="M122.84,91.73 L139.38,108.27"
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="@color/knot_logo_cut"
         android:strokeWidth="15.6"
         android:strokeLineCap="butt"
         android:strokeAlpha="0" />
@@ -56,7 +56,7 @@
         android:name="cutB_left"
         android:pathData="M60.62,91.73 L77.16,108.27"
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="@color/knot_logo_cut"
         android:strokeWidth="15.6"
         android:strokeLineCap="butt"
         android:strokeAlpha="0" />
