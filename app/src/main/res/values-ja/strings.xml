@@ -42,11 +42,11 @@
     <string name="sec_theme">テーマ</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">LINEの再起動が必要です</string>
-    <string name="opt_restart_label">Restart LINE</string>
-    <string name="opt_restart_desc">Restarts LINE so that Knot is loaded again.</string>
+    <string name="opt_restart_label">LINEを再起動</string>
+    <string name="opt_restart_desc">Knotを読み込み直すためにLINEを再起動します。</string>
     <string name="restart_title">再起動の確認</string>
     <string name="restart_message">設定を反映させるにはLINEの再起動が必要です。今すぐ再起動しますか？</string>
-    <string name="restart_now_confirm">Restart LINE now?</string>
+    <string name="restart_now_confirm">LINEを再起動しますか？</string>
     <string name="restart_ok">再起動</string>
     <string name="restart_later">後で</string>
     <string name="release_notes_open">GitHubで見る</string>
@@ -208,7 +208,7 @@
     <string name="opt_restore_label">トーク履歴の復元</string>
     <string name="opt_restore_desc">バックアップファイルからトーク履歴を復元します。現在の履歴が上書きされます。</string>
     <!-- Foreground keep-alive notification -->
-    <string name="keep_alive_channel_name">LINE background</string>
+    <string name="keep_alive_channel_name"></string>
     <string name="keep_alive_notification_text">この常設通知は通知設定から非表示にできます。</string>
     <string name="keep_alive_notification_settings">通知設定</string>
     <!-- Stacked message notifications -->
@@ -234,9 +234,9 @@
     <string name="about_link_license">ライセンス</string>
     <string name="about_disclaimer">このモジュールを使用したことによる不利益について、開発者は一切の責任を負いません。自己責任で使用してください。</string>
     <!-- Module launcher screen -->
-    <string name="main_setup_hint">Enable the module in your Xposed manager, then restart LINE.</string>
-    <string name="main_row_settings_title">Opening Knot settings</string>
-    <string name="main_row_settings_desc">Long-press the gear icon on LINE\'s Home screen</string>
+    <string name="main_setup_hint">Xposedマネージャーでモジュールを有効にし、LINEを再起動してください。</string>
+    <string name="main_row_settings_title">Knotの設定を開く方法</string>
+    <string name="main_row_settings_desc">LINEのホーム画面の歯車アイコンを長押しします</string>
     <string name="main_open_line">LINEを開く</string>
     <string name="main_line_not_installed">LINEがインストールされていません</string>
 </resources>
