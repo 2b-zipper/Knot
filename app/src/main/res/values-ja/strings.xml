@@ -208,7 +208,7 @@
     <string name="opt_restore_label">トーク履歴の復元</string>
     <string name="opt_restore_desc">バックアップファイルからトーク履歴を復元します。現在の履歴が上書きされます。</string>
     <!-- Foreground keep-alive notification -->
-    <string name="keep_alive_channel_name"></string>
+    <string name="keep_alive_channel_name">LINE background</string>
     <string name="keep_alive_notification_text">この常設通知は通知設定から非表示にできます。</string>
     <string name="keep_alive_notification_settings">通知設定</string>
     <!-- Stacked message notifications -->
