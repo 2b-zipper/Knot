@@ -42,8 +42,11 @@
     <string name="sec_theme">テーマ</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">LINEの再起動が必要です</string>
+    <string name="opt_restart_label">LINEを再起動</string>
+    <string name="opt_restart_desc">Knotを読み込み直すためにLINEを再起動します。</string>
     <string name="restart_title">再起動の確認</string>
     <string name="restart_message">設定を反映させるにはLINEの再起動が必要です。今すぐ再起動しますか？</string>
+    <string name="restart_now_confirm">LINEを再起動しますか？</string>
     <string name="restart_ok">再起動</string>
     <string name="restart_later">後で</string>
     <string name="release_notes_open">GitHubで見る</string>
@@ -231,7 +234,9 @@
     <string name="about_link_license">ライセンス</string>
     <string name="about_disclaimer">このモジュールを使用したことによる不利益について、開発者は一切の責任を負いません。自己責任で使用してください。</string>
     <!-- Module launcher screen -->
-    <string name="main_description">モジュールを有効化し、LINEアプリを再起動してください。\n\n各種機能の設定やデータ保存先の指定は、LINEのホーム画面右上にある「設定（歯車）」アイコンを長押しするか、LINE設定内の追加項目から行うことができます。</string>
+    <string name="main_setup_hint">Xposedマネージャーでモジュールを有効にし、LINEを再起動してください。</string>
+    <string name="main_row_settings_title">Knotの設定を開く方法</string>
+    <string name="main_row_settings_desc">LINEのホーム画面の歯車アイコンを長押しします</string>
     <string name="main_open_line">LINEを開く</string>
     <string name="main_line_not_installed">LINEがインストールされていません</string>
 </resources>
