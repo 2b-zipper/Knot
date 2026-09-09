@@ -295,7 +295,6 @@ public class LineVersion {
     public static class Unsend {
       public String notifiedReadMessageHandlerClass = "";
       public String notifiedSendReactionHandlerClass = "";
-      public String notifiedDestroyMessageHandlerClass = "";
       public String chatMessageViewHolderClass = "";
 
       public String methodReadBuffer = "";
@@ -323,11 +322,21 @@ public class LineVersion {
       public String operationParam3Field = "";
       public String operationCreatedTimeField = "";
       public String chatMessageIdField = "";
+      public String chatMessageServerIdLongField = "";
 
       public String operationUnsendName = "DESTROY_MESSAGE";
       public String operationNotifiedUnsendName = "NOTIFIED_DESTROY_MESSAGE";
       public String unsendDestroyHandlerClass = "";
-      public String operationClass = "";
+      public String destroyMessageHandlerClass = "";
+      public String methodDestroyHandler = "";
+      public String messageConverterClass = "";
+      public String methodConvertMessage = "";
+      public String incomingMessageIdField = "";
+      public String incomingMessageTypeField = "";
+      public String incomingMessageParamsField = "";
+      public String incomingMessageParamsMapField = "";
+      public String incomingMessageTypeEnumClass = "";
+      public String handlerSuccessResultClass = "";
     }
 
     public static class Thrift {

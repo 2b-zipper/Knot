@@ -85,7 +85,6 @@ public class Version26101 {
 
     v.unsend.notifiedReadMessageHandlerClass = "o58.b2";
     v.unsend.notifiedSendReactionHandlerClass = "o58.m2";
-    v.unsend.notifiedDestroyMessageHandlerClass = "o58.b1";
     v.unsend.chatMessageViewHolderClass = "rh1.f";
     v.unsend.methodReadBuffer = "b";
     v.unsend.methodBind = "N";
@@ -111,10 +110,20 @@ public class Version26101 {
     v.unsend.operationParam3Field = "i";
     v.unsend.operationCreatedTimeField = "b";
     v.unsend.chatMessageIdField = "d";
+    v.unsend.chatMessageServerIdLongField = "c";
     v.unsend.operationUnsendName = "DESTROY_MESSAGE";
     v.unsend.operationNotifiedUnsendName = "NOTIFIED_DESTROY_MESSAGE";
     v.unsend.unsendDestroyHandlerClass = "o58.b1";
-    v.unsend.operationClass = "l78.ce";
+    v.unsend.destroyMessageHandlerClass = "o58.r";
+    v.unsend.methodDestroyHandler = "b";
+    v.unsend.messageConverterClass = "qz7.u2";
+    v.unsend.methodConvertMessage = "a";
+    v.unsend.incomingMessageIdField = "c";
+    v.unsend.incomingMessageTypeField = "d";
+    v.unsend.incomingMessageParamsField = "o";
+    v.unsend.incomingMessageParamsMapField = "a";
+    v.unsend.incomingMessageTypeEnumClass = "m38.i$b";
+    v.unsend.handlerSuccessResultClass = "n58.a$a$c";
 
     v.thrift.talkServiceClientImplClass =
         "jp.naver.line.android.thrift.client.impl.LegacyTalkServiceClientImpl";

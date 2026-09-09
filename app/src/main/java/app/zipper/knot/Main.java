@@ -80,15 +80,13 @@ public class Main extends XposedModule {
 
       // Always installed; self-gates at runtime to avoid the cold-start settings-load race
       applyHook(new ReadReceiptHandler(), lpparam);
+      applyHook(new UnsendProtector(), lpparam);
       if (options.recordReadHistory.enabled || options.preventMarkAsRead.enabled) {
         applyHook(new PlusMenuHook(), lpparam);
         applyHook(new ChatListMoreMenuHook(), lpparam);
       }
       if (options.recordReadHistory.enabled) {
         applyHook(new HeaderButtonInjector(), lpparam);
-      }
-      if (options.preventUnsendMessage.enabled) {
-        applyHook(new UnsendProtector(), lpparam);
       }
       if (options.hideAiIconPermanently.enabled) {
         applyHook(new RemoveTalkRoomAgentIToggle(), lpparam);
