@@ -344,11 +344,10 @@ public class ReactionNotification implements BaseHook {
             ? new Notification.Builder(context, CHANNEL_ID)
             : new Notification.Builder(context);
 
-    try {
-      Context knotCtx = context.createPackageContext("app.zipper.knot", 0);
-      int resId = knotCtx.getResources().getIdentifier("ic_knot", "drawable", "app.zipper.knot");
-      builder.setSmallIcon(Icon.createWithResource("app.zipper.knot", resId));
-    } catch (Exception e) {
+    int knotIconId = ModuleResources.drawableId("ic_knot");
+    if (knotIconId != 0) {
+      builder.setSmallIcon(Icon.createWithResource(ModuleResources.MODULE_PACKAGE, knotIconId));
+    } else {
       builder.setSmallIcon(android.R.drawable.ic_dialog_info);
     }
 

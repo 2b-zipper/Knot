@@ -2,13 +2,13 @@ package app.zipper.knot.hooks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -379,7 +379,7 @@ public class UnsendProtector implements BaseHook {
     final int targetPx = (int) (14 * dens);
     int padPx = (int) (3 * dens);
 
-    Bitmap colored = resolveTintedIndicator(context, targetPx);
+    Bitmap colored = resolveTintedIndicator(targetPx);
     if (colored == null) return;
     final BitmapDrawable draw = new BitmapDrawable(tsView.getResources(), colored);
     draw.setBounds(0, 0, targetPx, targetPx);
@@ -445,11 +445,11 @@ public class UnsendProtector implements BaseHook {
   }
 
   // Rebuilt only on size change; otherwise every bind rescales and retints on the scroll path.
-  private static Bitmap resolveTintedIndicator(Context ctx, int sizePx) {
+  private static Bitmap resolveTintedIndicator(int sizePx) {
     Bitmap cached = tintedIndicator;
     if (cached != null && tintedIndicatorPx == sizePx) return cached;
 
-    Bitmap raw = resolveIndicatorIcon(ctx);
+    Bitmap raw = resolveIndicatorIcon();
     if (raw == null) return null;
     Bitmap built = applyTint(Bitmap.createScaledBitmap(raw, sizePx, sizePx, true), Color.RED);
     tintedIndicatorPx = sizePx;
@@ -457,13 +457,11 @@ public class UnsendProtector implements BaseHook {
     return built;
   }
 
-  private static Bitmap resolveIndicatorIcon(Context ctx) {
+  private static Bitmap resolveIndicatorIcon() {
     if (indicatorIcon != null) return indicatorIcon;
     try {
-      String pkg = ModuleResources.MODULE_PACKAGE;
-      Context modCtx = ctx.createPackageContext(pkg, Context.CONTEXT_IGNORE_SECURITY);
-      int resId = modCtx.getResources().getIdentifier("message_off", "drawable", pkg);
-      if (resId != 0) indicatorIcon = BitmapFactory.decodeResource(modCtx.getResources(), resId);
+      Drawable d = ModuleResources.drawable("message_off");
+      if (d instanceof BitmapDrawable) indicatorIcon = ((BitmapDrawable) d).getBitmap();
     } catch (Exception ignored) {
     }
     return indicatorIcon;
@@ -471,6 +469,7 @@ public class UnsendProtector implements BaseHook {
 
   private static Bitmap applyTint(Bitmap src, int color) {
     Bitmap out = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+    out.setDensity(src.getDensity());
     Canvas canvas = new Canvas(out);
     Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
     p.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));

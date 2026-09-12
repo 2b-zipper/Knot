@@ -1,9 +1,9 @@
 package app.zipper.knot.hooks;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
@@ -31,7 +31,6 @@ import org.json.JSONObject;
 
 public class EditHistoryHook implements BaseHook {
 
-  private static final String MODULE_PKG = "app.zipper.knot";
   private static final String PLACEHOLDER_ITEM = "INVALID";
   private static final String ICON_DRAWABLE = "clock_edit";
   private static final int ICON_ID = 0x64000010;
@@ -219,12 +218,8 @@ public class EditHistoryHook implements BaseHook {
   private static Bitmap icon() {
     if (icon != null) return icon;
     try {
-      Context appCtx = Knot.currentApplication();
-      if (appCtx == null) return null;
-      Resources res =
-          appCtx.createPackageContext(MODULE_PKG, Context.CONTEXT_IGNORE_SECURITY).getResources();
-      int id = res.getIdentifier(ICON_DRAWABLE, "drawable", MODULE_PKG);
-      if (id != 0) icon = ((BitmapDrawable) res.getDrawable(id, null)).getBitmap();
+      Drawable d = ModuleResources.drawable(ICON_DRAWABLE);
+      if (d instanceof BitmapDrawable) icon = ((BitmapDrawable) d).getBitmap();
     } catch (Throwable ignored) {
     }
     return icon;

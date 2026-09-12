@@ -12,12 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.utils.LineTheme;
+import app.zipper.knot.utils.ModuleResources;
 
 public final class SettingsViews {
 
   public static final String TAG_SECTION_HEADER = "section_header";
 
-  private static final String MODULE_PACKAGE = "app.zipper.knot";
   private static final long PAGE_ANIM_MS = 250;
 
   private SettingsViews() {}
@@ -37,14 +37,8 @@ public final class SettingsViews {
     if (v != null) v.setVisibility(state);
   }
 
-  public static Drawable moduleIcon(Context ctx) {
-    try {
-      Context modCtx = ctx.createPackageContext(MODULE_PACKAGE, Context.CONTEXT_IGNORE_SECURITY);
-      int resId = modCtx.getResources().getIdentifier("ic_knot", "drawable", MODULE_PACKAGE);
-      return resId == 0 ? null : modCtx.getDrawable(resId);
-    } catch (Throwable ignored) {
-      return null;
-    }
+  public static Drawable moduleIcon() {
+    return ModuleResources.drawable("ic_knot");
   }
 
   public static void slide(View v, float toX) {

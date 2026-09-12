@@ -32,7 +32,6 @@ import java.util.Locale;
 public class ProfileTimestampsHook implements BaseHook {
 
   private static final String MARKER_TAG = "knot_profile_timestamps";
-  private static final String MODULE_PKG = "app.zipper.knot";
   private static final SimpleDateFormat FMT =
       new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
 
@@ -106,7 +105,7 @@ public class ProfileTimestampsHook implements BaseHook {
     icon.setPadding(pad, pad, pad, pad);
     icon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 
-    Drawable iconDrawable = loadModuleDrawable(activity, "ic_info_circle");
+    Drawable iconDrawable = loadModuleDrawable("ic_info_circle");
     if (iconDrawable != null) icon.setImageDrawable(iconDrawable);
 
     LinearLayout.LayoutParams lp =
@@ -196,14 +195,11 @@ public class ProfileTimestampsHook implements BaseHook {
     return fallback;
   }
 
-  private static Drawable loadModuleDrawable(Context context, String name) {
-    try {
-      Context modCtx = context.createPackageContext(MODULE_PKG, Context.CONTEXT_IGNORE_SECURITY);
-      int id = modCtx.getResources().getIdentifier(name, "drawable", modCtx.getPackageName());
-      if (id != 0) return modCtx.getDrawable(id);
-    } catch (Throwable t) {
-      Knot.log("Knot: ProfileTimestampsHook loadModuleDrawable failed: " + t);
+  private static Drawable loadModuleDrawable(String name) {
+    Drawable drawable = ModuleResources.drawable(name);
+    if (drawable == null) {
+      Knot.log("Knot: ProfileTimestampsHook loadModuleDrawable failed: " + name);
     }
-    return null;
+    return drawable;
   }
 }

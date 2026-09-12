@@ -335,7 +335,7 @@ public class SettingsUIInjector implements BaseHook {
 
   private void applyKnotIcon(View itemView, ImageView iconView) {
     try {
-      Drawable icon = SettingsViews.moduleIcon(itemView.getContext());
+      Drawable icon = SettingsViews.moduleIcon();
       if (icon == null) return;
 
       iconView.setImageTintList(null);

@@ -2,10 +2,10 @@ package app.zipper.knot.hooks;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import app.zipper.knot.Knot;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.utils.ModuleResources;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,7 +31,6 @@ final class AmoledThemeBundle {
   static final String THEME_JSON = "theme.json";
   static final String THEME_FILE_PREFIX = "themefile.";
 
-  private static final String MODULE_PKG = "app.zipper.knot";
   private static final String ASSET_BUNDLE = "assets/amoled.themefile";
   private static final String CACHE_SUBDIR = "knot_amoled";
   private static final String IMAGES_SUBDIR = "images";
@@ -59,12 +58,8 @@ final class AmoledThemeBundle {
   static void load() throws IOException, JSONException {
     Context ctx = SettingsStore.getContext();
     if (ctx == null) throw new IOException("SettingsStore has no context");
-    ApplicationInfo info;
-    try {
-      info = ctx.getPackageManager().getApplicationInfo(MODULE_PKG, 0);
-    } catch (PackageManager.NameNotFoundException e) {
-      throw new IOException("module package not found: " + MODULE_PKG, e);
-    }
+    ApplicationInfo info = ModuleResources.applicationInfo(ctx);
+    if (info == null) throw new IOException("module package not resolvable");
 
     try (ZipFile apk = new ZipFile(info.sourceDir)) {
       ZipEntry entry = apk.getEntry(ASSET_BUNDLE);

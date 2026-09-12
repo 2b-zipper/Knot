@@ -1,17 +1,16 @@
 package app.zipper.knot.utils;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import app.zipper.knot.Knot;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
+import io.github.libxposed.api.XposedInterface;
 import java.util.Locale;
 
-/**
- * Resolves the module's string resources, which the LINE process can only reach through a package
- * context for {@link #MODULE_PACKAGE}. See the README for how to add a language.
- */
 public final class ModuleResources {
 
   public static final String MODULE_PACKAGE = "app.zipper.knot";
@@ -69,6 +68,27 @@ public final class ModuleResources {
       return res.getQuantityString(resId, quantity, formatArgs);
     } catch (Throwable t) {
       return "";
+    }
+  }
+
+  public static Drawable drawable(String name) {
+    Resources res = resources();
+    if (res == null) return null;
+    try {
+      int id = res.getIdentifier(name, "drawable", MODULE_PACKAGE);
+      return id == 0 ? null : res.getDrawable(id, null);
+    } catch (Throwable t) {
+      return null;
+    }
+  }
+
+  public static int drawableId(String name) {
+    Resources res = resources();
+    if (res == null) return 0;
+    try {
+      return res.getIdentifier(name, "drawable", MODULE_PACKAGE);
+    } catch (Throwable t) {
+      return 0;
     }
   }
 
@@ -138,28 +158,60 @@ public final class ModuleResources {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static Resources build(String lang) {
-    Context moduleContext = moduleContext();
-    if (moduleContext == null) return null;
-
-    Resources base = moduleContext.getResources();
+    Resources base = baseResources();
+    if (base == null) return null;
     if (lang.isEmpty()) return base;
 
     try {
       Configuration config = new Configuration(base.getConfiguration());
       config.setLocale(localeOf(lang));
-      return moduleContext.createConfigurationContext(config).getResources();
+      return new Resources(base.getAssets(), base.getDisplayMetrics(), config);
     } catch (Throwable t) {
       return base;
     }
   }
 
-  private static Context moduleContext() {
-    Context base = baseContext();
+  // Issue #38: the host's PackageManager may not see the module, so ask the framework first.
+  public static ApplicationInfo applicationInfo(Context host) {
+    XposedInterface module = Knot.module;
+    if (module != null) {
+      try {
+        ApplicationInfo info = module.getModuleApplicationInfo();
+        if (info != null) return withPublicSourceDir(info);
+      } catch (Throwable ignored) {
+      }
+    }
+
+    Context base = host != null ? host : baseContext();
     if (base == null) return null;
     try {
-      if (MODULE_PACKAGE.equals(base.getPackageName())) return base;
-      return base.createPackageContext(MODULE_PACKAGE, Context.CONTEXT_IGNORE_SECURITY);
+      return base.getPackageManager().getApplicationInfo(MODULE_PACKAGE, 0);
+    } catch (Throwable t) {
+      logResolveFailure(t);
+      return null;
+    }
+  }
+
+  // Another uid's resources are read from publicSourceDir, which the framework may leave unset.
+  private static ApplicationInfo withPublicSourceDir(ApplicationInfo info) {
+    if (info.publicSourceDir != null && !info.publicSourceDir.isEmpty()) return info;
+    if (info.sourceDir == null || info.sourceDir.isEmpty()) return info;
+    ApplicationInfo copy = new ApplicationInfo(info);
+    copy.publicSourceDir = info.sourceDir;
+    return copy;
+  }
+
+  private static Resources baseResources() {
+    Context base = baseContext();
+    if (base == null) return null;
+    if (MODULE_PACKAGE.equals(base.getPackageName())) return base.getResources();
+
+    ApplicationInfo info = applicationInfo(base);
+    if (info == null) return null;
+    try {
+      return base.getPackageManager().getResourcesForApplication(info);
     } catch (Throwable t) {
       logResolveFailure(t);
       return null;

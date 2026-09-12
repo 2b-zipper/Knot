@@ -269,7 +269,6 @@ public class LineVersion {
       public String methodExecuteAction = "";
 
       public String editChatDrawable = "";
-      public String moduleId = "app.zipper.knot";
       public String targetPkg = "jp.naver.line.android";
     }
 
