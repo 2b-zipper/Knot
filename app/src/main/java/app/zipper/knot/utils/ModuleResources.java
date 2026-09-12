@@ -2,9 +2,11 @@ package app.zipper.knot.utils;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import app.zipper.knot.Knot;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
@@ -158,18 +160,38 @@ public final class ModuleResources {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private static Resources build(String lang) {
-    Resources base = baseResources();
-    if (base == null) return null;
-    if (lang.isEmpty()) return base;
+    Context host = baseContext();
+    if (host == null) return null;
+
+    Configuration config = null;
+    if (!lang.isEmpty()) {
+      config = new Configuration(host.getResources().getConfiguration());
+      config.setLocale(localeOf(lang));
+    }
 
     try {
-      Configuration config = new Configuration(base.getConfiguration());
-      config.setLocale(localeOf(lang));
-      return new Resources(base.getAssets(), base.getDisplayMetrics(), config);
+      if (MODULE_PACKAGE.equals(host.getPackageName())) {
+        return (config == null ? host : host.createConfigurationContext(config)).getResources();
+      }
+
+      PackageManager pm = host.getPackageManager();
+      if (config == null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        ApplicationInfo info = applicationInfo(host);
+        if (info == null) return null;
+        return config == null
+            ? pm.getResourcesForApplication(info)
+            : pm.getResourcesForApplication(info, config);
+      }
+
+      // No Configuration overload below API 31, and building a Resources over the shared
+      // AssetManager would reconfigure every Resources using it, not just this one.
+      return host.createPackageContext(MODULE_PACKAGE, Context.CONTEXT_IGNORE_SECURITY)
+          .createConfigurationContext(config)
+          .getResources();
     } catch (Throwable t) {
-      return base;
+      logResolveFailure(t);
+      return lang.isEmpty() ? null : build("");
     }
   }
 
@@ -201,21 +223,6 @@ public final class ModuleResources {
     ApplicationInfo copy = new ApplicationInfo(info);
     copy.publicSourceDir = info.sourceDir;
     return copy;
-  }
-
-  private static Resources baseResources() {
-    Context base = baseContext();
-    if (base == null) return null;
-    if (MODULE_PACKAGE.equals(base.getPackageName())) return base.getResources();
-
-    ApplicationInfo info = applicationInfo(base);
-    if (info == null) return null;
-    try {
-      return base.getPackageManager().getResourcesForApplication(info);
-    } catch (Throwable t) {
-      logResolveFailure(t);
-      return null;
-    }
   }
 
   // Every string would come back empty, so make the cause findable without spamming the log
