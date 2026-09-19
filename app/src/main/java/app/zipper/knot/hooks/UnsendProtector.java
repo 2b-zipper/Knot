@@ -321,7 +321,8 @@ public class UnsendProtector implements BaseHook {
           cfg.unsend.methodBind,
           chain -> {
             Object result = chain.proceed();
-            if (isEnabled()) {
+            // Messages kept while the option was on stay in the chat after it is turned off
+            if (isEnabled() || !unsendEvents.isEmpty()) {
               try {
                 handleViewHolderBinding(chain);
               } catch (Exception e) {
