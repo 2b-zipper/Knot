@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
 import androidx.documentfile.provider.DocumentFile;
+import app.zipper.knot.Knot;
 import app.zipper.knot.R;
 import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
@@ -37,7 +37,6 @@ import java.util.zip.ZipOutputStream;
 
 public final class BackupRestoreHook {
 
-  private static final String LOG_TAG = "KnotSync";
   private static final ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
   private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
@@ -116,13 +115,13 @@ public final class BackupRestoreHook {
 
       DocumentFile root = DocumentFile.fromTreeUri(context, Uri.parse(dirUriStr));
       if (root == null || !root.canWrite()) {
-        Log.e(LOG_TAG, "Cannot access backup directory: " + dirUriStr);
+        Knot.log("Knot: BackupRestore: Cannot access backup directory: " + dirUriStr);
         return false;
       }
 
       File mainDb = context.getDatabasePath("naver_line");
       if (!mainDb.exists()) {
-        Log.e(LOG_TAG, "Source database not found");
+        Knot.log("Knot: BackupRestore: Source database not found");
         return false;
       }
 
@@ -137,7 +136,7 @@ public final class BackupRestoreHook {
       writeBackupZip(context, outFile.getUri());
       return true;
     } catch (Exception e) {
-      Log.e(LOG_TAG, "Backup failed: " + e.getMessage());
+      Knot.log("Knot: BackupRestore: Backup failed", e);
       if (outFile != null) safeDelete(outFile);
       return false;
     }
@@ -178,7 +177,7 @@ public final class BackupRestoreHook {
   private static boolean restoreFromZip(Context context, File srcFile) {
     try (ZipFile zip = new ZipFile(srcFile)) {
       if (zip.getEntry(MARKER_ENTRY) == null) {
-        Log.e(LOG_TAG, "Restore failed: not a Knot backup");
+        Knot.log("Knot: BackupRestore: Restore failed: not a Knot backup");
         return false;
       }
 
@@ -201,7 +200,7 @@ public final class BackupRestoreHook {
 
         String dbName = matchedDbName(e.getName());
         if (dbName == null) {
-          Log.w(LOG_TAG, "Skipping unknown entry: " + e.getName());
+          Knot.log("Knot: BackupRestore: Skipping unknown entry: " + e.getName());
           continue;
         }
 
@@ -214,7 +213,7 @@ public final class BackupRestoreHook {
       }
       return true;
     } catch (Exception e) {
-      Log.e(LOG_TAG, "Zip restore failed: " + e.getMessage());
+      Knot.log("Knot: BackupRestore: Zip restore failed", e);
       return false;
     }
   }
@@ -226,7 +225,7 @@ public final class BackupRestoreHook {
             null,
             SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
     } catch (Exception e) {
-      Log.e(LOG_TAG, "Restore failed: Invalid database file");
+      Knot.log("Knot: BackupRestore: Restore failed: Invalid database file", e);
       return false;
     }
 
@@ -239,7 +238,7 @@ public final class BackupRestoreHook {
       }
       return true;
     } catch (Exception e) {
-      Log.e(LOG_TAG, "Legacy restore failed: " + e.getMessage());
+      Knot.log("Knot: BackupRestore: Legacy restore failed", e);
       return false;
     }
   }
