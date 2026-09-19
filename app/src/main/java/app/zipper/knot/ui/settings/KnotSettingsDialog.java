@@ -184,8 +184,7 @@ public final class KnotSettingsDialog {
   }
 
   private void restartLine() {
-    RestartActivity.requestRestart(host);
-    System.exit(0);
+    RestartActivity.restartNow(host);
   }
 
   private void dismissNow() {

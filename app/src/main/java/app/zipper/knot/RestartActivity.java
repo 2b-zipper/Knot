@@ -33,6 +33,11 @@ public final class RestartActivity extends Activity {
 
   private boolean relaunched;
 
+  public static void restartNow(Context ctx) {
+    requestRestart(ctx);
+    System.exit(0);
+  }
+
   public static void requestRestart(Context ctx) {
     try {
       lifeline = new Binder();

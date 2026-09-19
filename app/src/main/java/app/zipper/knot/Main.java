@@ -6,13 +6,15 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import app.zipper.knot.hooks.*;
+import app.zipper.knot.ui.DebugMenu;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
 import io.github.libxposed.api.XposedModule;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends XposedModule {
 
@@ -22,11 +24,31 @@ public class Main extends XposedModule {
 
   private static volatile boolean initialized;
 
+  public static final class HookResult {
+    public final String name;
+    public final boolean failed;
+    public final List<String> logs;
+
+    HookResult(String name, boolean failed, List<String> logs) {
+      this.name = name;
+      this.failed = failed;
+      this.logs = logs;
+    }
+  }
+
+  private static final List<HookResult> hookResults = new ArrayList<>();
+
+  public static List<HookResult> hookResults() {
+    synchronized (hookResults) {
+      return new ArrayList<>(hookResults);
+    }
+  }
+
   @Override
   public void onModuleLoaded(@NonNull ModuleLoadedParam param) {
     Knot.module = this;
     Knot.processName = param.getProcessName();
-    log(Log.INFO, TAG, "Knot loaded in " + param.getProcessName());
+    Knot.log("Knot loaded in " + param.getProcessName());
   }
 
   @Override
@@ -93,6 +115,7 @@ public class Main extends XposedModule {
     Knot.log("Knot: bootstrap via " + via);
 
     ModuleResources.attach(context);
+    DebugMenu.install();
 
     LineVersion.Config cfg = LineVersion.detectWithContext(context);
     if (cfg == null) cfg = LineVersion.detect(lpparam.classLoader);
@@ -194,11 +217,19 @@ public class Main extends XposedModule {
     if (options.fixSignatureMismatch.enabled) applyHook(new SignatureSpoofHook(), lpparam);
   }
 
+  // Most hooks catch their own failures and only log them, so the log lines are the real outcome
   private void applyHook(BaseHook hook, LoadParam lpparam) {
+    String name = hook.getClass().getSimpleName();
+    long mark = Knot.logMark();
+    boolean failed = false;
     try {
       hook.hook(options, lpparam);
     } catch (Throwable t) {
-      Knot.log("Knot: Hook failed for " + hook.getClass().getSimpleName() + ": " + t);
+      failed = true;
+      Knot.log("Knot: Hook failed for " + name + ": " + t);
+    }
+    synchronized (hookResults) {
+      hookResults.add(new HookResult(name, failed, Knot.logsSince(mark)));
     }
   }
 
