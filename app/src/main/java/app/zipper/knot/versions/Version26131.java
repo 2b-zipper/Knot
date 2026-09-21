@@ -409,6 +409,16 @@ public class Version26131 {
 
     v.camera.cameraModuleClass = "c72.j";
     v.camera.methodUseExternalCamera = "d";
+    v.camera.cameraLauncherClass = "com.linecorp.line.media.picker.b";
+    v.camera.methodLaunchCamera = "b";
+    v.camera.launchModeClass = "com.linecorp.line.media.picker.b$l";
+    v.camera.launchSourceClass = "com.linecorp.line.media.picker.b$k";
+    v.camera.launchCallbackClass = "com.linecorp.line.media.picker.b$h";
+    v.camera.captureChoiceClass = "com.linecorp.line.media.picker.a";
+    v.camera.captureChooserClass = "os0.d0";
+    v.camera.methodShowCaptureChooser = "a";
+    v.camera.schemeServiceActivity =
+        "jp.naver.line.android.activity.schemeservice.LineSchemeServiceActivity";
 
     v.muteMessage.labFeatureClass = "p58.d";
     v.muteMessage.methodIsFeatureEnabled = "c";

@@ -88,6 +88,15 @@ public class LineVersion {
     public static class Camera {
       public String cameraModuleClass = "";
       public String methodUseExternalCamera = "";
+      public String cameraLauncherClass = "";
+      public String methodLaunchCamera = "";
+      public String launchModeClass = "";
+      public String launchSourceClass = "";
+      public String launchCallbackClass = "";
+      public String captureChoiceClass = "";
+      public String captureChooserClass = "";
+      public String methodShowCaptureChooser = "";
+      public String schemeServiceActivity = "";
     }
 
     public static class MuteMessage {
