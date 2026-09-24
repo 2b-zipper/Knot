@@ -40,6 +40,7 @@
     <string name="sec_header_btn">標題列按鈕</string>
     <string name="sec_font">字型</string>
     <string name="sec_theme">主題</string>
+    <string name="sec_call">通話</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">需要重新啟動LINE</string>
     <string name="opt_restart_label">重新啟動LINE</string>
@@ -167,6 +168,8 @@
     <string name="opt_use_custom_font_desc">將選取的字型檔套用至整個應用程式。需要重新啟動應用程式才會生效。</string>
     <string name="opt_custom_font_path_label">選擇字型檔</string>
     <string name="opt_custom_font_path_desc">選擇要使用的字型檔（.ttf / .otf）。</string>
+    <string name="file_choose_other">選擇其他檔案</string>
+    <string name="file_clear">刪除</string>
     <string name="opt_use_amoled_theme_label">套用AMOLED主題</string>
     <string name="opt_use_amoled_theme_desc">套用AMOLED主題。必須關閉\"深色模式時套用「黑色」主題\"。選單與對話框也會套用AMOLED的配色。</string>
     <string name="opt_force_dark_mode_ui_label">套用主題時仍維持深色介面</string>
@@ -193,6 +196,16 @@
     <string name="fcm_force_registration_failed">無法開始重新註冊FCM權杖</string>
     <string name="opt_line_foreground_keep_alive_label">讓LINE常駐為前景服務</string>
     <string name="opt_line_foreground_keep_alive_desc">耗電量可能增加，但FCM Fix在應用程式被關閉後仍可運作。有助於迴避非root環境下收不到通知的問題。更新Knot時可能需要強制停止或暫停。</string>
+    <string name="opt_disable_custom_ringback_label">停用對方的來電答鈴</string>
+    <string name="opt_disable_custom_ringback_desc">撥打電話時，播放預設來電答鈴，而非對方設定的歌曲。</string>
+    <string name="opt_use_custom_ringtone_label">使用自訂鈴聲</string>
+    <string name="opt_use_custom_ringtone_desc">將選取的音訊檔作為LINE通話的來電鈴聲。</string>
+    <string name="opt_custom_ringtone_path_label">選擇鈴聲檔案</string>
+    <string name="opt_custom_ringtone_path_desc">選擇要作為鈴聲的音訊檔。</string>
+    <string name="ringtone_editor_title">鈴聲</string>
+    <string name="ringtone_editor_unsupported">無法使用此音訊檔。</string>
+    <string name="ringtone_editor_save">儲存</string>
+    <string name="ringtone_editor_saving">儲存中…</string>
     <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">延長訊息收回的時間限制</string>
     <string name="opt_spoof_version_unsend_only_desc">僅在收回訊息時將版本偽裝為15.12.2，將1小時的時間限制恢復為24小時。</string>
