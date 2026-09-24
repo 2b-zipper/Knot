@@ -9,7 +9,6 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
-import app.zipper.knot.SettingsStore;
 import io.github.libxposed.api.XposedInterface;
 import java.io.File;
 import java.util.List;
@@ -23,7 +22,7 @@ public class FontUnlockHook implements BaseHook {
     final LineVersion.Config cfg = LineVersion.get();
     if (cfg == null || cfg.font.fontConfigClass.isEmpty()) return;
 
-    initTypeface();
+    initTypeface(config);
     if (!overrideActive || customTypeface == null) return;
 
     Knot.log("Knot: Initializing Font hooks");
@@ -254,12 +253,12 @@ public class FontUnlockHook implements BaseHook {
         .intercept(chain -> customTypeface);
   }
 
-  private void initTypeface() {
-    if (!SettingsStore.get("use_custom_font", false)) {
+  private void initTypeface(KnotConfig config) {
+    if (!config.useCustomFont.enabled) {
       overrideActive = false;
       return;
     }
-    String path = SettingsStore.getString("custom_font_path", "");
+    String path = config.customFontPath.value;
     if (!path.isEmpty()) {
       File f = new File(path);
       if (f.exists()) {

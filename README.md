@@ -1,4 +1,7 @@
 # Knot - Xposed module for LINE
+
+**日本語** | [English](README.en.md) | [繁體中文](README.zh-Hant.md)
+
 <p>
   <a href="https://github.com/2b-zipper/Knot/releases/latest"><img src="https://img.shields.io/github/v/release/2b-zipper/Knot?sort=semver&style=flat&label=Release&color=2ea44f" alt="Release"></a>
   <a href="https://github.com/2b-zipper/Knot/releases"><img src="https://img.shields.io/github/downloads/2b-zipper/Knot/total?style=flat&label=Downloads&color=2ea44f" alt="Downloads"></a>
@@ -15,6 +18,8 @@ Knotは、Android版LINEのユーザー体験を向上させるために設計�
 > ⚠️このモジュールは個人が学習目的で開発したものであり、LINEヤフー株式会社とは一切関係ありません。本モジュールの使用はLINEの利用規約に抵触する可能性があり、使用に起因するアカウントの制限、凍結、データ消失などのいかなる不利益や損害についても、開発者は一切の責任を負いません。自己責任でご使用ください。
 
 **対応LINEバージョン**: 26.10.0, 26.10.1, 26.11.0, 26.13.0, 26.13.1, 26.14.0
+
+**対応言語**: 日本語, English, 繁體中文
 
 ## スクリーンショット
 
@@ -48,6 +53,7 @@ Knotは、Android版LINEのユーザー体験を向上させるために設計�
 ### 通知
 - **リアクション通知**: メッセージについたリアクションを通知として受け取れます。
 - **消音ボタンを非表示**: 通知に表示される「通知をオフ」ボタンを削除します。
+- **着信音のカスタマイズ**: LINE通話の着信音を好きな音声ファイルに差し替えたり、相手が設定した呼出音を無効化してデフォルトの呼出音にできます。
 - **通知の遅延・不達対策 (FCM Fix)**: 非root環境での通知不達を回避するため、FCM受信処理の直接引き渡しや、LINEの常時フォアグラウンドサービス化を行います。
 
 ## インストール方法
@@ -70,7 +76,7 @@ Knotは、Android版LINEのユーザー体験を向上させるために設計�
 **！！！導入前に必ずトーク履歴をバックアップしてください！！！**
 
 #### 1. 事前準備
-1. Fork版[NPatch](https://github.com/Nich87/NPatch)をインストールします。
+1. [Fork版NPatch](https://github.com/Nich87/NPatch)をインストールします。
 2. [MicroG-RE](https://github.com/MorpheApp/MicroG-RE)をインストールします。
 3. MicroG-REを開き、`最適化を無効化`をタップして電池の最適化を無効にします。その後`セルフチェック`項目を開き、表示されている権限をすべて許可します。
 4. MicroG-REの`アカウント`項目を開き、トーク履歴のバックアップに使用したGoogleアカウントでログインします。

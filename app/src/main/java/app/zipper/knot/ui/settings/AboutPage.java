@@ -87,7 +87,7 @@ public final class AboutPage {
     hero.setGravity(Gravity.CENTER_HORIZONTAL);
     hero.setPadding(dp(ctx, 32), dp(ctx, 32), dp(ctx, 32), dp(ctx, 28));
 
-    Drawable icon = SettingsViews.moduleIcon(ctx);
+    Drawable icon = SettingsViews.moduleIcon();
     if (icon != null) {
       ImageView logo = new ImageView(ctx);
       logo.setImageDrawable(icon);

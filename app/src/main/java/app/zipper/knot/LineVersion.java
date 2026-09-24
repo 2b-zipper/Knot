@@ -42,6 +42,7 @@ public class LineVersion {
     public ChatEditSelectAll chatEditSelectAll = new ChatEditSelectAll();
     public MessageEditHistory messageEditHistory = new MessageEditHistory();
     public Camera camera = new Camera();
+    public CallTone callTone = new CallTone();
     public MuteMessage muteMessage = new MuteMessage();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
@@ -88,6 +89,25 @@ public class LineVersion {
     public static class Camera {
       public String cameraModuleClass = "";
       public String methodUseExternalCamera = "";
+      public String cameraLauncherClass = "";
+      public String methodLaunchCamera = "";
+      public String launchModeClass = "";
+      public String launchSourceClass = "";
+      public String launchCallbackClass = "";
+      public String captureChoiceClass = "";
+      public String captureChooserClass = "";
+      public String methodShowCaptureChooser = "";
+      public String schemeServiceActivity = "";
+    }
+
+    public static class CallTone {
+      public String toneSourceClass = "";
+      public String uriToneSourceClass = "";
+      public String methodToneUri = "";
+      public String remoteRingbackClass = "";
+      public String remoteRingbackContextField = "";
+      public String remoteRingbackFallbackField = "";
+      public String ringtoneWrapperClass = "";
     }
 
     public static class MuteMessage {
@@ -269,7 +289,6 @@ public class LineVersion {
       public String methodExecuteAction = "";
 
       public String editChatDrawable = "";
-      public String moduleId = "app.zipper.knot";
       public String targetPkg = "jp.naver.line.android";
     }
 
@@ -295,7 +314,6 @@ public class LineVersion {
     public static class Unsend {
       public String notifiedReadMessageHandlerClass = "";
       public String notifiedSendReactionHandlerClass = "";
-      public String notifiedDestroyMessageHandlerClass = "";
       public String chatMessageViewHolderClass = "";
 
       public String methodReadBuffer = "";
@@ -323,11 +341,21 @@ public class LineVersion {
       public String operationParam3Field = "";
       public String operationCreatedTimeField = "";
       public String chatMessageIdField = "";
+      public String chatMessageServerIdLongField = "";
 
       public String operationUnsendName = "DESTROY_MESSAGE";
       public String operationNotifiedUnsendName = "NOTIFIED_DESTROY_MESSAGE";
       public String unsendDestroyHandlerClass = "";
-      public String operationClass = "";
+      public String destroyMessageHandlerClass = "";
+      public String methodDestroyHandler = "";
+      public String messageConverterClass = "";
+      public String methodConvertMessage = "";
+      public String incomingMessageIdField = "";
+      public String incomingMessageTypeField = "";
+      public String incomingMessageParamsField = "";
+      public String incomingMessageParamsMapField = "";
+      public String incomingMessageTypeEnumClass = "";
+      public String handlerSuccessResultClass = "";
     }
 
     public static class Thrift {

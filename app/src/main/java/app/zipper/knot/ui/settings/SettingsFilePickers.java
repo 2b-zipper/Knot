@@ -12,17 +12,19 @@ import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import androidx.documentfile.provider.DocumentFile;
 import app.zipper.knot.Knot;
-import app.zipper.knot.KnotConfig;
 import app.zipper.knot.Main;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
+import app.zipper.knot.utils.AacWriter;
 import app.zipper.knot.utils.FontFileUtil;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
 public final class SettingsFilePickers {
@@ -30,16 +32,22 @@ public final class SettingsFilePickers {
   private static final int PICK_DIRECTORY_CODE = 0x4C58;
   private static final int PICK_FONT_CODE = 0x4C59;
   private static final int PICK_RESTORE_DB_CODE = 0x4C5A;
+  private static final int PICK_RINGTONE_CODE = 0x4C5B;
 
   private static final String FONT_PATH_KEY = "custom_font_path";
   private static final String FONT_NAME_KEY = "custom_font_name";
+  private static final String RINGTONE_PATH_KEY = "custom_ringtone_path";
+  private static final String RINGTONE_NAME_KEY = "custom_ringtone_name";
+  private static final String FONT_FILE = "knot_custom_font.ttf";
+  private static final String RINGTONE_FILE = "knot_custom_ringtone";
 
   private SettingsFilePickers() {}
 
   public static boolean consumeResult(Activity host, int requestCode, int resultCode, Intent data) {
     if (requestCode != PICK_DIRECTORY_CODE
         && requestCode != PICK_FONT_CODE
-        && requestCode != PICK_RESTORE_DB_CODE) {
+        && requestCode != PICK_RESTORE_DB_CODE
+        && requestCode != PICK_RINGTONE_CODE) {
       return false;
     }
     Uri uri = resultCode == Activity.RESULT_OK && data != null ? data.getData() : null;
@@ -49,6 +57,8 @@ public final class SettingsFilePickers {
       onDirectoryPicked(host, uri);
     } else if (requestCode == PICK_FONT_CODE) {
       onFontPicked(host, uri);
+    } else if (requestCode == PICK_RINGTONE_CODE) {
+      onRingtonePicked(host, uri);
     } else {
       new Thread(() -> prepareRestoreDb(host, uri)).start();
     }
@@ -73,6 +83,15 @@ public final class SettingsFilePickers {
         Intent.EXTRA_MIME_TYPES,
         new String[] {"font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf"});
     host.startActivityForResult(intent, PICK_FONT_CODE);
+  }
+
+  public static void openRingtonePicker(Context ctx) {
+    Activity host = SettingsViews.activityOf(ctx);
+    if (host == null) return;
+    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+    intent.addCategory(Intent.CATEGORY_OPENABLE);
+    intent.setType("audio/*");
+    host.startActivityForResult(intent, PICK_RINGTONE_CODE);
   }
 
   public static void openRestorePicker(Context ctx) {
@@ -122,23 +141,85 @@ public final class SettingsFilePickers {
     KnotSettingsDialog.notifyConfigChanged();
   }
 
-  private static void onFontPicked(Context ctx, Uri fontUri) {
+  private static void onFontPicked(Activity host, Uri fontUri) {
+    Context appCtx = host.getApplicationContext();
+    new Thread(() -> importFont(appCtx, fontUri)).start();
+  }
+
+  private static void importFont(Context ctx, Uri fontUri) {
+    File out = new File(ctx.getFilesDir(), FONT_FILE);
+    File temp = new File(out.getPath() + ".tmp");
     try {
-      File out = new File(ctx.getFilesDir(), "knot_custom_font.ttf");
       try (InputStream is = ctx.getContentResolver().openInputStream(fontUri);
-          OutputStream os = new FileOutputStream(out)) {
+          OutputStream os = new FileOutputStream(temp)) {
         copy(is, os);
       }
+      if (!temp.renameTo(out)) throw new IOException("rename failed");
 
-      String localPath = out.getAbsolutePath();
-      SettingsStore.save(FONT_PATH_KEY, localPath);
-      SettingsStore.save(FONT_NAME_KEY, resolveFontName(ctx, out, fontUri));
-      KnotConfig.Item item = Main.options.find(FONT_PATH_KEY);
-      if (item != null) item.value = localPath;
-      KnotSettingsDialog.notifyConfigChanged();
+      storeFile(
+          FONT_PATH_KEY, FONT_NAME_KEY, out.getAbsolutePath(), resolveFontName(ctx, out, fontUri));
+      new Handler(Looper.getMainLooper()).post(KnotSettingsDialog::notifyConfigChanged);
     } catch (Throwable t) {
       Knot.log("Knot: Failed to copy font file: " + t.getMessage());
+    } finally {
+      temp.delete();
     }
+  }
+
+  private static void onRingtonePicked(Activity host, Uri ringtoneUri) {
+    Context appCtx = host.getApplicationContext();
+    RingtoneEditor.show(
+        host,
+        ringtoneUri,
+        fileBaseName(host, ringtoneUri),
+        (startUs, endUs, gain, title) ->
+            importRingtone(appCtx, ringtoneUri, title, startUs, endUs, gain));
+  }
+
+  private static boolean importRingtone(
+      Context ctx, Uri ringtoneUri, String name, long startUs, long endUs, double gain) {
+    File out = new File(ctx.getFilesDir(), RINGTONE_FILE);
+    File temp = new File(out.getPath() + ".tmp");
+    try {
+      AacWriter.write(ctx, ringtoneUri, startUs, endUs, gain, temp);
+      if (Thread.currentThread().isInterrupted()) return false;
+      if (!temp.renameTo(out)) throw new IOException("rename failed");
+
+      storeFile(RINGTONE_PATH_KEY, RINGTONE_NAME_KEY, out.getAbsolutePath(), name);
+      new Handler(Looper.getMainLooper()).post(KnotSettingsDialog::notifyConfigChanged);
+      return true;
+    } catch (InterruptedIOException e) {
+      return false;
+    } catch (Throwable t) {
+      Knot.log("Knot: Failed to import ringtone file: " + t.getMessage());
+      return false;
+    } finally {
+      temp.delete();
+    }
+  }
+
+  public static String currentRingtoneName() {
+    return SettingsStore.getString(RINGTONE_NAME_KEY, "");
+  }
+
+  public static void clearFont(Context ctx) {
+    clearFile(ctx, FONT_FILE, FONT_PATH_KEY, FONT_NAME_KEY);
+  }
+
+  public static void clearRingtone(Context ctx) {
+    clearFile(ctx, RINGTONE_FILE, RINGTONE_PATH_KEY, RINGTONE_NAME_KEY);
+  }
+
+  private static void clearFile(Context ctx, String fileName, String pathKey, String nameKey) {
+    File file = new File(ctx.getFilesDir(), fileName);
+    if (file.isFile() && !file.delete()) Knot.log("Knot: Failed to delete " + file);
+    storeFile(pathKey, nameKey, "", "");
+    KnotSettingsDialog.notifyConfigChanged();
+  }
+
+  private static void storeFile(String pathKey, String nameKey, String path, String name) {
+    SettingsPage.saveItem(pathKey, path);
+    SettingsStore.save(nameKey, name);
   }
 
   public static String currentFontName() {
@@ -155,17 +236,20 @@ public final class SettingsFilePickers {
 
   private static String resolveFontName(Context ctx, File fontFile, Uri fontUri) {
     String name = FontFileUtil.readFontName(fontFile);
-    if (name == null) name = queryDisplayName(ctx, fontUri);
-    return name == null ? "" : name;
+    return name != null ? name : fileBaseName(ctx, fontUri);
   }
 
-  private static String queryDisplayName(Context ctx, Uri uri) {
+  private static String fileBaseName(Context ctx, Uri uri) {
     String[] columns = {OpenableColumns.DISPLAY_NAME};
     try (Cursor cursor = ctx.getContentResolver().query(uri, columns, null, null, null)) {
-      if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) return cursor.getString(0);
+      if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+        String name = cursor.getString(0);
+        int dot = name.lastIndexOf('.');
+        return dot > 0 ? name.substring(0, dot) : name;
+      }
     } catch (Throwable ignored) {
     }
-    return null;
+    return "";
   }
 
   private static void prepareRestoreDb(Context ctx, Uri dbUri) {

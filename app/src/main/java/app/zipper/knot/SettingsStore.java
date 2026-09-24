@@ -101,7 +101,7 @@ public class SettingsStore {
       cachedTreeUri = Uri.parse(uriString);
       cachedDocUris.clear();
     } catch (Throwable e) {
-      android.util.Log.e("Knot", "SettingsStore.setSettingsDir failed", e);
+      Knot.log("Knot: SettingsStore.setSettingsDir failed", e);
     }
   }
 
@@ -193,7 +193,7 @@ public class SettingsStore {
         cachedSettingsJson = json;
       }
     } catch (Throwable e) {
-      android.util.Log.e("Knot", "SettingsStore.save failed", e);
+      Knot.log("Knot: SettingsStore.save failed", e);
     }
   }
 

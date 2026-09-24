@@ -1,17 +1,18 @@
 package app.zipper.knot.utils;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import app.zipper.knot.Knot;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
+import io.github.libxposed.api.XposedInterface;
 import java.util.Locale;
 
-/**
- * Resolves the module's string resources, which the LINE process can only reach through a package
- * context for {@link #MODULE_PACKAGE}. See the README for how to add a language.
- */
 public final class ModuleResources {
 
   public static final String MODULE_PACKAGE = "app.zipper.knot";
@@ -69,6 +70,27 @@ public final class ModuleResources {
       return res.getQuantityString(resId, quantity, formatArgs);
     } catch (Throwable t) {
       return "";
+    }
+  }
+
+  public static Drawable drawable(String name) {
+    Resources res = resources();
+    if (res == null) return null;
+    try {
+      int id = res.getIdentifier(name, "drawable", MODULE_PACKAGE);
+      return id == 0 ? null : res.getDrawable(id, null);
+    } catch (Throwable t) {
+      return null;
+    }
+  }
+
+  public static int drawableId(String name) {
+    Resources res = resources();
+    if (res == null) return 0;
+    try {
+      return res.getIdentifier(name, "drawable", MODULE_PACKAGE);
+    } catch (Throwable t) {
+      return 0;
     }
   }
 
@@ -139,31 +161,68 @@ public final class ModuleResources {
   }
 
   private static Resources build(String lang) {
-    Context moduleContext = moduleContext();
-    if (moduleContext == null) return null;
+    Context host = baseContext();
+    if (host == null) return null;
 
-    Resources base = moduleContext.getResources();
-    if (lang.isEmpty()) return base;
+    Configuration config = null;
+    if (!lang.isEmpty()) {
+      config = new Configuration(host.getResources().getConfiguration());
+      config.setLocale(localeOf(lang));
+    }
 
     try {
-      Configuration config = new Configuration(base.getConfiguration());
-      config.setLocale(localeOf(lang));
-      return moduleContext.createConfigurationContext(config).getResources();
+      if (MODULE_PACKAGE.equals(host.getPackageName())) {
+        return (config == null ? host : host.createConfigurationContext(config)).getResources();
+      }
+
+      PackageManager pm = host.getPackageManager();
+      if (config == null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        ApplicationInfo info = applicationInfo(host);
+        if (info == null) return null;
+        return config == null
+            ? pm.getResourcesForApplication(info)
+            : pm.getResourcesForApplication(info, config);
+      }
+
+      // No Configuration overload below API 31, and building a Resources over the shared
+      // AssetManager would reconfigure every Resources using it, not just this one.
+      return host.createPackageContext(MODULE_PACKAGE, Context.CONTEXT_IGNORE_SECURITY)
+          .createConfigurationContext(config)
+          .getResources();
     } catch (Throwable t) {
-      return base;
+      logResolveFailure(t);
+      return lang.isEmpty() ? null : build("");
     }
   }
 
-  private static Context moduleContext() {
-    Context base = baseContext();
+  // Issue #38: the host's PackageManager may not see the module, so ask the framework first.
+  public static ApplicationInfo applicationInfo(Context host) {
+    XposedInterface module = Knot.module;
+    if (module != null) {
+      try {
+        ApplicationInfo info = module.getModuleApplicationInfo();
+        if (info != null) return withPublicSourceDir(info);
+      } catch (Throwable ignored) {
+      }
+    }
+
+    Context base = host != null ? host : baseContext();
     if (base == null) return null;
     try {
-      if (MODULE_PACKAGE.equals(base.getPackageName())) return base;
-      return base.createPackageContext(MODULE_PACKAGE, Context.CONTEXT_IGNORE_SECURITY);
+      return base.getPackageManager().getApplicationInfo(MODULE_PACKAGE, 0);
     } catch (Throwable t) {
       logResolveFailure(t);
       return null;
     }
+  }
+
+  // Another uid's resources are read from publicSourceDir, which the framework may leave unset.
+  private static ApplicationInfo withPublicSourceDir(ApplicationInfo info) {
+    if (info.publicSourceDir != null && !info.publicSourceDir.isEmpty()) return info;
+    if (info.sourceDir == null || info.sourceDir.isEmpty()) return info;
+    ApplicationInfo copy = new ApplicationInfo(info);
+    copy.publicSourceDir = info.sourceDir;
+    return copy;
   }
 
   // Every string would come back empty, so make the cause findable without spamming the log

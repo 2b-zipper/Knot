@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -195,9 +196,12 @@ public final class LineTheme {
       int id = ctx.getResources().getIdentifier("setting_inlined_value", "id", LINE_PKG);
       if (id == 0) return;
       View v = row.findViewById(id);
+      // Stays visible even when empty: it fills the row and keeps the arrow at the end.
       if (v instanceof TextView) {
-        ((TextView) v).setText(value);
-        v.setVisibility(value != null && value.length() > 0 ? View.VISIBLE : View.GONE);
+        TextView text = (TextView) v;
+        text.setSingleLine(true);
+        text.setEllipsize(TextUtils.TruncateAt.END);
+        text.setText(value);
       }
     } catch (Throwable ignored) {
     }

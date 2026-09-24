@@ -197,7 +197,7 @@ public class PlusMenuHook implements BaseHook {
               int id = (int) chain.getArg(0);
               if ((id >>> 24) != 0x64) return chain.proceed();
               try {
-                Bitmap b = retrieveModuleIcon(id, cfg);
+                Bitmap b = retrieveModuleIcon(id);
                 if (b != null) return new BitmapDrawable((Resources) chain.getThisObject(), b);
               } catch (Throwable ignored) {
               }
@@ -277,7 +277,7 @@ public class PlusMenuHook implements BaseHook {
         });
   }
 
-  private static Bitmap retrieveModuleIcon(int id, LineVersion.Config cfg) {
+  private static Bitmap retrieveModuleIcon(int id) {
     Bitmap stored = iconStorage.get(id);
     if (stored != null) return stored;
     String name;
@@ -288,12 +288,8 @@ public class PlusMenuHook implements BaseHook {
     else return null;
 
     try {
-      Context appCtx = fetchApplicationContext();
-      if (appCtx == null) return null;
-      Context modCtx =
-          appCtx.createPackageContext(cfg.plusMenu.moduleId, Context.CONTEXT_IGNORE_SECURITY);
-      int resId = modCtx.getResources().getIdentifier(name, "drawable", cfg.plusMenu.moduleId);
-      Drawable d = modCtx.getResources().getDrawable(resId, null);
+      Drawable d = ModuleResources.drawable(name);
+      if (!(d instanceof BitmapDrawable)) return null;
       Bitmap bmp = ((BitmapDrawable) d).getBitmap();
       iconStorage.put(id, bmp);
       return bmp;

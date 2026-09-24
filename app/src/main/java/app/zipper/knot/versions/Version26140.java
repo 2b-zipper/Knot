@@ -85,7 +85,6 @@ public class Version26140 {
 
     v.unsend.notifiedReadMessageHandlerClass = "jg8.y1";
     v.unsend.notifiedSendReactionHandlerClass = "jg8.j2";
-    v.unsend.notifiedDestroyMessageHandlerClass = "jg8.a1";
     v.unsend.chatMessageViewHolderClass = "nl1.g";
     v.unsend.methodReadBuffer = "b";
     v.unsend.methodBind = "V";
@@ -111,10 +110,20 @@ public class Version26140 {
     v.unsend.operationParam3Field = "i";
     v.unsend.operationCreatedTimeField = "b";
     v.unsend.chatMessageIdField = "d";
+    v.unsend.chatMessageServerIdLongField = "c";
     v.unsend.operationUnsendName = "DESTROY_MESSAGE";
     v.unsend.operationNotifiedUnsendName = "NOTIFIED_DESTROY_MESSAGE";
     v.unsend.unsendDestroyHandlerClass = "jg8.a1";
-    v.unsend.operationClass = "hi8.de";
+    v.unsend.destroyMessageHandlerClass = "jg8.r";
+    v.unsend.methodDestroyHandler = "b";
+    v.unsend.messageConverterClass = "la8.u2";
+    v.unsend.methodConvertMessage = "a";
+    v.unsend.incomingMessageIdField = "c";
+    v.unsend.incomingMessageTypeField = "d";
+    v.unsend.incomingMessageParamsField = "o";
+    v.unsend.incomingMessageParamsMapField = "a";
+    v.unsend.incomingMessageTypeEnumClass = "he8.i$b";
+    v.unsend.handlerSuccessResultClass = "ig8.a$a$c";
 
     v.thrift.talkServiceClientImplClass =
         "jp.naver.line.android.thrift.client.impl.LegacyTalkServiceClientImpl";
@@ -400,6 +409,24 @@ public class Version26140 {
 
     v.camera.cameraModuleClass = "j82.j";
     v.camera.methodUseExternalCamera = "d";
+    v.camera.cameraLauncherClass = "com.linecorp.line.media.picker.b";
+    v.camera.methodLaunchCamera = "b";
+    v.camera.launchModeClass = "com.linecorp.line.media.picker.b$l";
+    v.camera.launchSourceClass = "com.linecorp.line.media.picker.b$k";
+    v.camera.launchCallbackClass = "com.linecorp.line.media.picker.b$h";
+    v.camera.captureChoiceClass = "com.linecorp.line.media.picker.a";
+    v.camera.captureChooserClass = "ht0.g0";
+    v.camera.methodShowCaptureChooser = "a";
+    v.camera.schemeServiceActivity =
+        "jp.naver.line.android.activity.schemeservice.LineSchemeServiceActivity";
+
+    v.callTone.toneSourceClass = "wy.g";
+    v.callTone.uriToneSourceClass = "wy.b";
+    v.callTone.methodToneUri = "a";
+    v.callTone.remoteRingbackClass = "sl7.b";
+    v.callTone.remoteRingbackContextField = "b";
+    v.callTone.remoteRingbackFallbackField = "d";
+    v.callTone.ringtoneWrapperClass = "sl7.c";
 
     v.muteMessage.labFeatureClass = "k78.d";
     v.muteMessage.methodIsFeatureEnabled = "c";

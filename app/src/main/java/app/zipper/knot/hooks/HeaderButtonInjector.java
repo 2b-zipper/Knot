@@ -180,23 +180,16 @@ public class HeaderButtonInjector implements BaseHook {
 
       Drawable icon = null;
       try {
-        Context modCtx =
-            context.createPackageContext("app.zipper.knot", Context.CONTEXT_IGNORE_SECURITY);
-        int iconId =
-            modCtx.getResources().getIdentifier("ic_book", "drawable", modCtx.getPackageName());
-        if (iconId != 0) {
-          icon = modCtx.getDrawable(iconId);
-          if (icon != null) {
-
-            int size = (int) (24 * context.getResources().getDisplayMetrics().density);
-            android.graphics.Bitmap bitmap =
-                android.graphics.Bitmap.createBitmap(
-                    size, size, android.graphics.Bitmap.Config.ARGB_8888);
-            android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
-            icon.setBounds(0, 0, size, size);
-            icon.draw(canvas);
-            icon = new android.graphics.drawable.BitmapDrawable(context.getResources(), bitmap);
-          }
+        icon = ModuleResources.drawable("ic_book");
+        if (icon != null) {
+          int size = (int) (24 * context.getResources().getDisplayMetrics().density);
+          android.graphics.Bitmap bitmap =
+              android.graphics.Bitmap.createBitmap(
+                  size, size, android.graphics.Bitmap.Config.ARGB_8888);
+          android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+          icon.setBounds(0, 0, size, size);
+          icon.draw(canvas);
+          icon = new android.graphics.drawable.BitmapDrawable(context.getResources(), bitmap);
         }
       } catch (Throwable t) {
         Knot.log("Knot: icon load error: " + t.getMessage());
