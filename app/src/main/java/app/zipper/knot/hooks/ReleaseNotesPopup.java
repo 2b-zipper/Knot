@@ -4,6 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.view.View;
+import android.widget.TextView;
 import app.zipper.knot.BuildConfig;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
@@ -18,6 +24,8 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.json.JSONObject;
 
 public class ReleaseNotesPopup implements BaseHook {
@@ -27,6 +35,12 @@ public class ReleaseNotesPopup implements BaseHook {
       "https://api.github.com/repos/2b-zipper/Knot/releases/tags/";
   private static final String RELEASE_PAGE = "https://github.com/2b-zipper/Knot/releases/tag/";
   private static final int TIMEOUT_MS = 5000;
+  // [label](url), <url>, or a bare URL that stops before trailing punctuation as GitHub's does.
+  private static final Pattern LINK =
+      Pattern.compile(
+          "\\[([^\\]]+)\\]\\(([^)\\s]+)\\)"
+              + "|<(https?://[^>\\s]+)>"
+              + "|(https?://[\\p{Graph}&&[^<>()]]*[\\p{Graph}&&[^<>().,:;!?'\"*_~]])");
 
   private static volatile boolean handled;
 
@@ -65,15 +79,21 @@ public class ReleaseNotesPopup implements BaseHook {
   private static void show(Activity host, String notes) {
     if (host.isFinishing() || host.isDestroyed()) return;
     try {
-      LineTheme.applyDialogColors(
+      AlertDialog dialog =
           new AlertDialog.Builder(host, LineTheme.dialogTheme(host))
               .setTitle(ModuleResources.BRAND_NAME + " v" + BuildConfig.VERSION_NAME)
-              .setMessage(notes)
+              .setMessage(render(host, notes))
               .setPositiveButton(ModuleResources.get(R.string.common_close), null)
               .setNeutralButton(
-                  ModuleResources.get(R.string.release_notes_open), (d, w) -> openReleasePage(host))
-              .show(),
-          host);
+                  ModuleResources.get(R.string.release_notes_open),
+                  (d, w) -> openUrl(host, RELEASE_PAGE + tag()))
+              .show();
+      LineTheme.applyDialogColors(dialog, host);
+      TextView message = dialog.findViewById(android.R.id.message);
+      if (message != null) {
+        message.setMovementMethod(LinkMovementMethod.getInstance());
+        message.setLinkTextColor(LineTheme.linkColor(host));
+      }
       SettingsStore.save(SHOWN_VERSION_KEY, BuildConfig.VERSION_NAME);
     } catch (Throwable t) {
       Knot.log("Knot: release notes dialog failed: " + t);
@@ -84,9 +104,9 @@ public class ReleaseNotesPopup implements BaseHook {
     return "v" + BuildConfig.VERSION_NAME;
   }
 
-  private static void openReleasePage(Activity host) {
+  private static void openUrl(Activity host, String url) {
     try {
-      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(RELEASE_PAGE + tag()));
+      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       host.startActivity(intent);
     } catch (Throwable ignored) {
@@ -109,7 +129,7 @@ public class ReleaseNotesPopup implements BaseHook {
       }
 
       String notes = new JSONObject(body.toString("UTF-8")).optString("body", "");
-      return notes.isEmpty() || "null".equals(notes) ? null : toPlainText(notes);
+      return notes.isEmpty() || "null".equals(notes) ? null : notes;
     } catch (Throwable t) {
       Knot.log("Knot: release notes fetch failed: " + t);
       return null;
@@ -118,16 +138,45 @@ public class ReleaseNotesPopup implements BaseHook {
     }
   }
 
-  private static String toPlainText(String markdown) {
-    return markdown
-        .replace("\r\n", "\n")
-        .replaceAll("\\[([^\\]]+)\\]\\([^)]+\\)", "$1")
-        .replaceAll("(?m)^#{1,6}[ \t]*", "")
-        .replaceAll("(?m)^[ \t]*>[ \t]?", "")
-        .replaceAll("(?m)^[ \t]*[*-][ \t]+", "・")
-        .replace("**", "")
-        .replace("`", "")
-        .replaceAll("\n{3,}", "\n\n")
-        .trim();
+  private static CharSequence render(Activity host, String markdown) {
+    String text =
+        markdown
+            .replace("\r\n", "\n")
+            .replaceAll("(?m)^#{1,6}[ \t]*", "")
+            .replaceAll("(?m)^[ \t]*>[ \t]?", "")
+            .replaceAll("(?m)^[ \t]*[*-][ \t]+", "・")
+            .replace("**", "")
+            .replace("`", "")
+            .replaceAll("\n{3,}", "\n\n")
+            .trim();
+
+    SpannableStringBuilder out = new SpannableStringBuilder();
+    Matcher m = LINK.matcher(text);
+    int last = 0;
+    while (m.find()) {
+      out.append(text, last, m.start());
+      String label = m.group(1);
+      String url = m.group(2);
+      if (label == null) {
+        url = m.group(3) != null ? m.group(3) : m.group(4);
+        label = url;
+      }
+      int start = out.length();
+      out.append(label);
+      if (url.startsWith("https://") || url.startsWith("http://")) {
+        out.setSpan(link(host, url), start, out.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      last = m.end();
+    }
+    return out.append(text, last, text.length());
+  }
+
+  private static ClickableSpan link(Activity host, String url) {
+    return new ClickableSpan() {
+      @Override
+      public void onClick(View widget) {
+        openUrl(host, url);
+      }
+    };
   }
 }
