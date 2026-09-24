@@ -420,6 +420,14 @@ public class Version26130 {
     v.camera.schemeServiceActivity =
         "jp.naver.line.android.activity.schemeservice.LineSchemeServiceActivity";
 
+    v.callTone.toneSourceClass = "ty.g";
+    v.callTone.uriToneSourceClass = "ty.b";
+    v.callTone.methodToneUri = "a";
+    v.callTone.remoteRingbackClass = "ck7.b";
+    v.callTone.remoteRingbackContextField = "b";
+    v.callTone.remoteRingbackFallbackField = "d";
+    v.callTone.ringtoneWrapperClass = "ck7.c";
+
     v.muteMessage.labFeatureClass = "s58.d";
     v.muteMessage.methodIsFeatureEnabled = "c";
     v.muteMessage.silentMessageFeatureClass = "s58.w";

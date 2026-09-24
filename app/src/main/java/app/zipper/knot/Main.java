@@ -211,6 +211,8 @@ public class Main extends XposedModule {
       applyHook(new LineForegroundKeepAliveHook(), lpparam);
     }
     if (options.experimentalFcmFix.enabled) applyHook(new FcmFixHook(), lpparam);
+    if (options.disableCustomRingback.enabled) applyHook(new DisableCustomRingbackHook(), lpparam);
+    if (options.useCustomRingtone.enabled) applyHook(new CustomRingtoneHook(), lpparam);
     if (options.spoofVersion.enabled || options.spoofVersionUnsendOnly.enabled) {
       applyHook(new VersionSpoof(), lpparam);
     }

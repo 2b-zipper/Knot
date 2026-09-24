@@ -22,6 +22,7 @@ import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.HomeTabTypeHook;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -247,10 +248,18 @@ public final class SettingsPage {
     try {
       switch (item.key) {
         case "custom_font_path":
-          addPickerRow(
+          addFileRow(
               item,
               SettingsFilePickers.currentFontName(),
-              v -> SettingsFilePickers.openFontPicker(ctx));
+              () -> SettingsFilePickers.openFontPicker(ctx),
+              () -> SettingsFilePickers.clearFont(ctx));
+          break;
+        case "custom_ringtone_path":
+          addFileRow(
+              item,
+              SettingsFilePickers.currentRingtoneName(),
+              () -> SettingsFilePickers.openRingtonePicker(ctx),
+              () -> SettingsFilePickers.clearRingtone(ctx));
           break;
         case "home_tab_type":
           String homeType = SettingsStore.getString(item.key, "");
@@ -274,6 +283,33 @@ public final class SettingsPage {
 
   private void addPickerRow(KnotConfig.Item item, View.OnClickListener onClick) {
     addPickerRow(item, null, onClick);
+  }
+
+  private void addFileRow(KnotConfig.Item item, String fileName, Runnable pick, Runnable clear) {
+    boolean selected = new File(item.value).isFile();
+    addPickerRow(
+        item,
+        selected ? fileName : "",
+        v -> {
+          if (!selected) {
+            pick.run();
+          } else {
+            openFileActions(fileName.isEmpty() ? item.label() : fileName, pick, clear);
+          }
+        });
+  }
+
+  private void openFileActions(String title, Runnable pick, Runnable clear) {
+    String[] actions = {
+      ModuleResources.get(R.string.file_choose_other), ModuleResources.get(R.string.file_clear)
+    };
+    LineTheme.applyDialogColors(
+        new AlertDialog.Builder(ctx, LineTheme.dialogTheme(ctx))
+            .setTitle(title)
+            .setItems(actions, (d, which) -> (which == 0 ? pick : clear).run())
+            .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
+            .show(),
+        ctx);
   }
 
   private void addPickerRow(
@@ -352,7 +388,7 @@ public final class SettingsPage {
     if (registered != null) registered.enabled = enabled;
   }
 
-  private static void saveItem(String key, String value) {
+  static void saveItem(String key, String value) {
     SettingsStore.save(key, value);
     KnotConfig.Item registered = Main.options.find(key);
     if (registered != null) registered.value = value;

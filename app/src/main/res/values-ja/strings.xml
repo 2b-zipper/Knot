@@ -40,6 +40,7 @@
     <string name="sec_header_btn">ヘッダボタン</string>
     <string name="sec_font">フォント</string>
     <string name="sec_theme">テーマ</string>
+    <string name="sec_call">通話</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">LINEの再起動が必要です</string>
     <string name="opt_restart_label">LINEを再起動</string>
@@ -167,6 +168,8 @@
     <string name="opt_use_custom_font_desc">選択したフォントファイルをアプリ全体に適用します。反映にはアプリの再起動が必要です。</string>
     <string name="opt_custom_font_path_label">フォントファイルを選択</string>
     <string name="opt_custom_font_path_desc">使用するフォントファイル (.ttf / .otf) を選択します。</string>
+    <string name="file_choose_other">別のファイルを選択</string>
+    <string name="file_clear">削除</string>
     <string name="opt_use_amoled_theme_label">AMOLEDテーマを適用する</string>
     <string name="opt_use_amoled_theme_desc">AMOLEDテーマを適用します。\"ダークモードでは「ブラック」着せかえを適用\"をオフにする必要があります。メニューやダイアログもAMOLEDの配色に揃えます。</string>
     <string name="opt_force_dark_mode_ui_label">着せかえ適用中もダークモードUIを維持</string>
@@ -193,6 +196,16 @@
     <string name="fcm_force_registration_failed">FCMトークンの再登録を開始できませんでした</string>
     <string name="opt_line_foreground_keep_alive_label">LINEを常にフォアグラウンドサービス化する</string>
     <string name="opt_line_foreground_keep_alive_desc">バッテリー使用量が増加する可能性がありますが、FCMFixがタスクキル後も動作します。非root環境で通知が届かなくなる問題の回避に有効です。Knotアップデート時は強制停止か一時停止が必要になる場合があります。</string>
+    <string name="opt_disable_custom_ringback_label">相手の呼出音を無効化</string>
+    <string name="opt_disable_custom_ringback_desc">発信時に、相手が設定した曲ではなくデフォルトの呼出音を流します。</string>
+    <string name="opt_use_custom_ringtone_label">着信音を差し替える</string>
+    <string name="opt_use_custom_ringtone_desc">LINE通話の着信音として、選択した音声ファイルを再生します。</string>
+    <string name="opt_custom_ringtone_path_label">着信音ファイルを選択</string>
+    <string name="opt_custom_ringtone_path_desc">着信音として使用する音声ファイルを選択します。</string>
+    <string name="ringtone_editor_title">着信音</string>
+    <string name="ringtone_editor_unsupported">この音声ファイルは使用できません。</string>
+    <string name="ringtone_editor_save">保存</string>
+    <string name="ringtone_editor_saving">保存中…</string>
     <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">送信取り消しの時間制限を延長</string>
     <string name="opt_spoof_version_unsend_only_desc">送信取り消し時のみバージョンを15.12.2に偽装し、1時間の時間制限を24時間に戻します。</string>

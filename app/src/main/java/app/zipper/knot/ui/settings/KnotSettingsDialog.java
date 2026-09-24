@@ -5,14 +5,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -70,11 +66,13 @@ public final class KnotSettingsDialog {
   }
 
   public static void onActivityResumed(Activity activity) {
+    RingtoneEditor.onActivityResumed(activity);
     KnotSettingsDialog current = active;
     if (current != null && current.host != activity) current.dismissNow();
   }
 
   public static void onActivityDestroyed(Activity activity) {
+    RingtoneEditor.onActivityDestroyed(activity);
     KnotSettingsDialog current = active;
     if (current != null && current.host == activity) current.dismissNow();
   }
@@ -107,36 +105,11 @@ public final class KnotSettingsDialog {
 
     View content = buildContent();
     dialog.setContentView(content);
-    applyWindowDecoration();
+    SettingsViews.applyFullScreenWindow(dialog, host);
 
     content.setTranslationX(host.getResources().getDisplayMetrics().widthPixels);
     dialog.show();
     SettingsViews.slide(content, 0, OPEN_ANIM_MS, null);
-  }
-
-  private void applyWindowDecoration() {
-    Window win = dialog.getWindow();
-    if (win == null) return;
-
-    win.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-    win.setDimAmount(0);
-    win.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-    win.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-    win.setStatusBarColor(Color.TRANSPARENT);
-
-    int visibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-    if (!LineTheme.isDark(host)) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        visibility |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-      }
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        visibility |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-      }
-    }
-    win.getDecorView().setSystemUiVisibility(visibility);
-    win.getDecorView().setPadding(0, 0, 0, 0);
-    win.getDecorView().requestApplyInsets();
   }
 
   void close() {

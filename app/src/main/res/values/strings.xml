@@ -45,6 +45,7 @@
     <string name="sec_header_btn">Header buttons</string>
     <string name="sec_font">Font</string>
     <string name="sec_theme">Theme</string>
+    <string name="sec_call">Calls</string>
 
     <!-- Restart / warnings -->
     <string name="manager_restart_required">LINE needs to be restarted</string>
@@ -191,6 +192,8 @@
     <string name="opt_use_custom_font_desc">Applies the selected font file across the whole app. Restart the app for it to take effect.</string>
     <string name="opt_custom_font_path_label">Select a font file</string>
     <string name="opt_custom_font_path_desc">Choose the font file (.ttf / .otf) to use.</string>
+    <string name="file_choose_other">Choose another file</string>
+    <string name="file_clear">Delete</string>
 
     <string name="opt_use_amoled_theme_label">Apply the AMOLED theme</string>
     <string name="opt_use_amoled_theme_desc">Applies the AMOLED theme. You have to turn off \"Apply the Black theme in dark mode\". Menus and dialogs are matched to the AMOLED palette as well.</string>
@@ -227,6 +230,16 @@
     <string name="fcm_force_registration_failed">Could not start FCM token re-registration</string>
     <string name="opt_line_foreground_keep_alive_label">Always run LINE as a foreground service</string>
     <string name="opt_line_foreground_keep_alive_desc">May increase battery use, but keeps FCM Fix working after the task is killed. Useful when notifications stop arriving on non-rooted devices. You may need to force stop or pause it when updating Knot.</string>
+    <string name="opt_disable_custom_ringback_label">Disable others\' custom ringback tones</string>
+    <string name="opt_disable_custom_ringback_desc">When you call someone, plays the default ringback tone instead of the song they set.</string>
+    <string name="opt_use_custom_ringtone_label">Use a custom ringtone</string>
+    <string name="opt_use_custom_ringtone_desc">Plays the selected audio file as the ringtone for incoming LINE calls.</string>
+    <string name="opt_custom_ringtone_path_label">Select a ringtone file</string>
+    <string name="opt_custom_ringtone_path_desc">Choose the audio file to use as the ringtone.</string>
+    <string name="ringtone_editor_title">Ringtone</string>
+    <string name="ringtone_editor_unsupported">This audio file can\'t be used.</string>
+    <string name="ringtone_editor_save">Save</string>
+    <string name="ringtone_editor_saving">Saving…</string>
 
     <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">Extend the unsend time limit</string>

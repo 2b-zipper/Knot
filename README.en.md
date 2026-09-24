@@ -52,6 +52,7 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 ### Notifications
 - **Reaction notifications**: Get notified when someone reacts to your messages.
 - **Hide the "Mute" notification button**: Removes the "Mute" button shown on LINE notifications.
+- **Custom call ringtones**: Replace the LINE call ringtone with any audio file, or hear the default ringback tone instead of the one the other person set.
 - **Fix delayed or missing notifications (FCM Fix)**: To keep notifications from going missing on non-rooted devices, Knot hands FCM message handling directly to the service and can keep LINE running as a foreground service at all times.
 
 ## Installation

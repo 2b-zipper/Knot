@@ -42,6 +42,7 @@ public class LineVersion {
     public ChatEditSelectAll chatEditSelectAll = new ChatEditSelectAll();
     public MessageEditHistory messageEditHistory = new MessageEditHistory();
     public Camera camera = new Camera();
+    public CallTone callTone = new CallTone();
     public MuteMessage muteMessage = new MuteMessage();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
@@ -97,6 +98,16 @@ public class LineVersion {
       public String captureChooserClass = "";
       public String methodShowCaptureChooser = "";
       public String schemeServiceActivity = "";
+    }
+
+    public static class CallTone {
+      public String toneSourceClass = "";
+      public String uriToneSourceClass = "";
+      public String methodToneUri = "";
+      public String remoteRingbackClass = "";
+      public String remoteRingbackContextField = "";
+      public String remoteRingbackFallbackField = "";
+      public String ringtoneWrapperClass = "";
     }
 
     public static class MuteMessage {
