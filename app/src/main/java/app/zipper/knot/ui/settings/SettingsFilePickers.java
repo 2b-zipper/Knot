@@ -16,7 +16,6 @@ import app.zipper.knot.Main;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
-import app.zipper.knot.utils.AacWriter;
 import app.zipper.knot.utils.FontFileUtil;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
@@ -24,7 +23,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
 public final class SettingsFilePickers {
@@ -172,30 +170,19 @@ public final class SettingsFilePickers {
         host,
         ringtoneUri,
         fileBaseName(host, ringtoneUri),
-        (startUs, endUs, gain, title) ->
-            importRingtone(appCtx, ringtoneUri, title, startUs, endUs, gain));
+        (encoded, title) -> importRingtone(appCtx, encoded, title));
   }
 
-  private static boolean importRingtone(
-      Context ctx, Uri ringtoneUri, String name, long startUs, long endUs, double gain) {
+  private static boolean importRingtone(Context ctx, File encoded, String name) {
+    if (Thread.currentThread().isInterrupted()) return false;
     File out = new File(ctx.getFilesDir(), RINGTONE_FILE);
-    File temp = new File(out.getPath() + ".tmp");
-    try {
-      AacWriter.write(ctx, ringtoneUri, startUs, endUs, gain, temp);
-      if (Thread.currentThread().isInterrupted()) return false;
-      if (!temp.renameTo(out)) throw new IOException("rename failed");
-
-      storeFile(RINGTONE_PATH_KEY, RINGTONE_NAME_KEY, out.getAbsolutePath(), name);
-      new Handler(Looper.getMainLooper()).post(KnotSettingsDialog::notifyConfigChanged);
-      return true;
-    } catch (InterruptedIOException e) {
+    if (!encoded.renameTo(out)) {
+      Knot.log("Knot: Failed to import ringtone file: rename failed");
       return false;
-    } catch (Throwable t) {
-      Knot.log("Knot: Failed to import ringtone file: " + t.getMessage());
-      return false;
-    } finally {
-      temp.delete();
     }
+    storeFile(RINGTONE_PATH_KEY, RINGTONE_NAME_KEY, out.getAbsolutePath(), name);
+    new Handler(Looper.getMainLooper()).post(KnotSettingsDialog::notifyConfigChanged);
+    return true;
   }
 
   public static String currentRingtoneName() {

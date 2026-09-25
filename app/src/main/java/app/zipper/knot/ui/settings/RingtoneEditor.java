@@ -15,9 +15,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.media.AudioAttributes;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,15 +31,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import app.zipper.knot.Knot;
 import app.zipper.knot.R;
+import app.zipper.knot.utils.AacWriter;
 import app.zipper.knot.utils.AudioAnalysis;
+import app.zipper.knot.utils.CompressedAudio;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
+import app.zipper.knot.utils.PcmPlayer;
+import java.io.File;
+import java.io.InterruptedIOException;
 import java.util.Locale;
 
 final class RingtoneEditor {
 
   interface Saver {
-    boolean save(long startUs, long endUs, double gain, String title);
+    boolean save(File encoded, String title);
   }
 
   // LINE's built-in ringtone (raw/original) measures -23.5 dBFS by AudioAnalysis.
@@ -73,8 +76,9 @@ final class RingtoneEditor {
   private View artFrame;
   private View waveform;
   private View labels;
+  private CompressedAudio source;
   private AudioAnalysis audio;
-  private MediaPlayer preview;
+  private PcmPlayer preview;
   private Thread saveThread;
 
   private final Runnable tick =
@@ -82,12 +86,11 @@ final class RingtoneEditor {
         @Override
         public void run() {
           if (preview == null) return;
-          long us = preview.getCurrentPosition() * 1000L;
-          if (!preview.isPlaying() || us >= range.endUs()) {
+          if (preview.isFinished()) {
             stopPreview();
             return;
           }
-          range.setPlayhead(us);
+          range.setPlayhead(preview.positionUs());
           uiHandler.postDelayed(this, TICK_MS);
         }
       };
@@ -310,16 +313,16 @@ final class RingtoneEditor {
   }
 
   private void loadAudio() {
-    AudioAnalysis analysis = null;
     try {
-      analysis = AudioAnalysis.analyze(host, uri);
+      CompressedAudio compressed = CompressedAudio.read(host, uri);
+      AudioAnalysis analysis = AudioAnalysis.analyze(compressed);
+      uiHandler.post(() -> onAudioLoaded(compressed, analysis));
     } catch (Throwable t) {
       if (!Thread.currentThread().isInterrupted()) {
         Knot.log("Knot: Failed to analyze ringtone audio: " + t);
       }
+      uiHandler.post(() -> onAudioLoaded(null, null));
     }
-    AudioAnalysis loaded = analysis;
-    uiHandler.post(() -> onAudioLoaded(loaded));
   }
 
   private void showTrackInfo(TrackInfo info) {
@@ -334,7 +337,7 @@ final class RingtoneEditor {
     }
   }
 
-  private void onAudioLoaded(AudioAnalysis analysis) {
+  private void onAudioLoaded(CompressedAudio compressed, AudioAnalysis analysis) {
     if (!dialog.isShowing()) return;
     progress.setVisibility(View.GONE);
     if (analysis == null) {
@@ -342,6 +345,7 @@ final class RingtoneEditor {
       status.setVisibility(View.VISIBLE);
       return;
     }
+    source = compressed;
     audio = analysis;
     range.setAudio(analysis);
     playButton.setEnabled(true);
@@ -352,47 +356,20 @@ final class RingtoneEditor {
     return audio.levelingGain(range.startUs(), range.endUs(), TARGET_LOUDNESS_DB);
   }
 
-  // MediaPlayer cannot amplify, so the preview only reflects leveling that lowers the volume.
   private void togglePreview() {
     if (preview != null) {
       stopPreview();
       return;
     }
-    MediaPlayer player = new MediaPlayer();
-    preview = player;
+    preview = new PcmPlayer(source, range.startUs(), range.endUs(), levelingGain());
     playButton.setPlaying(true);
-    try {
-      player.setAudioAttributes(
-          new AudioAttributes.Builder()
-              .setUsage(AudioAttributes.USAGE_MEDIA)
-              .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-              .build());
-      player.setDataSource(host, uri);
-      float volume = (float) Math.min(1, levelingGain());
-      player.setVolume(volume, volume);
-      player.setOnErrorListener(
-          (mp, what, extra) -> {
-            Knot.log("Knot: Ringtone preview error: " + what + ", " + extra);
-            stopPreview();
-            return true;
-          });
-      player.setOnPreparedListener(
-          mp -> {
-            mp.seekTo(range.startUs() / 1000, MediaPlayer.SEEK_CLOSEST);
-            mp.start();
-            uiHandler.post(tick);
-          });
-      player.prepareAsync();
-    } catch (Throwable t) {
-      Knot.log("Knot: Ringtone preview failed: " + t);
-      stopPreview();
-    }
+    uiHandler.post(tick);
   }
 
   private void stopPreview() {
     uiHandler.removeCallbacks(tick);
     if (preview != null) {
-      preview.release();
+      preview.stop();
       preview = null;
     }
     range.setPlayhead(-1);
@@ -411,10 +388,26 @@ final class RingtoneEditor {
     saveThread =
         new Thread(
             () -> {
-              boolean saved = saver.save(startUs, endUs, gain, name);
+              boolean saved = encodeAndSave(startUs, endUs, gain, name);
               uiHandler.post(() -> onSaved(saved));
             });
     saveThread.start();
+  }
+
+  private boolean encodeAndSave(long startUs, long endUs, double gain, String name) {
+    File encoded = null;
+    try {
+      encoded = File.createTempFile("knot_ringtone_", ".m4a", host.getCacheDir());
+      AacWriter.write(source, startUs, endUs, gain, encoded);
+      return saver.save(encoded, name);
+    } catch (InterruptedIOException e) {
+      return false;
+    } catch (Throwable t) {
+      Knot.log("Knot: Failed to encode ringtone: " + t);
+      return false;
+    } finally {
+      if (encoded != null) encoded.delete();
+    }
   }
 
   private void onSaved(boolean saved) {
