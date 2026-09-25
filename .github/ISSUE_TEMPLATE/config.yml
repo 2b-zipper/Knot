@@ -1,6 +1,5 @@
 blank_issues_enabled: true
 contact_links:
-  - name: リリースページ
+  - name: リリースページ / Releases
     url: https://github.com/2b-zipper/Knot/releases
-    about: 最新バージョンはこちらからダウンロードできます
-
+    about: 最新バージョンはこちらからダウンロードできます / Download the latest version here
