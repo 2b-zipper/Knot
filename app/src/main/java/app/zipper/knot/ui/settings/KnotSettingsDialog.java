@@ -217,10 +217,33 @@ public final class KnotSettingsDialog {
           searchBar.refreshHint();
           refreshNavHeader();
           String query = searchBar.query();
+          int scrollY = itemHost.getChildCount() > 0 ? itemHost.getChildAt(0).getScrollY() : 0;
           View page = buildPage(query);
           itemHost.removeAllViews();
           itemHost.addView(page);
           SettingsPage.filter(page, query);
+          restoreScroll(page, scrollY);
+        });
+  }
+
+  private static void restoreScroll(View page, int scrollY) {
+    if (scrollY == 0) return;
+    page.addOnLayoutChangeListener(
+        new View.OnLayoutChangeListener() {
+          @Override
+          public void onLayoutChange(
+              View v,
+              int left,
+              int top,
+              int right,
+              int bottom,
+              int oldLeft,
+              int oldTop,
+              int oldRight,
+              int oldBottom) {
+            v.removeOnLayoutChangeListener(this);
+            v.scrollTo(0, scrollY);
+          }
         });
   }
 
