@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,7 +40,6 @@ public class UnsendProtector implements BaseHook {
   private static final Map<String, String> unsendEvents = new ConcurrentHashMap<>();
   private static final Map<String, WeakReference<TextView>> timestampViews =
       new ConcurrentHashMap<>();
-  private static volatile Bitmap indicatorIcon;
   private static volatile Bitmap tintedIndicator;
   private static volatile int tintedIndicatorPx;
   private static Toast currentToast;
@@ -450,22 +448,12 @@ public class UnsendProtector implements BaseHook {
     Bitmap cached = tintedIndicator;
     if (cached != null && tintedIndicatorPx == sizePx) return cached;
 
-    Bitmap raw = resolveIndicatorIcon();
+    Bitmap raw = ModuleResources.bitmap("message_off", sizePx);
     if (raw == null) return null;
-    Bitmap built = applyTint(Bitmap.createScaledBitmap(raw, sizePx, sizePx, true), Color.RED);
+    Bitmap built = applyTint(raw, Color.RED);
     tintedIndicatorPx = sizePx;
     tintedIndicator = built;
     return built;
-  }
-
-  private static Bitmap resolveIndicatorIcon() {
-    if (indicatorIcon != null) return indicatorIcon;
-    try {
-      Drawable d = ModuleResources.drawable("message_off");
-      if (d instanceof BitmapDrawable) indicatorIcon = ((BitmapDrawable) d).getBitmap();
-    } catch (Exception ignored) {
-    }
-    return indicatorIcon;
   }
 
   private static Bitmap applyTint(Bitmap src, int color) {

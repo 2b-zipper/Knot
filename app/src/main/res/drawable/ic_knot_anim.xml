@@ -9,7 +9,5 @@
     <target android:name="strandB"     android:animation="@animator/knot_strand_b" />
     <target android:name="cutB_right"  android:animation="@animator/knot_cut_b_right" />
     <target android:name="cutB_left"   android:animation="@animator/knot_cut_b_left" />
-    <target android:name="aOverRight"  android:animation="@animator/knot_cut_b_right" />
-    <target android:name="aOverLeft"   android:animation="@animator/knot_cut_b_left" />
 
 </animated-vector>

@@ -1,5 +1,5 @@
-name: 機能要望
-description: 新機能や改善のアイデアを提案してください
+name: 機能要望 / Feature request
+description: 新機能や改善のアイデアを提案してください / Suggest a new feature or an improvement
 title: "[Feature]: "
 labels: ["enhancement"]
 assignees: []
@@ -8,56 +8,57 @@ body:
     attributes:
       value: |
         機能リクエストありがとうございます。以下の項目をご記入ください。
+        Thank you for your feature request. Please fill in the fields below.
 
   - type: textarea
     id: problem
     attributes:
-      label: 解決したい課題
-      description: 現在どのような問題や不便を感じているか記載してください
-      placeholder: "例：特定のトークでのみ既読回避を無効化したい"
+      label: 解決したい課題 / Problem
+      description: 現在どのような問題や不便を感じているか記載してください / Describe the problem or inconvenience you are facing
+      placeholder: "例：特定のトークでのみ既読回避を無効化したい / e.g. I want to turn off read avoidance for specific chats only"
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: 提案する機能
-      description: 具体的にどのような機能があればよいか記載してください
-      placeholder: "例：トークごとに既読回避のON/OFFを切り替えられる設定を追加"
+      label: 提案する機能 / Proposed feature
+      description: 具体的にどのような機能があればよいか記載してください / Describe the feature you would like
+      placeholder: "例：トークごとに既読回避のON/OFFを切り替えられる設定を追加 / e.g. Add a setting to turn read avoidance on or off per chat"
     validations:
       required: true
 
   - type: dropdown
     id: category
     attributes:
-      label: カテゴリ
-      description: この機能リクエストのカテゴリを選択してください
+      label: カテゴリ / Category
+      description: この機能リクエストのカテゴリを選択してください / Select the category of this request
       options:
-        - メッセージ
-        - 画面表示 & UI
-        - 通知
-        - その他
+        - メッセージ / Messages
+        - 画面表示 & UI / Appearance & UI
+        - 通知 / Notifications
+        - その他 / Other
 
   - type: textarea
     id: alternatives
     attributes:
-      label: 代替案
-      description: 検討した他の解決策があれば記載してください
+      label: 代替案 / Alternatives
+      description: 検討した他の解決策があれば記載してください / Describe any other solutions you have considered
 
   - type: dropdown
     id: priority
     attributes:
-      label: 優先度
-      description: この機能の優先度を選択してください
+      label: 優先度 / Priority
+      description: この機能の優先度を選択してください / Select the priority of this feature
       options:
-        - 低（あると便利）
-        - 中（普段使いで不便）
-        - 高（ぜひ使いたい）
+        - 低（あると便利） / Low (nice to have)
+        - 中（普段使いで不便） / Medium (inconvenient in daily use)
+        - 高（ぜひ使いたい） / High (really want it)
     validations:
       required: true
 
   - type: textarea
     id: additional
     attributes:
-      label: 補足事項
-      description: 参考情報や画面イメージなどがあれば記載してください
+      label: 補足事項 / Additional information
+      description: 参考情報や画面イメージなどがあれば記載してください / Add any references or mockups here

@@ -8,6 +8,5 @@
     <color name="knot_accent">#06C755</color>
     <color name="knot_on_accent">#FFFFFF</color>
     <color name="knot_splash_background">#121212</color>
-    <color name="knot_logo_cut">#121212</color>
     <color name="knot_ripple">#26FFFFFF</color>
 </resources>

@@ -1,11 +1,9 @@
 package app.zipper.knot.utils;
 
-import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
-import android.net.Uri;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -43,10 +41,10 @@ public final class AacWriter implements PcmDecoder.Sink, AutoCloseable {
   private double phase;
   private long frames;
 
-  public static void write(Context ctx, Uri source, long startUs, long endUs, double gain, File out)
+  public static void write(CompressedAudio source, long startUs, long endUs, double gain, File out)
       throws IOException {
     try (AacWriter writer = new AacWriter(out, gain)) {
-      PcmDecoder.decode(ctx, source, startUs, endUs, writer);
+      PcmDecoder.decode(source, startUs, endUs, writer);
       writer.finish();
     }
   }

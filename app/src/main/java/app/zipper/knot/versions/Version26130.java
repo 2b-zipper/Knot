@@ -289,6 +289,7 @@ public class Version26130 {
     v.searchBarAgentI.miniTabAgentMethod = "o";
     v.searchBarAgentI.commerceHeaderClass = "bz1.y";
     v.searchBarAgentI.commerceHeaderMethod = "e";
+    v.searchBarAgentI.imageViewerAiButtonClass = "h08.v0";
     v.home26NavIcon.rendererClass = "ve2.l";
     v.home26NavIcon.rendererMethod = "b";
     v.home26NavIcon.agentDrawableId = 0x7f080b88;

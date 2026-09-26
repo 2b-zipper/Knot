@@ -178,23 +178,7 @@ public class HeaderButtonInjector implements BaseHook {
           (Context) Reflect.getObjectField(controller, config.main.fieldChatActivity);
       if (context == null) return;
 
-      Drawable icon = null;
-      try {
-        icon = ModuleResources.drawable("ic_book");
-        if (icon != null) {
-          int size = (int) (24 * context.getResources().getDisplayMetrics().density);
-          android.graphics.Bitmap bitmap =
-              android.graphics.Bitmap.createBitmap(
-                  size, size, android.graphics.Bitmap.Config.ARGB_8888);
-          android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
-          icon.setBounds(0, 0, size, size);
-          icon.draw(canvas);
-          icon = new android.graphics.drawable.BitmapDrawable(context.getResources(), bitmap);
-        }
-      } catch (Throwable t) {
-        Knot.log("Knot: icon load error: " + t.getMessage());
-      }
-
+      Drawable icon = ModuleResources.drawable("ic_book");
       if (icon == null) return;
 
       // Use stable setButtonImageViewDrawable API to avoid per-version config

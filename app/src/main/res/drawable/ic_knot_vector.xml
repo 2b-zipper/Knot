@@ -5,78 +5,44 @@
     android:viewportWidth="200"
     android:viewportHeight="200">
 
-<path
-        android:name="strandA"
-        android:pathData="M92.22,61.11 L138.89,107.78 A22,22,0,0,1,107.78,138.89 L61.11,92.22 A22,22,0,0,1,92.22,61.11 Z"
-        android:fillColor="#00000000"
-        android:strokeColor="#00DE7D"
-        android:strokeWidth="13"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:trimPathEnd="0" />
+    <group>
+        <clip-path
+            android:name="cutA_top"
+            android:pathData="M0,0 H200 V200 H0 Z M89.18,90.74 L94.7,85.22 A7.8,7.8,0,0,0,83.67,74.19 L78.15,79.71 Z" />
+        <group>
+            <clip-path
+                android:name="cutA_bottom"
+                android:pathData="M0,0 H200 V200 H0 Z M110.82,109.26 L105.3,114.78 A7.8,7.8,0,0,0,116.33,125.81 L121.85,120.29 Z" />
+            <path
+                android:name="strandA"
+                android:pathData="M92.22,61.11 L138.89,107.78 A22,22,0,0,1,107.78,138.89 L61.11,92.22 A22,22,0,0,1,92.22,61.11 Z"
+                android:fillColor="#00000000"
+                android:strokeColor="#00DE7D"
+                android:strokeWidth="13"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:trimPathEnd="0" />
+        </group>
+    </group>
 
-    <path
-        android:name="cutA_top"
-        android:pathData="M91.73,77.16 L108.27,60.62"
-        android:fillColor="#00000000"
-        android:strokeColor="@color/knot_logo_cut"
-        android:strokeWidth="15.6"
-        android:strokeLineCap="butt"
-        android:strokeAlpha="0" />
-
-    <path
-        android:name="cutA_bottom"
-        android:pathData="M91.73,139.38 L108.27,122.84"
-        android:fillColor="#00000000"
-        android:strokeColor="@color/knot_logo_cut"
-        android:strokeWidth="15.6"
-        android:strokeLineCap="butt"
-        android:strokeAlpha="0" />
-
-    <path
-        android:name="strandB"
-        android:pathData="M61.11,107.78 L107.78,61.11 A22,22,0,0,1,138.89,92.22 L92.22,138.89 A22,22,0,0,1,61.11,107.78 Z"
-        android:fillColor="#00000000"
-        android:strokeColor="#00DE7D"
-        android:strokeWidth="13"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:trimPathEnd="0" />
-
-    <path
-        android:name="cutB_right"
-        android:pathData="M122.84,91.73 L139.38,108.27"
-        android:fillColor="#00000000"
-        android:strokeColor="@color/knot_logo_cut"
-        android:strokeWidth="15.6"
-        android:strokeLineCap="butt"
-        android:strokeAlpha="0" />
-
-    <path
-        android:name="cutB_left"
-        android:pathData="M60.62,91.73 L77.16,108.27"
-        android:fillColor="#00000000"
-        android:strokeColor="@color/knot_logo_cut"
-        android:strokeWidth="15.6"
-        android:strokeLineCap="butt"
-        android:strokeAlpha="0" />
-
-    <path
-        android:name="aOverRight"
-        android:pathData="M122.84,91.73 L139.38,108.27"
-        android:fillColor="#00000000"
-        android:strokeColor="#00DE7D"
-        android:strokeWidth="13"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0" />
-
-    <path
-        android:name="aOverLeft"
-        android:pathData="M60.62,91.73 L77.16,108.27"
-        android:fillColor="#00000000"
-        android:strokeColor="#00DE7D"
-        android:strokeWidth="13"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0" />
+    <group>
+        <clip-path
+            android:name="cutB_right"
+            android:pathData="M0,0 H200 V200 H0 Z M109.26,89.18 L114.78,94.7 A7.8,7.8,0,0,0,125.81,83.67 L120.29,78.15 Z" />
+        <group>
+            <clip-path
+                android:name="cutB_left"
+                android:pathData="M0,0 H200 V200 H0 Z M90.74,110.82 L85.22,105.3 A7.8,7.8,0,0,0,74.19,116.33 L79.71,121.85 Z" />
+            <path
+                android:name="strandB"
+                android:pathData="M61.11,107.78 L107.78,61.11 A22,22,0,0,1,138.89,92.22 L92.22,138.89 A22,22,0,0,1,61.11,107.78 Z"
+                android:fillColor="#00000000"
+                android:strokeColor="#00DE7D"
+                android:strokeWidth="13"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:trimPathEnd="0" />
+        </group>
+    </group>
 
 </vector>

@@ -1,11 +1,8 @@
 package app.zipper.knot.utils;
 
-import android.content.Context;
 import android.media.AudioFormat;
 import android.media.MediaCodec;
-import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.net.Uri;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
@@ -21,23 +18,21 @@ public final class PcmDecoder {
 
   private static final long TIMEOUT_US = 10_000;
   private static final int MAX_IDLE_POLLS = 200;
+  // Starting early lets codecs that carry state across frames settle before startUs.
+  private static final long PREROLL_US = 200_000;
 
   private PcmDecoder() {}
 
-  public static void decode(Context ctx, Uri uri, long startUs, long endUs, Sink sink)
+  public static void decode(CompressedAudio source, long startUs, long endUs, Sink sink)
       throws IOException {
-    MediaExtractor extractor = new MediaExtractor();
-    MediaCodec codec = null;
+    MediaCodec codec = MediaCodec.createDecoderByType(source.mime());
     try {
-      extractor.setDataSource(ctx, uri, null);
-      MediaFormat format = selectAudioTrack(extractor);
-      if (startUs > 0) extractor.seekTo(startUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-      codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME));
-      codec.configure(format, null, null, 0);
+      codec.configure(source.format, null, null, 0);
       codec.start();
 
-      Pcm pcm = new Pcm(format);
+      Pcm pcm = new Pcm(source.format);
       MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+      int next = source.indexAtOrBefore(startUs - PREROLL_US);
       boolean inputDone = false;
       int idlePolls = 0;
       while (idlePolls < MAX_IDLE_POLLS) {
@@ -48,7 +43,7 @@ public final class PcmDecoder {
         while (!inputDone) {
           int in = codec.dequeueInputBuffer(0);
           if (in < 0) break;
-          inputDone = queueSample(extractor, codec, in, endUs);
+          inputDone = queueSample(source, next++, codec, in, endUs);
           fed = true;
         }
         int out = codec.dequeueOutputBuffer(info, fed ? 0 : TIMEOUT_US);
@@ -76,33 +71,20 @@ public final class PcmDecoder {
       }
       throw new IOException("decoder stalled");
     } finally {
-      if (codec != null) codec.release();
-      extractor.release();
+      codec.release();
     }
-  }
-
-  private static MediaFormat selectAudioTrack(MediaExtractor extractor) throws IOException {
-    for (int i = 0; i < extractor.getTrackCount(); i++) {
-      MediaFormat format = extractor.getTrackFormat(i);
-      String mime = format.getString(MediaFormat.KEY_MIME);
-      if (mime != null && mime.startsWith("audio/")) {
-        extractor.selectTrack(i);
-        return format;
-      }
-    }
-    throw new IOException("no audio track");
   }
 
   private static boolean queueSample(
-      MediaExtractor extractor, MediaCodec codec, int in, long endUs) {
-    int size = extractor.readSampleData(codec.getInputBuffer(in), 0);
-    long time = extractor.getSampleTime();
-    if (size < 0 || time > endUs) {
+      CompressedAudio source, int index, MediaCodec codec, int in, long endUs) {
+    if (index >= source.count() || source.timeUs(index) > endUs) {
       codec.queueInputBuffer(in, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
       return true;
     }
-    codec.queueInputBuffer(in, 0, size, time, 0);
-    extractor.advance();
+    ByteBuffer buffer = codec.getInputBuffer(in);
+    buffer.clear();
+    int size = source.copySample(index, buffer);
+    codec.queueInputBuffer(in, 0, size, source.timeUs(index), 0);
     return false;
   }
 

@@ -128,29 +128,17 @@ final class RingtoneRangeView extends View {
   protected void onDraw(Canvas canvas) {
     if (audio == null) return;
     float baseline = getHeight() - knobRadius - knobRingPaint.getStrokeWidth();
-    float waveHeight = baseline - knobRadius;
+    float left = xOf(startUs);
+    float right = xOf(endUs);
 
-    canvas.drawRect(xOf(startUs), 0, xOf(endUs), baseline, shadePaint);
-
-    double barUs = (barWidth + barGap) * usPerPx();
-    long first = (long) Math.floor(Math.max(0, scrollUs - knobRadius * usPerPx()) / barUs);
-    for (long bar = first; ; bar++) {
-      long fromUs = (long) (bar * barUs);
-      float x = xOf(fromUs);
-      if (fromUs >= audio.durationUs || x > getWidth()) break;
-      long toUs = (long) ((bar + 1) * barUs);
-      float height = Math.max(barWidth, audio.displayLevel(fromUs, toUs) * waveHeight);
-      boolean selected = toUs > startUs && fromUs < endUs;
-      canvas.drawRect(
-          x, baseline - height, x + barWidth, baseline, selected ? selectedBarPaint : barPaint);
-    }
-
+    canvas.drawRect(left, 0, right, baseline, shadePaint);
+    drawBars(canvas, baseline, left, right);
     canvas.drawLine(0, baseline, getWidth(), baseline, baselinePaint);
     if (playheadUs >= 0) {
       canvas.drawLine(xOf(playheadUs), 0, xOf(playheadUs), baseline, accentPaint);
     }
-    drawHandle(canvas, xOf(startUs), baseline);
-    drawHandle(canvas, xOf(endUs), baseline);
+    drawHandle(canvas, left, baseline);
+    drawHandle(canvas, right, baseline);
   }
 
   @Override
@@ -271,6 +259,29 @@ final class RingtoneRangeView extends View {
   private void changed() {
     invalidate();
     if (listener != null) listener.onRangeChanged(startUs, endUs);
+  }
+
+  private void drawBars(Canvas canvas, float baseline, float left, float right) {
+    float waveHeight = baseline - knobRadius;
+    double barUs = (barWidth + barGap) * usPerPx();
+    long first = (long) Math.floor(Math.max(0, scrollUs - knobRadius * usPerPx()) / barUs);
+    for (long bar = first; ; bar++) {
+      long fromUs = (long) (bar * barUs);
+      float x = xOf(fromUs);
+      if (fromUs >= audio.durationUs || x > getWidth()) break;
+      long toUs = (long) ((bar + 1) * barUs);
+      float top = baseline - Math.max(barWidth, audio.displayLevel(fromUs, toUs) * waveHeight);
+      float end = x + barWidth;
+      float selectedFrom = Math.max(x, left);
+      float selectedTo = Math.min(end, right);
+      if (selectedFrom >= selectedTo) {
+        canvas.drawRect(x, top, end, baseline, barPaint);
+        continue;
+      }
+      if (x < selectedFrom) canvas.drawRect(x, top, selectedFrom, baseline, barPaint);
+      canvas.drawRect(selectedFrom, top, selectedTo, baseline, selectedBarPaint);
+      if (selectedTo < end) canvas.drawRect(selectedTo, top, end, baseline, barPaint);
+    }
   }
 
   private void drawHandle(Canvas canvas, float x, float baseline) {

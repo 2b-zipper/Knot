@@ -1,5 +1,5 @@
-name: バグ報告
-description: バグを報告して改善にご協力ください
+name: バグ報告 / Bug report
+description: バグを報告して改善にご協力ください / Report a bug to help improve Knot
 title: "[Bug]: "
 labels: ["bug"]
 assignees: []
@@ -8,118 +8,119 @@ body:
     attributes:
       value: |
         バグ報告ありがとうございます。以下の項目をご記入ください。
+        Thank you for reporting a bug. Please fill in the fields below.
 
   - type: textarea
     id: description
     attributes:
-      label: バグの概要
-      description: 発生している問題を簡潔に説明してください
-      placeholder: 例：既読回避が機能しない
+      label: バグの概要 / Summary
+      description: 発生している問題を簡潔に説明してください / Briefly describe the problem
+      placeholder: 例：既読回避が機能しない / e.g. Read avoidance does not work
     validations:
       required: true
 
   - type: textarea
     id: steps
     attributes:
-      label: 再現手順
-      description: バグを再現する手順を記載してください
+      label: 再現手順 / Steps to reproduce
+      description: バグを再現する手順を記載してください / Describe the steps to reproduce the bug
       placeholder: |
-        1. 「...」画面を開く
-        2. 「...」ボタンをクリック
-        3. 「...」の操作を行う
-        4. エラーが発生する
+        1. 「...」画面を開く / Open the "..." screen
+        2. 「...」ボタンをクリック / Tap the "..." button
+        3. 「...」の操作を行う / Do "..."
+        4. エラーが発生する / The error occurs
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: 期待する動作
-      description: 本来どのように動作すべきか記載してください
-      placeholder: 例：メッセージを開いても相手に既読がつかない
+      label: 期待する動作 / Expected behavior
+      description: 本来どのように動作すべきか記載してください / Describe what should happen
+      placeholder: 例：メッセージを開いても相手に既読がつかない / e.g. Opening a message does not mark it as read
 
   - type: textarea
     id: actual
     attributes:
-      label: 実際の動作
-      description: 実際に発生した現象を記載してください
-      placeholder: 例：既読回避をONにしているのに既読がついてしまう
+      label: 実際の動作 / Actual behavior
+      description: 実際に発生した現象を記載してください / Describe what actually happens
+      placeholder: 例：既読回避をONにしているのに既読がついてしまう / e.g. Messages are marked as read even with read avoidance on
 
   - type: input
     id: version
     attributes:
-      label: Knotバージョン
-      description: 使用しているKnotのバージョン
-      placeholder: "例: 2.2.0-rc1"
+      label: Knotバージョン / Knot version
+      description: 使用しているKnotのバージョン / The Knot version you are using
+      placeholder: "例 / e.g.: 2.2.0-rc1"
     validations:
       required: true
 
   - type: input
     id: line_version
     attributes:
-      label: LINEバージョン
-      description: 使用しているLINEのバージョン
-      placeholder: "例: 26.11.0"
+      label: LINEバージョン / LINE version
+      description: 使用しているLINEのバージョン / The LINE version you are using
+      placeholder: "例 / e.g.: 26.11.0"
     validations:
       required: true
 
   - type: dropdown
     id: environment
     attributes:
-      label: 環境
-      description: 使用している環境を選択してください
+      label: 環境 / Environment
+      description: 使用している環境を選択してください / Select your environment
       options:
         - Root (LSPosed/Vector)
-        - 非Root (LSPatch/NPatch)
-        - その他
+        - 非Root / Non-root (LSPatch/NPatch)
+        - その他 / Other
     validations:
       required: true
 
   - type: input
     id: android_version
     attributes:
-      label: Androidバージョン
-      description: 使用しているAndroidのバージョン
-      placeholder: "例: Android 14"
+      label: Androidバージョン / Android version
+      description: 使用しているAndroidのバージョン / The Android version you are using
+      placeholder: "例 / e.g.: Android 14"
     validations:
       required: true
 
   - type: input
     id: xposed_env
     attributes:
-      label: Xposed環境
-      description: 使用しているXposedフレームワークとそのバージョン
-      placeholder: "例: LSPosed v1.9.3 / Vector / NPatch v1.0.5"
+      label: Xposed環境 / Xposed environment
+      description: 使用しているXposedフレームワークとそのバージョン / The Xposed framework you are using and its version
+      placeholder: "例 / e.g.: LSPosed v1.9.3 / Vector / NPatch v1.0.5"
 
   - type: input
     id: device
     attributes:
-      label: 端末
-      description: 使用している端末の機種名
-      placeholder: "例: Google Pixel 7"
+      label: 端末 / Device
+      description: 使用している端末の機種名 / Your device model
+      placeholder: "例 / e.g.: Google Pixel 7"
 
   - type: input
     id: feature
     attributes:
-      label: 影響を受ける機能
-      description: どの機能に問題があるか記載してください
-      placeholder: "例: 既読回避"
+      label: 影響を受ける機能 / Affected feature
+      description: どの機能に問題があるか記載してください / Which feature has the problem
+      placeholder: "例 / e.g.: 既読回避 / Read avoidance"
 
   - type: textarea
     id: logs
     attributes:
-      label: ログ・エラーメッセージ
-      description: LSPosed/Vector/NPatchのログや、logcat、エラーメッセージがあれば貼り付けてください
+      label: ログ・エラーメッセージ / Logs and error messages
+      description: LSPosed/Vector/NPatchのログや、logcat、エラーメッセージがあれば貼り付けてください / Paste any LSPosed/Vector/NPatch logs, logcat output or error messages
       render: shell
 
   - type: textarea
     id: screenshots
     attributes:
-      label: 画面キャプチャ
-      description: 問題の状況がわかるスクリーンショットがあれば添付してください
+      label: 画面キャプチャ / Screenshots
+      description: 問題の状況がわかるスクリーンショットがあれば添付してください / Attach screenshots that show the problem, if any
 
   - type: textarea
     id: additional
     attributes:
-      label: 補足事項
-      description: その他、補足情報があれば記載してください
+      label: 補足事項 / Additional information
+      description: その他、補足情報があれば記載してください / Add any other information here

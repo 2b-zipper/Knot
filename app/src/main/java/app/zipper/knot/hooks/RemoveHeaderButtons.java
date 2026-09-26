@@ -41,6 +41,7 @@ public class RemoveHeaderButtons implements BaseHook {
       hookMiniTabAgentButton(cfg, lpparam.classLoader);
       hookHome26AgentButton(cfg, lpparam.classLoader);
       hookCommerceTabAgentButton(cfg, lpparam.classLoader);
+      hookImageViewerAgentButton(cfg, lpparam.classLoader);
     }
 
     if (cfg.talkTabHeader.chatTabHeaderStateClass.isEmpty()) return;
@@ -277,6 +278,24 @@ public class RemoveHeaderButtons implements BaseHook {
       Knot.log("Knot: RemoveHeaderButtons hooked shopping tab Agent i button.");
     } catch (Throwable t) {
       Knot.log("Knot: RemoveHeaderButtons could not hook shopping tab Agent i button: " + t);
+    }
+  }
+
+  private static void hookImageViewerAgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
+    if (cfg.searchBarAgentI.imageViewerAiButtonClass.isEmpty()) return;
+
+    try {
+      Class<?> cls = Reflect.findClass(cfg.searchBarAgentI.imageViewerAiButtonClass, classLoader);
+      Knot.hookAll(
+          cls,
+          "invoke",
+          chain -> {
+            if (!Main.options.removeSearchBarAgentIButton.enabled) return chain.proceed();
+            return chain.proceed(new Object[] {Boolean.FALSE});
+          });
+      Knot.log("Knot: RemoveHeaderButtons hooked image viewer Agent i button.");
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveHeaderButtons could not hook image viewer Agent i button: " + t);
     }
   }
 

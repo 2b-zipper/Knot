@@ -582,6 +582,8 @@ public class LineVersion {
 
       public String commerceHeaderClass = "";
       public String commerceHeaderMethod = "";
+
+      public String imageViewerAiButtonClass = "";
     }
 
     public static class AgentIInChat {

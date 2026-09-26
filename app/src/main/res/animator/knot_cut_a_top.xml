@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:ordering="sequentially">
-    <objectAnimator
-        android:propertyName="strokeAlpha"
-        android:valueFrom="0"
-        android:valueTo="0"
-        android:duration="364" />
-    <objectAnimator
-        android:propertyName="strokeAlpha"
-        android:valueFrom="0"
-        android:valueTo="1"
-        android:duration="33" />
-</set>
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:propertyName="pathData"
+    android:valueType="pathType"
+    android:valueFrom="M0,0 H200 V200 H0 Z M89.18,90.74 L94.7,85.22 A7.8,7.8,0,0,0,83.67,74.19 L78.15,79.71 Z"
+    android:valueTo="M0,0 H200 V200 H0 Z M89.18,90.74 L111.03,68.89 A7.8,7.8,0,0,0,100,57.86 L78.15,79.71 Z"
+    android:startOffset="588"
+    android:duration="39"
+    android:interpolator="@android:interpolator/linear" />

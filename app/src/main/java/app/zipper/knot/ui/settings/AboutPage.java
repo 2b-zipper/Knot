@@ -29,6 +29,7 @@ public final class AboutPage {
   private static final String REPO_URL = "https://github.com/2b-zipper/Knot";
   private static final String LICENSE_URL = REPO_URL + "/blob/main/LICENSE";
   private static final String CROWDIN_URL = "https://crowdin.com/project/knot";
+  private static final String KOFI_URL = "https://ko-fi.com/2ipper";
   private static final String[][] CONTRIBUTOR_SECTIONS = {
     {"2b-zipper", "Nich87"}, {"atuy1219"},
   };
@@ -141,18 +142,23 @@ public final class AboutPage {
   private void addLinks() {
     SettingsViews.sectionHeader(ctx, root, ModuleResources.get(R.string.about_sec_links));
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_github"))
         .title(ModuleResources.get(R.string.about_link_repo))
-        .description("github.com/2b-zipper/Knot")
         .onClick(v -> openUrl(REPO_URL))
         .add();
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_crowdin"))
         .title(ModuleResources.get(R.string.about_link_translate))
-        .description("crowdin.com/project/knot")
         .onClick(v -> openUrl(CROWDIN_URL))
         .add();
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_kofi"))
+        .title(ModuleResources.get(R.string.about_link_support))
+        .onClick(v -> openUrl(KOFI_URL))
+        .add();
+    SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_license"))
         .title(ModuleResources.get(R.string.about_link_license))
-        .description(ModuleResources.get(R.string.about_license_value))
         .onClick(v -> openUrl(LICENSE_URL))
         .add();
   }

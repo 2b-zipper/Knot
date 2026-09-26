@@ -16,6 +16,7 @@ import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import app.zipper.knot.LineVersion;
@@ -144,6 +145,7 @@ public final class SettingsViews {
     private CharSequence description;
     private CharSequence value;
     private Integer titleColor;
+    private Drawable icon;
     private boolean arrow = true;
     private String searchTag;
     private View.OnClickListener onClick;
@@ -173,6 +175,11 @@ public final class SettingsViews {
       return this;
     }
 
+    public Row icon(Drawable icon) {
+      this.icon = icon;
+      return this;
+    }
+
     public Row noArrow() {
       this.arrow = false;
       return this;
@@ -190,15 +197,8 @@ public final class SettingsViews {
 
     public View add() {
       try {
-        View row = LineTheme.createTextRow(ctx);
+        View row = icon != null ? iconRow() : textRow();
         if (row == null) return null;
-
-        LineTheme.setRowTitle(row, title);
-        if (hasDescription()) LineTheme.setRowDescription(row, description);
-        LineTheme.setRowArrowVisible(row, arrow);
-        LineTheme.setRowDividerVisible(row, false);
-        if (titleColor != null) LineTheme.setRowTitleColor(row, titleColor);
-        if (value != null) LineTheme.setRowValue(row, value);
         if (onClick != null) row.setOnClickListener(onClick);
 
         row.setTag(searchTag != null ? searchTag : SettingsViews.searchTag(title, description));
@@ -207,6 +207,39 @@ public final class SettingsViews {
       } catch (Throwable ignored) {
         return null;
       }
+    }
+
+    private View textRow() {
+      View row = LineTheme.createTextRow(ctx);
+      if (row == null) return null;
+
+      LineTheme.setRowTitle(row, title);
+      if (hasDescription()) LineTheme.setRowDescription(row, description);
+      LineTheme.setRowArrowVisible(row, arrow);
+      LineTheme.setRowDividerVisible(row, false);
+      if (titleColor != null) LineTheme.setRowTitleColor(row, titleColor);
+      if (value != null) LineTheme.setRowValue(row, value);
+      return row;
+    }
+
+    private View iconRow() {
+      LineVersion.Config cfg = LineVersion.get();
+      View row = LayoutInflater.from(ctx).inflate(cfg.res.typeRow, parent, false);
+      LineTheme.applyRowTheme(ctx, row);
+
+      TextView titleView = row.findViewById(cfg.res.idTitle);
+      titleView.setText(title);
+      ImageView iconView = row.findViewById(cfg.res.idIcon);
+      iconView.setImageDrawable(icon);
+      iconView.setImageTintList(titleView.getTextColors());
+      TextView desc = row.findViewById(cfg.res.idDesc);
+      if (hasDescription()) {
+        desc.setText(description);
+      } else {
+        desc.setVisibility(View.GONE);
+      }
+      applyVisibility(row, cfg.res.idArrow, arrow ? View.VISIBLE : View.GONE);
+      return row;
     }
 
     private boolean hasDescription() {

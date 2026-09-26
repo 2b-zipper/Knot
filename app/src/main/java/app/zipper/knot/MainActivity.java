@@ -33,8 +33,10 @@ public class MainActivity extends Activity {
   private static final String REPO_URL = "https://github.com/2b-zipper/Knot";
   private static final String LICENSE_URL = REPO_URL + "/blob/main/LICENSE";
   private static final String CROWDIN_URL = "https://crowdin.com/project/knot";
+  private static final String KOFI_URL = "https://ko-fi.com/2ipper";
   private static final String REPO_HOST = "github.com/2b-zipper/Knot";
   private static final String CROWDIN_HOST = "crowdin.com/project/knot";
+  private static final String KOFI_HOST = "ko-fi.com/2ipper";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -211,6 +213,7 @@ public class MainActivity extends Activity {
             getString(R.string.main_row_settings_desc)),
         linkRow(getString(R.string.about_link_repo), REPO_HOST, REPO_URL),
         linkRow(getString(R.string.about_link_translate), CROWDIN_HOST, CROWDIN_URL),
+        linkRow(getString(R.string.about_link_support), KOFI_HOST, KOFI_URL),
         linkRow(
             getString(R.string.about_link_license),
             getString(R.string.about_license_value),
@@ -313,7 +316,7 @@ public class MainActivity extends Activity {
 
   private void playSplashExit(SplashScreen splashScreen) {
     long startMs = SystemClock.elapsedRealtime();
-    splashScreen.setKeepOnScreenCondition(() -> SystemClock.elapsedRealtime() - startMs < 1100);
+    splashScreen.setKeepOnScreenCondition(() -> SystemClock.elapsedRealtime() - startMs < 1350);
 
     splashScreen.setOnExitAnimationListener(
         provider -> {
