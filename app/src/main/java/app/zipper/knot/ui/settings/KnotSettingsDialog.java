@@ -395,6 +395,7 @@ public final class KnotSettingsDialog {
     newView.setTranslationX(forward ? width : -width);
     itemHost.addView(newView);
 
+    oldView.setOnTouchListener((v, e) -> true);
     SettingsViews.slide(oldView, forward ? -width : width);
     SettingsViews.slide(newView, 0, () -> itemHost.removeView(oldView));
 
@@ -417,6 +418,7 @@ public final class KnotSettingsDialog {
     pageContainer.addView(about, new FrameLayout.LayoutParams(-1, -1));
     aboutView = about;
 
+    itemHost.getChildAt(0).setOnTouchListener((v, e) -> true);
     SettingsViews.slide(settingsPage, -width);
     SettingsViews.slide(about, 0, () -> settingsPage.setVisibility(View.GONE));
 
@@ -436,9 +438,11 @@ public final class KnotSettingsDialog {
     if (settingsPage != null) {
       settingsPage.setVisibility(View.VISIBLE);
       settingsPage.setTranslationX(-width);
+      itemHost.getChildAt(0).setOnTouchListener(null);
       SettingsViews.slide(settingsPage, 0);
     }
     if (about != null) {
+      about.setOnTouchListener((v, e) -> true);
       SettingsViews.slide(about, width, () -> pageContainer.removeView(about));
     }
 
