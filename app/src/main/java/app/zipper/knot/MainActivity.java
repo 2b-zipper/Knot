@@ -316,7 +316,7 @@ public class MainActivity extends Activity {
 
   private void playSplashExit(SplashScreen splashScreen) {
     long startMs = SystemClock.elapsedRealtime();
-    splashScreen.setKeepOnScreenCondition(() -> SystemClock.elapsedRealtime() - startMs < 1100);
+    splashScreen.setKeepOnScreenCondition(() -> SystemClock.elapsedRealtime() - startMs < 1350);
 
     splashScreen.setOnExitAnimationListener(
         provider -> {
