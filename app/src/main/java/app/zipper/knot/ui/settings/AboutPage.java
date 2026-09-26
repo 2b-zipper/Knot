@@ -29,6 +29,7 @@ public final class AboutPage {
   private static final String REPO_URL = "https://github.com/2b-zipper/Knot";
   private static final String LICENSE_URL = REPO_URL + "/blob/main/LICENSE";
   private static final String CROWDIN_URL = "https://crowdin.com/project/knot";
+  private static final String KOFI_URL = "https://ko-fi.com/2ipper";
   private static final String[][] CONTRIBUTOR_SECTIONS = {
     {"2b-zipper", "Nich87"}, {"atuy1219"},
   };
@@ -149,6 +150,11 @@ public final class AboutPage {
         .title(ModuleResources.get(R.string.about_link_translate))
         .description("crowdin.com/project/knot")
         .onClick(v -> openUrl(CROWDIN_URL))
+        .add();
+    SettingsViews.row(ctx, root)
+        .title(ModuleResources.get(R.string.about_link_support))
+        .description("ko-fi.com/2ipper")
+        .onClick(v -> openUrl(KOFI_URL))
         .add();
     SettingsViews.row(ctx, root)
         .title(ModuleResources.get(R.string.about_link_license))
