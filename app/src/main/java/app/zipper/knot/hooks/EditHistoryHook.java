@@ -1,8 +1,6 @@
 package app.zipper.knot.hooks;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import app.zipper.knot.Knot;
@@ -39,7 +37,6 @@ public class EditHistoryHook implements BaseHook {
   private static final Map<String, JSONArray> cache = new ConcurrentHashMap<>();
   private static final Object persistLock = new Object();
   private static volatile boolean loaded = false;
-  private static volatile Bitmap icon;
   private static LineVersion.Config.MessageEditHistory cfg;
 
   @Override
@@ -207,22 +204,14 @@ public class EditHistoryHook implements BaseHook {
           .intercept(
               chain -> {
                 if ((int) chain.getArg(0) != ICON_ID) return chain.proceed();
-                ((ImageView) chain.getThisObject()).setImageBitmap(icon());
+                Drawable icon = ModuleResources.drawable(ICON_DRAWABLE);
+                if (icon == null) return chain.proceed();
+                ((ImageView) chain.getThisObject()).setImageDrawable(icon);
                 return null;
               });
     } catch (Throwable t) {
       Knot.log("Knot: edit history icon hook failed: " + t);
     }
-  }
-
-  private static Bitmap icon() {
-    if (icon != null) return icon;
-    try {
-      Drawable d = ModuleResources.drawable(ICON_DRAWABLE);
-      if (d instanceof BitmapDrawable) icon = ((BitmapDrawable) d).getBitmap();
-    } catch (Throwable ignored) {
-    }
-    return icon;
   }
 
   public static JSONArray historyFor(String msgId) {

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
@@ -35,6 +34,7 @@ public class PlusMenuHook implements BaseHook {
   private static final int ID_READ_OFF = 0x64000002;
   private static final int ID_MARK_ON = 0x64000003;
   private static final int ID_MARK_OFF = 0x64000004;
+  private static final int ICON_DP = 28;
 
   private static volatile int targetDrawableId = 0;
   private static final Map<Integer, Bitmap> iconStorage = new HashMap<>();
@@ -197,8 +197,9 @@ public class PlusMenuHook implements BaseHook {
               int id = (int) chain.getArg(0);
               if ((id >>> 24) != 0x64) return chain.proceed();
               try {
-                Bitmap b = retrieveModuleIcon(id);
-                if (b != null) return new BitmapDrawable((Resources) chain.getThisObject(), b);
+                Resources res = (Resources) chain.getThisObject();
+                Bitmap b = retrieveModuleIcon(id, res);
+                if (b != null) return new BitmapDrawable(res, b);
               } catch (Throwable ignored) {
               }
               return chain.proceed();
@@ -277,7 +278,7 @@ public class PlusMenuHook implements BaseHook {
         });
   }
 
-  private static Bitmap retrieveModuleIcon(int id) {
+  private static Bitmap retrieveModuleIcon(int id, Resources res) {
     Bitmap stored = iconStorage.get(id);
     if (stored != null) return stored;
     String name;
@@ -287,15 +288,10 @@ public class PlusMenuHook implements BaseHook {
     else if (id == ID_MARK_OFF) name = "ic_send_mark_read_off";
     else return null;
 
-    try {
-      Drawable d = ModuleResources.drawable(name);
-      if (!(d instanceof BitmapDrawable)) return null;
-      Bitmap bmp = ((BitmapDrawable) d).getBitmap();
-      iconStorage.put(id, bmp);
-      return bmp;
-    } catch (Throwable t) {
-      return null;
-    }
+    Bitmap bmp =
+        ModuleResources.bitmap(name, Math.round(ICON_DP * res.getDisplayMetrics().density));
+    if (bmp != null) iconStorage.put(id, bmp);
+    return bmp;
   }
 
   private static Context fetchApplicationContext() {

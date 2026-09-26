@@ -5,6 +5,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import app.zipper.knot.Knot;
@@ -82,6 +84,15 @@ public final class ModuleResources {
     } catch (Throwable t) {
       return null;
     }
+  }
+
+  public static Bitmap bitmap(String name, int sizePx) {
+    Drawable drawable = drawable(name);
+    if (drawable == null || sizePx <= 0) return null;
+    Bitmap bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
+    drawable.setBounds(0, 0, sizePx, sizePx);
+    drawable.draw(new Canvas(bitmap));
+    return bitmap;
   }
 
   public static int drawableId(String name) {
