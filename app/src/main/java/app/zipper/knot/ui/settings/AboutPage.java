@@ -142,23 +142,23 @@ public final class AboutPage {
   private void addLinks() {
     SettingsViews.sectionHeader(ctx, root, ModuleResources.get(R.string.about_sec_links));
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_github"))
         .title(ModuleResources.get(R.string.about_link_repo))
-        .description("github.com/2b-zipper/Knot")
         .onClick(v -> openUrl(REPO_URL))
         .add();
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_crowdin"))
         .title(ModuleResources.get(R.string.about_link_translate))
-        .description("crowdin.com/project/knot")
         .onClick(v -> openUrl(CROWDIN_URL))
         .add();
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_kofi"))
         .title(ModuleResources.get(R.string.about_link_support))
-        .description("ko-fi.com/2ipper")
         .onClick(v -> openUrl(KOFI_URL))
         .add();
     SettingsViews.row(ctx, root)
+        .icon(ModuleResources.drawable("ic_link_license"))
         .title(ModuleResources.get(R.string.about_link_license))
-        .description(ModuleResources.get(R.string.about_license_value))
         .onClick(v -> openUrl(LICENSE_URL))
         .add();
   }
