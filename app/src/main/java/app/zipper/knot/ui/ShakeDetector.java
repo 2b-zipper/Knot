@@ -3,67 +3,56 @@ package app.zipper.knot.ui;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import java.util.ArrayDeque;
+import android.hardware.SensorManager;
+import java.util.Arrays;
 
 final class ShakeDetector implements SensorEventListener {
 
-  // Most of the last half second has to stay above ~1.33 g, so walking or a single bump won't fire
-  private static final float THRESHOLD = 13f;
-  private static final long WINDOW_NS = 500_000_000L;
-  private static final long MIN_SPAN_NS = 250_000_000L;
-  private static final int MIN_SAMPLES = 4;
-  private static final long COOLDOWN_NS = 2_000_000_000L;
-
-  private static final class Sample {
-    final long time;
-    final boolean strong;
-
-    Sample(long time, boolean strong) {
-      this.time = time;
-      this.strong = strong;
-    }
-  }
+  private static final float REQUIRED_FORCE = SensorManager.GRAVITY_EARTH * 1.33f;
+  private static final int REQUIRED_SHAKES = 16;
+  private static final long MIN_SAMPLE_INTERVAL_NS = 20_000_000L;
+  private static final long SHAKE_GAP_NS = 3_000_000_000L;
 
   private final Runnable onShake;
-  private final ArrayDeque<Sample> window = new ArrayDeque<>();
-  private int strongCount;
-  private long lastShake;
+  private final float[] lastForce = new float[3];
+  private long lastSampleAt;
+  private long lastShakeAt;
+  private int shakes;
 
   ShakeDetector(Runnable onShake) {
     this.onShake = onShake;
   }
 
   void reset() {
-    window.clear();
-    strongCount = 0;
+    shakes = 0;
+    Arrays.fill(lastForce, 0);
   }
 
   @Override
   public void onSensorChanged(SensorEvent event) {
-    float x = event.values[0];
-    float y = event.values[1];
-    float z = event.values[2];
-    boolean strong = x * x + y * y + z * z > THRESHOLD * THRESHOLD;
     long now = event.timestamp;
+    if (now - lastSampleAt < MIN_SAMPLE_INTERVAL_NS) return;
+    lastSampleAt = now;
 
-    window.addLast(new Sample(now, strong));
-    if (strong) strongCount++;
-    while (now - window.peekFirst().time > WINDOW_NS) {
-      if (window.pollFirst().strong) strongCount--;
+    if (!flipped(event.values)) {
+      if (now - lastShakeAt > SHAKE_GAP_NS) reset();
+      return;
     }
-
-    if (!isShaking(now)) return;
+    lastShakeAt = now;
+    if (++shakes < REQUIRED_SHAKES) return;
     reset();
-    if (now - lastShake < COOLDOWN_NS) return;
-    lastShake = now;
     onShake.run();
   }
 
-  private boolean isShaking(long now) {
-    int size = window.size();
-    return size >= MIN_SAMPLES
-        && now - window.peekFirst().time >= MIN_SPAN_NS
-        && strongCount >= size - size / 4;
+  private boolean flipped(float[] values) {
+    for (int axis = 0; axis < 3; axis++) {
+      float force = values[axis] - (axis == 2 ? SensorManager.GRAVITY_EARTH : 0);
+      if (Math.abs(force) > REQUIRED_FORCE && lastForce[axis] * force <= 0) {
+        lastForce[axis] = force;
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override

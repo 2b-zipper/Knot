@@ -71,6 +71,7 @@ public final class DebugMenu {
     @Override
     public void onActivityResumed(Activity activity) {
       foreground = new WeakReference<>(activity);
+      if (!Main.options.debugMenu.enabled) return;
       detector.reset();
       sensors.registerListener(detector, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
@@ -99,6 +100,7 @@ public final class DebugMenu {
   }
 
   private static void onShake() {
+    if (!Main.options.debugMenu.enabled) return;
     Activity activity = foreground.get();
     if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
     AlertDialog open = shown.get();
