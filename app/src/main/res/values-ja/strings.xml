@@ -213,6 +213,8 @@
     <string name="opt_spoof_version_desc">常にアプリバージョンを15.12.2に偽装します。なにか特別な目的がない限り使用しないでください。</string>
     <string name="opt_fix_signature_mismatch_label">公式署名を偽装</string>
     <string name="opt_fix_signature_mismatch_desc">パッチ済みのLINEで、フォントのダウンロードや生体認証の連携などに失敗する問題を回避します。</string>
+    <string name="opt_debug_menu_label">振ってデバッグメニューを開く</string>
+    <string name="opt_debug_menu_desc">端末を振ると、ログやフックの状態を確認できるデバッグメニューを開きます。</string>
     <!-- Storage / backup rows -->
     <string name="desc_path_row">モジュールの設定ファイルなどが保存されるディレクトリを選択します。</string>
     <string name="desc_reset_row">すべてのモジュール設定をデフォルト状態に戻します。</string>
