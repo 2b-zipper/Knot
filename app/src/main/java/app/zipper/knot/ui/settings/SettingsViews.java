@@ -9,6 +9,7 @@ import android.graphics.Insets;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -28,8 +29,20 @@ public final class SettingsViews {
   public static final String TAG_SECTION_HEADER = "section_header";
 
   private static final long PAGE_ANIM_MS = 250;
+  private static final long REPEAT_TAP_MS = 500;
+
+  private static long lastTapAt;
 
   private SettingsViews() {}
+
+  public static View.OnClickListener singleTap(View.OnClickListener listener) {
+    return v -> {
+      long now = SystemClock.uptimeMillis();
+      if (now - lastTapAt < REPEAT_TAP_MS) return;
+      lastTapAt = now;
+      listener.onClick(v);
+    };
+  }
 
   public static Activity activityOf(Context ctx) {
     if (ctx instanceof Activity) return (Activity) ctx;
@@ -199,7 +212,7 @@ public final class SettingsViews {
       try {
         View row = icon != null ? iconRow() : textRow();
         if (row == null) return null;
-        if (onClick != null) row.setOnClickListener(onClick);
+        if (onClick != null) row.setOnClickListener(singleTap(onClick));
 
         row.setTag(searchTag != null ? searchTag : SettingsViews.searchTag(title, description));
         parent.addView(row);

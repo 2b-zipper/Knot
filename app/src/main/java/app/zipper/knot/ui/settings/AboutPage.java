@@ -168,7 +168,8 @@ public final class AboutPage {
       LinearLayout wrapper = new LinearLayout(ctx);
       wrapper.setOrientation(LinearLayout.HORIZONTAL);
       wrapper.setGravity(Gravity.CENTER_VERTICAL);
-      wrapper.setOnClickListener(v -> openUrl("https://github.com/" + handle));
+      wrapper.setOnClickListener(
+          SettingsViews.singleTap(v -> openUrl("https://github.com/" + handle)));
 
       ImageView avatar = buildAvatar();
       wrapper.addView(avatar);

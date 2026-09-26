@@ -133,6 +133,7 @@ public class KnotConfig {
   public final Item safeSettingsResources        = item("safe_settings_resources",          R.string.opt_fix_settings_talk_crash_label,          R.string.opt_fix_settings_talk_crash_desc,          true,  Category.SYSTEM,       0);
   public final Item spoofVersion                 = item("spoof_version",                    R.string.opt_spoof_version_label,                    R.string.opt_spoof_version_desc,                    false, Category.SYSTEM,       0);
   public final Item fixSignatureMismatch         = item("fix_signature_mismatch",           R.string.opt_fix_signature_mismatch_label,           R.string.opt_fix_signature_mismatch_desc,           true,  Category.SYSTEM,       0);
+  public final Item debugMenu                    = item("debug_menu",                       R.string.opt_debug_menu_label,                       R.string.opt_debug_menu_desc,                       true,  Category.SYSTEM,       0);
   // @formatter:on
 
   public final Item[] items = _reg.toArray(new Item[0]);
