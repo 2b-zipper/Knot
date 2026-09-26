@@ -213,6 +213,8 @@
     <string name="opt_spoof_version_desc">永遠將應用程式版本偽裝為15.12.2。若無特殊目的請勿使用。</string>
     <string name="opt_fix_signature_mismatch_label">偽裝官方簽章</string>
     <string name="opt_fix_signature_mismatch_desc">迴避已修補的LINE中，下載字型或生物辨識連動等功能失敗的問題。</string>
+    <string name="opt_debug_menu_label">搖動開啟偵錯選單</string>
+    <string name="opt_debug_menu_desc">搖動裝置即可開啟偵錯選單，查看記錄檔與 Hook 狀態。</string>
     <!-- Storage / backup rows -->
     <string name="desc_path_row">選擇模組用來存放設定檔等資料的目錄。</string>
     <string name="desc_reset_row">將所有模組設定恢復為預設狀態。</string>
