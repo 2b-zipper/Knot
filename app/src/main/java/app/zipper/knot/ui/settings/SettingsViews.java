@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.drawable.ColorDrawable;
@@ -226,11 +225,13 @@ public final class SettingsViews {
     private View iconRow() {
       LineVersion.Config cfg = LineVersion.get();
       View row = LayoutInflater.from(ctx).inflate(cfg.res.typeRow, parent, false);
+      LineTheme.applyRowTheme(ctx, row);
 
+      TextView titleView = row.findViewById(cfg.res.idTitle);
+      titleView.setText(title);
       ImageView iconView = row.findViewById(cfg.res.idIcon);
       iconView.setImageDrawable(icon);
-      iconView.setImageTintList(ColorStateList.valueOf(LineTheme.primaryTextColor(ctx)));
-      ((TextView) row.findViewById(cfg.res.idTitle)).setText(title);
+      iconView.setImageTintList(titleView.getTextColors());
       TextView desc = row.findViewById(cfg.res.idDesc);
       if (hasDescription()) {
         desc.setText(description);

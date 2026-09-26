@@ -106,20 +106,59 @@ public final class LineTheme {
 
   private static int textColorOf(Context ctx, View row, String idName) {
     try {
-      int id = ctx.getResources().getIdentifier(idName, "id", LINE_PKG);
-      if (id != 0) {
-        View tv = row.findViewById(id);
-        if (tv instanceof TextView) return ((TextView) tv).getCurrentTextColor();
-      }
+      TextView tv = findLineView(ctx, row, idName, TextView.class);
+      if (tv != null) return tv.getCurrentTextColor();
     } catch (Throwable ignored) {
     }
     return 0;
   }
 
+  // Rows inflated from a LINE layout miss the theming LINE applies when it builds its own rows
+  public static void applyRowTheme(Context ctx, View row) {
+    try {
+      View themed = createTextRow(ctx);
+      if (themed == null) return;
+      copyBackground(ctx, themed, row, "setting_item_container");
+      copyTextColor(ctx, themed, row, "setting_title");
+      copyTextColor(ctx, themed, row, "setting_description");
+      copyImageTint(ctx, themed, row, "setting_arrow");
+    } catch (Throwable ignored) {
+    }
+  }
+
+  private static void copyBackground(Context ctx, View from, View to, String idName) {
+    View src = findLineView(ctx, from, idName, View.class);
+    View dst = findLineView(ctx, to, idName, View.class);
+    Drawable bg = src != null ? src.getBackground() : null;
+    if (dst != null && bg != null && bg.getConstantState() != null) {
+      dst.setBackground(bg.getConstantState().newDrawable().mutate());
+    }
+  }
+
+  private static void copyTextColor(Context ctx, View from, View to, String idName) {
+    TextView src = findLineView(ctx, from, idName, TextView.class);
+    TextView dst = findLineView(ctx, to, idName, TextView.class);
+    if (src != null && dst != null) dst.setTextColor(src.getTextColors());
+  }
+
+  private static void copyImageTint(Context ctx, View from, View to, String idName) {
+    ImageView src = findLineView(ctx, from, idName, ImageView.class);
+    ImageView dst = findLineView(ctx, to, idName, ImageView.class);
+    if (src == null || dst == null) return;
+    dst.setImageTintList(src.getImageTintList());
+    dst.setColorFilter(src.getColorFilter());
+  }
+
+  private static <T extends View> T findLineView(
+      Context ctx, View root, String idName, Class<T> type) {
+    int id = ctx.getResources().getIdentifier(idName, "id", LINE_PKG);
+    View v = id != 0 ? root.findViewById(id) : null;
+    return type.isInstance(v) ? type.cast(v) : null;
+  }
+
   private static int surfaceColorOf(Context ctx, View row) {
     try {
-      int id = ctx.getResources().getIdentifier("setting_item_container", "id", LINE_PKG);
-      View container = id != 0 ? row.findViewById(id) : null;
+      View container = findLineView(ctx, row, "setting_item_container", View.class);
       Drawable bg = (container != null ? container : row).getBackground();
       if (bg == null) return 0;
       if (bg instanceof ColorDrawable) return ((ColorDrawable) bg).getColor();
