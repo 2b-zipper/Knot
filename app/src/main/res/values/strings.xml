@@ -249,6 +249,8 @@
 
     <string name="opt_fix_signature_mismatch_label">Spoof the official signature</string>
     <string name="opt_fix_signature_mismatch_desc">Works around failures on patched builds of LINE, such as font downloads and biometric authentication.</string>
+    <string name="opt_debug_menu_label">Shake to open the debug menu</string>
+    <string name="opt_debug_menu_desc">Shake the device to open a menu for checking logs and hook status.</string>
 
     <!-- Storage / backup rows -->
     <string name="desc_path_row">Choose the directory where the module keeps its settings and other files.</string>
