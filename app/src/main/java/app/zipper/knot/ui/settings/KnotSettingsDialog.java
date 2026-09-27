@@ -20,7 +20,6 @@ import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
-import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.SettingsUIInjector;
 import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
@@ -58,7 +57,6 @@ public final class KnotSettingsDialog {
       LineTheme.invalidate();
       SettingsStore.init(host);
       SettingsStore.load(Main.options);
-      FcmFixHook.migrateStoredMode(Main.options);
       new KnotSettingsDialog(host).open();
     } catch (Throwable e) {
       Knot.log("Knot: Dialog display failed: " + e.getMessage());
