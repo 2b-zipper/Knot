@@ -6,14 +6,11 @@ import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
 import app.zipper.knot.Reflect;
-import app.zipper.knot.SettingsStore;
 import io.github.libxposed.api.XposedInterface;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 public class RemoveTalkRoomAgentIToggle implements BaseHook {
-
-  private static final String LEGACY_KEY = "remove_talkroom_agent_i_toggle";
 
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
@@ -48,7 +45,7 @@ public class RemoveTalkRoomAgentIToggle implements BaseHook {
   }
 
   private static boolean isEnabled(KnotConfig config) {
-    return config.removeSearchBarAgentIButton.enabled || SettingsStore.get(LEGACY_KEY, false);
+    return config.removeSearchBarAgentIButton.enabled;
   }
 
   private static boolean isComposeRenderMethod(LineVersion.Config cfg, Method method) {
