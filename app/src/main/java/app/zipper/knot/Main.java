@@ -146,15 +146,12 @@ public class Main extends XposedModule {
     applyHook(new ReadReceiptHandler(), lpparam);
     applyHook(new UnsendProtector(), lpparam);
 
-    if (options.recordReadHistory.enabled || options.preventMarkAsRead.enabled) {
+    if (options.preventMarkAsRead.enabled) {
       applyHook(new PlusMenuHook(), lpparam);
       applyHook(new ChatListMoreMenuHook(), lpparam);
     }
     if (options.recordReadHistory.enabled) applyHook(new HeaderButtonInjector(), lpparam);
-    if (options.hideAiIconPermanently.enabled) {
-      applyHook(new RemoveTalkRoomAgentIToggle(), lpparam);
-      applyHook(new HideAiIconPermanently(), lpparam);
-    }
+    if (options.hideAiIconPermanently.enabled) applyHook(new HideAiIconPermanently(), lpparam);
     if (options.openUrlInDefaultBrowser.enabled) {
       applyHook(new OpenInExternalBrowserHook(), lpparam);
     }
@@ -193,6 +190,9 @@ public class Main extends XposedModule {
         || options.removeCalendarButton.enabled
         || options.removeSearchBarAgentIButton.enabled) {
       applyHook(new RemoveHeaderButtons(), lpparam);
+    }
+    if (options.removeSearchBarAgentIButton.enabled) {
+      applyHook(new RemoveTalkRoomAgentIToggle(), lpparam);
     }
     if (options.homeTabType.value != null && !options.homeTabType.value.isEmpty()) {
       applyHook(new HomeTabTypeHook(), lpparam);

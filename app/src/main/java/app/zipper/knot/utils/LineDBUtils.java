@@ -175,6 +175,34 @@ public class LineDBUtils {
     return -1L;
   }
 
+  public static String resolveChatIdByServerId(String serverId) {
+    if (serverId == null) return null;
+    try {
+      Context context = Knot.currentApplication();
+      if (context == null) return null;
+      File dbFile = context.getDatabasePath("naver_line");
+      if (!dbFile.exists()) return null;
+      SQLiteDatabase db =
+          SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+      try {
+        Cursor cursor =
+            db.rawQuery(
+                "SELECT chat_id FROM chat_history WHERE server_id = ? LIMIT 1",
+                new String[] {serverId});
+        try {
+          return cursor.moveToFirst() ? cursor.getString(0) : null;
+        } finally {
+          cursor.close();
+        }
+      } finally {
+        db.close();
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: resolveChatIdByServerId failed: " + t);
+    }
+    return null;
+  }
+
   public static String resolveMessageText(String content, String parameter) {
     if (content != null && !content.isEmpty() && !"null".equals(content)) {
       return content;

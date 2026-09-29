@@ -444,7 +444,7 @@ public final class SettingsPage {
   }
 
   private static String fcmFixMode() {
-    return FcmFixHook.normalizeMode(SettingsStore.getString("fcm_fix_mode", FcmFixHook.MODE_LEGY));
+    return SettingsStore.getString("fcm_fix_mode", FcmFixHook.MODE_LEGY);
   }
 
   private static String fcmFixModeLabel() {

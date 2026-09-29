@@ -11,13 +11,11 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
-import app.zipper.knot.Main;
-import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
-import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.ModuleResources;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,14 +25,8 @@ public class PlusMenuHook implements BaseHook {
   private static volatile Object menuContextScope = null;
   private static volatile boolean injectionActive = false;
 
-  private static volatile boolean currentReadState = true;
-  private static volatile boolean currentSendMarkState = false;
-
-  private static final int ID_READ_ON = 0x64000001;
-  private static final int ID_READ_OFF = 0x64000002;
-  private static final int ID_MARK_ON = 0x64000003;
-  private static final int ID_MARK_OFF = 0x64000004;
   private static final int ICON_DP = 28;
+  private static final int ICON_ID_BASE = 0x64000001;
 
   private static volatile int targetDrawableId = 0;
   private static final Map<Integer, Bitmap> iconStorage = new HashMap<>();
@@ -66,30 +58,16 @@ public class PlusMenuHook implements BaseHook {
     }
     final int composerArg = Reflect.paramIndex(itemEntry, composerCls);
 
-    final Object readToggleCallback =
-        generateToggleHandler(
-            lpparam.classLoader,
-            callbackCls,
-            "prevent_read_state",
-            ModuleResources.get(R.string.label_prevent_read),
-            true,
-            null);
-    final Object markToggleCallback =
-        generateToggleHandler(
-            lpparam.classLoader,
-            callbackCls,
-            "send_mark_state",
-            ModuleResources.get(R.string.label_send_mark_read),
-            false,
-            "prevent_read_state");
+    final Map<ReadToggle, Object> callbacks = new EnumMap<>(ReadToggle.class);
+    for (ReadToggle toggle : ReadToggle.values()) {
+      callbacks.put(toggle, createToggleCallback(lpparam.classLoader, callbackCls, toggle));
+    }
 
     Knot.module
         .hook(mainEntry)
         .intercept(
             chain -> {
               isMenuDisplayed = true;
-              currentReadState = SettingsStore.get("prevent_read_state", true);
-              currentSendMarkState = SettingsStore.get("send_mark_state", false);
               try {
                 return chain.proceed();
               } finally {
@@ -115,56 +93,16 @@ public class PlusMenuHook implements BaseHook {
               Object result = chain.proceed();
               if (!isMenuDisplayed || injectionActive) return result;
 
-              if (targetDrawableId == 0) {
-                try {
-                  Context ctx = fetchApplicationContext();
-                  if (ctx != null) {
-                    targetDrawableId =
-                        ctx.getResources()
-                            .getIdentifier(
-                                cfg.plusMenu.editChatDrawable, "drawable", cfg.plusMenu.targetPkg);
-                  }
-                } catch (Throwable ignored) {
-                }
-              }
-              if (targetDrawableId == 0) return result;
-
-              int iconId = (int) chain.getArg(0);
-              if (iconId != targetDrawableId) return result;
+              int drawableId = resolveTargetDrawableId(cfg);
+              if (drawableId == 0 || (int) chain.getArg(0) != drawableId) return result;
 
               Object composer = chain.getArg(composerArg);
               injectionActive = true;
               try {
-                if (Main.options.preventMarkAsRead.enabled) {
-                  boolean readOn = currentReadState;
-                  String labelR =
-                      ModuleResources.get(R.string.label_prevent_read)
-                          + ": "
-                          + (readOn ? "ON" : "OFF");
+                for (ReadToggle toggle : ReadToggle.values()) {
+                  if (!toggle.isAvailable()) continue;
                   addPlusMenuItem(
-                      itemEntry,
-                      composerCls,
-                      callbackCls,
-                      readOn ? ID_READ_ON : ID_READ_OFF,
-                      labelR,
-                      readToggleCallback,
-                      composer);
-
-                  if (readOn) {
-                    boolean markOn = currentSendMarkState;
-                    String labelM =
-                        ModuleResources.get(R.string.label_send_mark_read)
-                            + ": "
-                            + (markOn ? "ON" : "OFF");
-                    addPlusMenuItem(
-                        itemEntry,
-                        composerCls,
-                        callbackCls,
-                        markOn ? ID_MARK_ON : ID_MARK_OFF,
-                        labelM,
-                        markToggleCallback,
-                        composer);
-                  }
+                      itemEntry, composerCls, callbackCls, toggle, callbacks.get(toggle), composer);
                 }
               } catch (Throwable t) {
                 Knot.log("Knot: PlusMenu error: " + t);
@@ -206,6 +144,21 @@ public class PlusMenuHook implements BaseHook {
             });
   }
 
+  private static int resolveTargetDrawableId(LineVersion.Config cfg) {
+    if (targetDrawableId == 0) {
+      try {
+        Context ctx = Knot.currentApplication();
+        if (ctx != null) {
+          targetDrawableId =
+              ctx.getResources()
+                  .getIdentifier(cfg.plusMenu.editChatDrawable, "drawable", cfg.plusMenu.targetPkg);
+        }
+      } catch (Throwable ignored) {
+      }
+    }
+    return targetDrawableId;
+  }
+
   private static Method findComposeEntry(Class<?> cls, String name, Class<?> composerCls) {
     for (Method m : cls.getDeclaredMethods()) {
       if (m.getName().equals(name) && Reflect.paramIndex(m, composerCls) >= 0) {
@@ -220,73 +173,69 @@ public class PlusMenuHook implements BaseHook {
       Method itemEntry,
       Class<?> composerCls,
       Class<?> callbackCls,
-      int id,
-      String label,
+      ReadToggle toggle,
       Object callback,
       Object composer)
       throws Exception {
+    boolean on = toggle.isOn();
     Class<?>[] types = itemEntry.getParameterTypes();
     Object[] args = new Object[types.length];
     boolean idAssigned = false;
     for (int i = 0; i < types.length; i++) {
       Class<?> type = types[i];
       if (type == int.class) {
-        args[i] = idAssigned ? 0 : id;
+        args[i] = idAssigned ? 0 : iconId(toggle, on);
         idAssigned = true;
       } else if (type == composerCls) {
         args[i] = composer;
       } else if (type == callbackCls) {
         args[i] = callback;
       } else if (type == String.class) {
-        args[i] = label;
+        args[i] = toggle.label(on);
       }
     }
     itemEntry.invoke(null, args);
   }
 
-  private static Object generateToggleHandler(
-      ClassLoader cl, Class<?> callbackCls, String key, String label, boolean def, String depKey) {
+  private static Object createToggleCallback(
+      ClassLoader cl, Class<?> callbackCls, ReadToggle toggle) {
     return Proxy.newProxyInstance(
         cl,
         new Class[] {callbackCls},
         (proxy, method, args) -> {
-          if ("invoke".equals(method.getName())) {
-            if (depKey != null && !currentReadState) return null;
-            boolean nextValue;
-            if (key.equals("prevent_read_state")) {
-              nextValue = !currentReadState;
-              currentReadState = nextValue;
-            } else {
-              nextValue = !currentSendMarkState;
-              currentSendMarkState = nextValue;
-            }
-            SettingsStore.save(key, nextValue);
-            new Handler(Looper.getMainLooper())
-                .post(
-                    () -> {
-                      if (menuContextScope != null) {
-                        try {
-                          Reflect.callMethod(menuContextScope, "invalidate");
-                        } catch (Throwable ignored) {
-                        }
-                      }
-                    });
-            return null;
+          switch (method.getName()) {
+            case "invoke":
+              if (toggle.isAvailable()) {
+                toggle.toggle();
+                new Handler(Looper.getMainLooper()).post(PlusMenuHook::invalidateMenu);
+              }
+              return null;
+            case "equals":
+              return proxy == args[0];
+            case "hashCode":
+              return System.identityHashCode(proxy);
+            case "toString":
+              return toggle.name();
+            default:
+              return null;
           }
-          if ("hashCode".equals(method.getName())) return System.identityHashCode(proxy);
-          return null;
         });
+  }
+
+  private static void invalidateMenu() {
+    Object scope = menuContextScope;
+    if (scope == null) return;
+    try {
+      Reflect.callMethod(scope, "invalidate");
+    } catch (Throwable ignored) {
+    }
   }
 
   private static Bitmap retrieveModuleIcon(int id, Resources res) {
     Bitmap stored = iconStorage.get(id);
     if (stored != null) return stored;
-    String name;
-    if (id == ID_READ_ON) name = "ic_prevent_read_on";
-    else if (id == ID_READ_OFF) name = "ic_prevent_read_off";
-    else if (id == ID_MARK_ON) name = "ic_send_mark_read_on";
-    else if (id == ID_MARK_OFF) name = "ic_send_mark_read_off";
-    else return null;
+    String name = iconName(id);
+    if (name == null) return null;
 
     Bitmap bmp =
         ModuleResources.bitmap(name, Math.round(ICON_DP * res.getDisplayMetrics().density));
@@ -294,7 +243,14 @@ public class PlusMenuHook implements BaseHook {
     return bmp;
   }
 
-  private static Context fetchApplicationContext() {
-    return Knot.currentApplication();
+  private static int iconId(ReadToggle toggle, boolean on) {
+    return ICON_ID_BASE + toggle.ordinal() * 2 + (on ? 0 : 1);
+  }
+
+  private static String iconName(int id) {
+    ReadToggle[] toggles = ReadToggle.values();
+    int index = id - ICON_ID_BASE;
+    if (index < 0 || index >= toggles.length * 2) return null;
+    return toggles[index / 2].iconName(index % 2 == 0);
   }
 }

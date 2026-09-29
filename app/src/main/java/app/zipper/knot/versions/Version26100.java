@@ -82,6 +82,11 @@ public class Version26100 {
     v.readReceipt.methodResolveReadTarget = "a";
     v.readReceipt.operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
     v.readReceipt.longPressReadClass = "ou1";
+    v.readReceipt.reactClientClass =
+        "jp.naver.line.android.thrift.client.impl.TalkServiceClientImpl";
+    v.readReceipt.methodReact = "Q1";
+    v.readReceipt.reactRequestMessageIdField = "b";
+    v.readReceipt.reactSuccessResultClass = "a68.e1$b";
 
     v.unsend.notifiedReadMessageHandlerClass = "p58.c2";
     v.unsend.notifiedSendReactionHandlerClass = "p58.m2";
