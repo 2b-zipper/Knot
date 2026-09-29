@@ -65,6 +65,7 @@
     <!-- Read receipts -->
     <string name="label_prevent_read">既読回避</string>
     <string name="label_send_mark_read">送信後既読</string>
+    <string name="label_reaction_mark_read">リアクション後既読</string>
     <string name="read_receipt_viewer">既読者確認</string>
     <string name="unset_time_prefix">"取消日時: "</string>
     <string name="read_history_title">既読履歴</string>
@@ -83,7 +84,7 @@
     <string name="msg_location">[位置情報]</string>
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">プラスメニューに「既読回避」を追加</string>
-    <string name="opt_prevent_mark_as_read_desc">トークタブ右上の「+」メニューから既読回避をON/OFFできるようになります。ONにすると「送信後既読」オプションも表示されます。</string>
+    <string name="opt_prevent_mark_as_read_desc">トークタブ右上の「+」メニューから既読回避をON/OFFできるようになります。ONにすると「送信後既読」「リアクション後既読」オプションも表示されます。</string>
     <string name="opt_record_read_history_label">既読履歴を記録</string>
     <string name="opt_record_read_history_desc">誰がいつメッセージを既読にしたかを記録します。チャット画面上部の本アイコンから確認できます。</string>
     <string name="opt_prevent_unsend_message_label">送信取り消し無効化</string>
