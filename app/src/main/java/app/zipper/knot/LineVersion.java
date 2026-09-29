@@ -309,6 +309,10 @@ public class LineVersion {
       public String methodResolveReadTarget = "";
       public String operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
       public String longPressReadClass = "";
+      public String reactClientClass = "";
+      public String methodReact = "";
+      public String reactRequestMessageIdField = "";
+      public String reactSuccessResultClass = "";
     }
 
     public static class Unsend {

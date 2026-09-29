@@ -11,10 +11,7 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
-import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
-import app.zipper.knot.SettingsStore;
-import app.zipper.knot.utils.ModuleResources;
 import java.util.List;
 
 public class ChatListMoreMenuHook implements BaseHook {
@@ -92,19 +89,8 @@ public class ChatListMoreMenuHook implements BaseHook {
       removeKnotPairs(items);
       if (!hasOriginalPair(items)) return false;
 
-      boolean readOn = SettingsStore.get("prevent_read_state", true);
-      boolean markOn = SettingsStore.get("send_mark_state", false);
-      items.add(
-          new Pair<>(
-              -1,
-              ModuleResources.get(R.string.label_prevent_read) + ": " + (readOn ? "ON" : "OFF")));
-      if (readOn) {
-        items.add(
-            new Pair<>(
-                -1,
-                ModuleResources.get(R.string.label_send_mark_read)
-                    + ": "
-                    + (markOn ? "ON" : "OFF")));
+      for (ReadToggle toggle : ReadToggle.values()) {
+        if (toggle.isAvailable()) items.add(new Pair<>(-1, toggle.label(toggle.isOn())));
       }
 
       if (notify && adapter instanceof BaseAdapter) {
@@ -165,14 +151,13 @@ public class ChatListMoreMenuHook implements BaseHook {
   }
 
   private static boolean isKnotPair(Object item) {
-    if (!(item instanceof Pair)) return false;
-    Object label = ((Pair<?, ?>) item).second;
-    return label instanceof String && isKnotLabel((String) label);
+    return toggleOf(item) != null;
   }
 
-  private static boolean isKnotLabel(String label) {
-    return label.startsWith(ModuleResources.get(R.string.label_prevent_read) + ": ")
-        || label.startsWith(ModuleResources.get(R.string.label_send_mark_read) + ": ");
+  private static ReadToggle toggleOf(Object item) {
+    if (!(item instanceof Pair)) return null;
+    Object label = ((Pair<?, ?>) item).second;
+    return label instanceof String ? ReadToggle.fromLabel((String) label) : null;
   }
 
   private static class KnotMoreMenuClickListener implements AdapterView.OnItemClickListener {
@@ -186,16 +171,9 @@ public class ChatListMoreMenuHook implements BaseHook {
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
       try {
         Adapter adapter = parent.getAdapter();
-        Object item = adapter == null ? null : adapter.getItem(position);
-        if (isKnotPair(item)) {
-          String label = (String) ((Pair<?, ?>) item).second;
-          if (label.startsWith(ModuleResources.get(R.string.label_prevent_read) + ": ")) {
-            boolean current = SettingsStore.get("prevent_read_state", true);
-            SettingsStore.save("prevent_read_state", !current);
-          } else {
-            boolean current = SettingsStore.get("send_mark_state", false);
-            SettingsStore.save("send_mark_state", !current);
-          }
+        ReadToggle toggle = toggleOf(adapter == null ? null : adapter.getItem(position));
+        if (toggle != null) {
+          if (toggle.isAvailable()) toggle.toggle();
           injectPairItems(parent.getParent(), true);
           return;
         }

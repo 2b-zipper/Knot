@@ -65,6 +65,7 @@
     <!-- Read receipts -->
     <string name="label_prevent_read">避免已讀</string>
     <string name="label_send_mark_read">傳送後標示已讀</string>
+    <string name="label_reaction_mark_read">表情貼回應後標示已讀</string>
     <string name="read_receipt_viewer">已讀成員</string>
     <string name="unset_time_prefix">"收回時間："</string>
     <string name="read_history_title">已讀記錄</string>

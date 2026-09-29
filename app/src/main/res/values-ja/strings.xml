@@ -65,6 +65,7 @@
     <!-- Read receipts -->
     <string name="label_prevent_read">既読回避</string>
     <string name="label_send_mark_read">送信後既読</string>
+    <string name="label_reaction_mark_read">リアクション後既読</string>
     <string name="read_receipt_viewer">既読者確認</string>
     <string name="unset_time_prefix">"取消日時: "</string>
     <string name="read_history_title">既読履歴</string>

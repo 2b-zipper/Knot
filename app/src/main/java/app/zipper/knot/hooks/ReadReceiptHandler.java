@@ -25,15 +25,16 @@ public class ReadReceiptHandler implements BaseHook {
 
   private static volatile boolean isBulkReading = false;
   private static final Set<String> pendingManualReads = ConcurrentHashMap.newKeySet();
+  private static Object reactionReadManager;
 
   @Override
-  public void hook(final KnotConfig config, LoadParam lpparam) throws Throwable {
+  public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     LineVersion.Config cfg = LineVersion.get();
     ClassLoader cl = lpparam.classLoader;
 
     hookOperationForHistory(cfg, cl);
-    hookThriftReadReceipt(cfg, cl, config);
-    hookReadReceiptManager(cfg, cl, config);
+    hookThriftReadReceipt(cfg, cl);
+    hookReadReceiptManager(cfg, cl);
   }
 
   private void hookOperationForHistory(LineVersion.Config cfg, ClassLoader cl) {
@@ -69,7 +70,7 @@ public class ReadReceiptHandler implements BaseHook {
     return SettingsStore.get("record_read_history", false);
   }
 
-  private void hookThriftReadReceipt(LineVersion.Config cfg, ClassLoader cl, KnotConfig config) {
+  private void hookThriftReadReceipt(LineVersion.Config cfg, ClassLoader cl) {
     try {
       Knot.hookAll(
           cl.loadClass(cfg.thrift.talkServiceClientImplClass),
@@ -77,7 +78,7 @@ public class ReadReceiptHandler implements BaseHook {
           chain -> {
             List<Object> args = chain.getArgs();
             if (args.isEmpty() || args.get(0) == null) return chain.proceed();
-            if (containsPendingManualRead(args) || !shouldBlockReadReceipt(config)) {
+            if (containsPendingManualRead(args) || !shouldBlockReadReceipt()) {
               return chain.proceed();
             }
             if (args.get(0) instanceof String) {
@@ -98,14 +99,15 @@ public class ReadReceiptHandler implements BaseHook {
     return false;
   }
 
-  private void hookReadReceiptManager(LineVersion.Config cfg, ClassLoader cl, KnotConfig config) {
+  private void hookReadReceiptManager(LineVersion.Config cfg, ClassLoader cl) {
     Class<?> managerCls = getManagerClass(cfg, cl);
     if (managerCls == null) return;
 
-    hookSendReadReceipt(managerCls, cfg, config);
-    hookExecuteReadReceiptAsync(managerCls, cfg, config);
+    hookSendReadReceipt(managerCls, cfg);
+    hookExecuteReadReceiptAsync(managerCls, cfg);
     hookResolveReadTarget(managerCls, cfg);
-    hookReadAll(managerCls, cfg, config);
+    hookReadAll(managerCls, cfg);
+    hookReactionMarkRead(managerCls, cfg, cl);
   }
 
   private void hookResolveReadTarget(Class<?> managerCls, LineVersion.Config cfg) {
@@ -129,7 +131,7 @@ public class ReadReceiptHandler implements BaseHook {
     }
   }
 
-  private void hookSendReadReceipt(Class<?> managerCls, LineVersion.Config cfg, KnotConfig config) {
+  private void hookSendReadReceipt(Class<?> managerCls, LineVersion.Config cfg) {
     try {
       Knot.hookAll(
           managerCls,
@@ -143,7 +145,7 @@ public class ReadReceiptHandler implements BaseHook {
             }
 
             boolean isManualRead = chatId != null && pendingManualReads.contains(chatId);
-            boolean skip = chatId != null && !isManualRead && shouldBlockReadReceipt(config);
+            boolean skip = chatId != null && !isManualRead && shouldBlockReadReceipt();
 
             Object result = skip ? null : chain.proceed();
             if (chatId != null) pendingManualReads.remove(chatId);
@@ -153,14 +155,13 @@ public class ReadReceiptHandler implements BaseHook {
     }
   }
 
-  private void hookExecuteReadReceiptAsync(
-      Class<?> managerCls, LineVersion.Config cfg, KnotConfig config) {
+  private void hookExecuteReadReceiptAsync(Class<?> managerCls, LineVersion.Config cfg) {
     try {
       Knot.hookAll(
           managerCls,
           cfg.readReceipt.methodExecuteReadReceiptAsync,
           chain -> {
-            if (isPreventActive(config)) {
+            if (ReadToggle.PREVENT_READ.isActive()) {
               Class<?>[] params = ((Method) chain.getExecutable()).getParameterTypes();
               if (params.length == 1
                   && params[0] == String.class
@@ -177,17 +178,17 @@ public class ReadReceiptHandler implements BaseHook {
   private boolean shouldRememberManualRead(LineVersion.Config cfg) {
     String manualClass = cfg.readReceipt.longPressReadClass;
     boolean manual = manualClass != null && !manualClass.isEmpty() && isFromClass(manualClass);
-    return manual || SettingsStore.get("send_mark_state", false);
+    return manual || ReadToggle.SEND_MARK_READ.isOn();
   }
 
-  private void hookReadAll(Class<?> managerCls, LineVersion.Config cfg, KnotConfig config) {
+  private void hookReadAll(Class<?> managerCls, LineVersion.Config cfg) {
     try {
       Knot.hookAll(
           managerCls,
           cfg.readReceipt.methodReadAll,
           chain -> {
             boolean isNoArg = ((Method) chain.getExecutable()).getParameterCount() == 0;
-            if (isPreventActive(config) && isNoArg) isBulkReading = true;
+            if (ReadToggle.PREVENT_READ.isActive() && isNoArg) isBulkReading = true;
             try {
               return chain.proceed();
             } finally {
@@ -198,30 +199,65 @@ public class ReadReceiptHandler implements BaseHook {
     }
   }
 
-  private boolean shouldBlockReadReceipt(KnotConfig config) {
-    return isPreventActive(config) && !isBulkReading;
+  private void hookReactionMarkRead(Class<?> managerCls, LineVersion.Config cfg, ClassLoader cl) {
+    String method = cfg.readReceipt.methodReact;
+    if (method == null || method.isEmpty()) return;
+    try {
+      Class<?> successCls = Reflect.findClass(cfg.readReceipt.reactSuccessResultClass, cl);
+      Knot.hookAll(
+          Reflect.findClass(cfg.readReceipt.reactClientClass, cl),
+          method,
+          chain -> {
+            Object result = chain.proceed();
+            if (!successCls.isInstance(result) || !ReadToggle.REACTION_MARK_READ.isActive()) {
+              return result;
+            }
+            try {
+              long messageId =
+                  Reflect.getLongField(chain.getArg(0), cfg.readReceipt.reactRequestMessageIdField);
+              new Thread(() -> markReadAfterReaction(managerCls, cfg, messageId)).start();
+            } catch (Throwable t) {
+              Knot.log("Knot: reaction message id read failed: " + t);
+            }
+            return result;
+          });
+    } catch (Throwable ignored) {
+    }
   }
 
-  private boolean isPreventActive(KnotConfig config) {
-    return SettingsStore.get("prevent_mark_as_read", false)
-        && SettingsStore.get("prevent_read_state", true);
+  private void markReadAfterReaction(Class<?> managerCls, LineVersion.Config cfg, long messageId) {
+    String chatId = LineDBUtils.resolveChatIdByServerId(String.valueOf(messageId));
+    if (chatId == null) return;
+    pendingManualReads.add(chatId);
+    try {
+      Object manager = obtainReactionReadManager(managerCls);
+      long target =
+          (long) Reflect.callMethod(manager, cfg.readReceipt.methodResolveReadTarget, chatId);
+      if (target != 0L) {
+        Reflect.callMethod(manager, cfg.readReceipt.methodSendReadReceipt, target, chatId, true);
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: mark read after reaction failed: " + t);
+    } finally {
+      pendingManualReads.remove(chatId);
+    }
+  }
+
+  private static synchronized Object obtainReactionReadManager(Class<?> managerCls) {
+    if (reactionReadManager == null) {
+      reactionReadManager = Reflect.newInstance(managerCls, Knot.currentApplication());
+    }
+    return reactionReadManager;
+  }
+
+  private boolean shouldBlockReadReceipt() {
+    return ReadToggle.PREVENT_READ.isActive() && !isBulkReading;
   }
 
   private boolean isFromClass(String prefix) {
     for (StackTraceElement el : Thread.currentThread().getStackTrace()) {
       String n = el.getClassName();
       if (n.equals(prefix) || n.startsWith(prefix + "$") || n.startsWith(prefix + ".")) return true;
-    }
-    return false;
-  }
-
-  private boolean isLocalReadContext() {
-    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-    for (StackTraceElement element : stack) {
-      String name = element.getClassName();
-      if (name.contains("ChatHistoryActivity")
-          || name.contains("MessageList")
-          || name.contains("ChatList")) return true;
     }
     return false;
   }

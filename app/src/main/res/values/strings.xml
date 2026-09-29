@@ -74,6 +74,7 @@
     <!-- Read receipts -->
     <string name="label_prevent_read">Read avoidance</string>
     <string name="label_send_mark_read">Mark read after sending</string>
+    <string name="label_reaction_mark_read">Mark read after reacting</string>
     <string name="read_receipt_viewer">Read receipts</string>
     <string name="unset_time_prefix">"Unsent at: "</string>
 
