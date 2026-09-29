@@ -96,7 +96,7 @@
 
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">Add \"Read avoidance\" to the plus menu</string>
-    <string name="opt_prevent_mark_as_read_desc">Lets you turn read avoidance on and off from the \"+\" menu at the top right of the Chats tab. When it is on, a \"Mark read after sending\" option appears as well.</string>
+    <string name="opt_prevent_mark_as_read_desc">Lets you turn read avoidance on and off from the \"+\" menu at the top right of the Chats tab. When it is on, \"Mark read after sending\" and \"Mark read after reacting\" options appear as well.</string>
     <string name="opt_record_read_history_label">Record read history</string>
     <string name="opt_record_read_history_desc">Records who read each message and when. Open it from the book icon at the top of the chat screen.</string>
 

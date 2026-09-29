@@ -84,7 +84,7 @@
     <string name="msg_location">[位置資訊]</string>
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">在加號選單中加入「避免已讀」</string>
-    <string name="opt_prevent_mark_as_read_desc">可從聊天分頁右上角的「+」選單開關避免已讀功能。開啟後會一併顯示「傳送後標示已讀」選項。</string>
+    <string name="opt_prevent_mark_as_read_desc">可從聊天分頁右上角的「+」選單開關避免已讀功能。開啟後會一併顯示「傳送後標示已讀」與「表情貼回應後標示已讀」選項。</string>
     <string name="opt_record_read_history_label">記錄已讀記錄</string>
     <string name="opt_record_read_history_desc">記錄誰在何時已讀了訊息。可從聊天畫面上方的書本圖示查看。</string>
     <string name="opt_prevent_unsend_message_label">停用訊息收回</string>
