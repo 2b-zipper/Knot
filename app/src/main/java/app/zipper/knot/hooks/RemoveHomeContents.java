@@ -11,6 +11,7 @@ import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -124,26 +125,11 @@ public class RemoveHomeContents implements BaseHook {
     try {
       Class<?> dataCls =
           Reflect.findClass(cfg.home.home26LoadingMoreDataClass, lpparam.classLoader);
-      Constructor<?> ctor =
-          Reflect.findConstructorExact(
-              dataCls,
-              List.class,
-              Boolean.TYPE,
-              Boolean.TYPE,
-              Boolean.TYPE,
-              Boolean.TYPE,
-              Boolean.TYPE,
-              String.class,
-              Long.class,
-              Long.class,
-              Integer.TYPE,
-              Boolean.TYPE);
       Knot.module
-          .hook(ctor)
+          .hook(findPageDataConstructor(dataCls))
           .intercept(
               chain -> {
                 Object[] args = chain.getArgs().toArray();
-                if (args.length != 11) return chain.proceed();
 
                 boolean feedOff =
                     SettingsStore.get(
@@ -178,7 +164,7 @@ public class RemoveHomeContents implements BaseHook {
                   if (changed) args[0] = filtered;
                 }
 
-                if (feedOff && args.length > 5 && Boolean.TRUE.equals(args[5])) {
+                if (feedOff && Boolean.TRUE.equals(args[5])) {
                   args[5] = Boolean.FALSE;
                 }
                 return chain.proceed(args);
@@ -189,6 +175,34 @@ public class RemoveHomeContents implements BaseHook {
     } catch (Throwable t) {
       Knot.log("Knot: RemoveHomeContents HOME26 module filtering hook failed: " + t);
     }
+  }
+
+  // 26.15.0 appended a parameter, so only the leading ones are matched.
+  private static Constructor<?> findPageDataConstructor(Class<?> dataCls)
+      throws NoSuchMethodException {
+    Class<?>[] leading = {
+      List.class,
+      Boolean.TYPE,
+      Boolean.TYPE,
+      Boolean.TYPE,
+      Boolean.TYPE,
+      Boolean.TYPE,
+      String.class,
+      Long.class,
+      Long.class,
+      Integer.TYPE,
+      Boolean.TYPE
+    };
+    Constructor<?> match = null;
+    for (Constructor<?> ctor : dataCls.getDeclaredConstructors()) {
+      Class<?>[] params = ctor.getParameterTypes();
+      if (params.length < leading.length
+          || !Arrays.equals(Arrays.copyOf(params, leading.length), leading)) continue;
+      if (match == null || params.length < match.getParameterCount()) match = ctor;
+    }
+    if (match == null) throw new NoSuchMethodException(dataCls.getName() + ".<init>");
+    match.setAccessible(true);
+    return match;
   }
 
   private static Set<String> prefixSet(String csv) {

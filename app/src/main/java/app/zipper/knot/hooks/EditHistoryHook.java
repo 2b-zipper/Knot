@@ -273,7 +273,8 @@ public class EditHistoryHook implements BaseHook {
 
   private static Object kotlinUnit(ClassLoader cl) {
     try {
-      return Reflect.findClass("kotlin.Unit", cl).getField("INSTANCE").get(null);
+      LineVersion.Config.Kotlin kotlin = LineVersion.get().kotlin;
+      return Reflect.findClass(kotlin.unitClass, cl).getField(kotlin.fieldUnitInstance).get(null);
     } catch (Throwable t) {
       return null;
     }

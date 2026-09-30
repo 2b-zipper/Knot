@@ -16,7 +16,7 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 
 > ⚠️ This module is developed by individuals for educational purposes and is not affiliated with LY Corporation in any way. Using this module may violate LINE's Terms of Use, and the developers accept no responsibility for any disadvantage or damage resulting from its use, including account restrictions, suspension, or data loss. Use it at your own risk.
 
-**Supported LINE versions**: 26.10.0, 26.10.1, 26.11.0, 26.13.0, 26.13.1, 26.14.0
+**Supported LINE versions**: 26.11.0, 26.13.0, 26.13.1, 26.14.0, 26.15.0
 
 **Supported languages**: 日本語, English, 繁體中文
 

@@ -1,5 +1,6 @@
 package app.zipper.knot.hooks;
 
+import android.content.Context;
 import android.os.SystemClock;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
@@ -12,7 +13,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public class MuteMessageHook implements BaseHook {
 
@@ -42,18 +42,11 @@ public class MuteMessageHook implements BaseHook {
   private static void hookLabGate(ClassLoader cl, LineVersion.Config.MuteMessage cfg) {
     try {
       Class<?> silentMessage = Reflect.findClass(cfg.silentMessageFeatureClass, cl);
-      Method gate =
-          findMethod(
-              Reflect.findClass(cfg.labFeatureClass, cl),
-              cfg.methodIsFeatureEnabled,
-              method -> method.getReturnType() == boolean.class);
-      if (gate == null) {
-        Knot.log("Knot: mute message lab gate not found on " + cfg.labFeatureClass);
-        return;
-      }
 
       Knot.module
-          .hook(gate)
+          .hook(
+              Reflect.findMethodExact(
+                  cfg.labFeatureClass, cl, cfg.methodIsFeatureEnabled, Context.class))
           .intercept(
               chain ->
                   enabled() && silentMessage.isInstance(chain.getThisObject())
@@ -90,9 +83,7 @@ public class MuteMessageHook implements BaseHook {
     try {
       Method writer =
           findMethod(
-              Reflect.findClass(cfg.silentFlagWriterClass, cl),
-              cfg.methodWriteSilentFlag,
-              method -> method.getParameterTypes().length == 2);
+              Reflect.findClass(cfg.silentFlagWriterClass, cl), cfg.methodWriteSilentFlag, 2);
       if (writer == null) {
         Knot.log("Knot: mute message silent writer not found on " + cfg.silentFlagWriterClass);
         return;
@@ -190,10 +181,9 @@ public class MuteMessageHook implements BaseHook {
     return null;
   }
 
-  // 26.10.x declares the lab gate without arguments, 26.11.0 and later take a Context.
-  private static Method findMethod(Class<?> owner, String name, Predicate<Method> filter) {
+  private static Method findMethod(Class<?> owner, String name, int paramCount) {
     for (Method method : owner.getDeclaredMethods()) {
-      if (method.getName().equals(name) && filter.test(method)) {
+      if (method.getName().equals(name) && method.getParameterTypes().length == paramCount) {
         method.setAccessible(true);
         return method;
       }

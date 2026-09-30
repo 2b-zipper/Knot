@@ -44,12 +44,11 @@ Closes #
 
 ## テストしたLINEバージョン / Tested LINE versions
 <!-- 動作確認したLINEのバージョンにチェックを入れてください / Check the LINE versions you tested -->
-- [ ] 26.10.0
-- [ ] 26.10.1
 - [ ] 26.11.0
 - [ ] 26.13.0
 - [ ] 26.13.1
 - [ ] 26.14.0
+- [ ] 26.15.0
 - [ ] その他（記載してください） / Other (please specify)
 
 ### 確認手順 / How to verify
