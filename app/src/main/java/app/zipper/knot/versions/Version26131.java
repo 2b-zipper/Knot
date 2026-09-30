@@ -310,6 +310,9 @@ public class Version26131 {
     v.compose.methodLocalToWindow = "l";
     v.compose.methodCoordinatesSize = "a";
 
+    v.kotlin.unitClass = "kotlin.Unit";
+    v.kotlin.fieldUnitInstance = "INSTANCE";
+
     v.agentIInChat.toggleComposableClass = "di1.k";
 
     v.aiIcon.repoClass = "a31.c";
@@ -349,6 +352,7 @@ public class Version26131 {
     v.media.fieldVideoProfileTrimmerLimit = "M";
 
     v.chat.searchHeaderHelperClass = "rr1.h";
+    v.chat.searchHeaderShowMethod = "a";
     v.chat.searchHeaderControllerField = "l";
     v.chat.searchHeaderEventBusField = "c";
     v.chat.searchControllerSearchBoxMethod = "d";
@@ -360,6 +364,7 @@ public class Version26131 {
     v.chat.searchResultWrapperClass = "q41.i";
     v.chat.searchBoxViewClass = "jp.naver.line.android.customview.SearchBoxView";
     v.chat.searchBoxEditTextField = "b";
+    v.chat.searchBoxIconField = "d";
     v.chat.searchKeywordEventClass = "qr1.b";
     v.chat.searchKeywordEventKeywordField = "a";
     v.chat.searchPresenterKeywordChangedMethod = "onSearchInChatKeywordChangedEventReceived";
@@ -375,6 +380,9 @@ public class Version26131 {
     v.chat.searchFtsQueryField = "a";
     v.chat.searchFtsChatIdField = "b";
     v.chat.searchFtsLimitField = "c";
+    v.chat.searchFtsPrepareMethod = "d2";
+    v.chat.searchFtsBindTextMethod = "v2";
+    v.chat.searchFtsStepMethod = "a2";
 
     v.announcementFix.formatterClass = "xm1.b";
     v.announcementFix.formatMethod = "a";

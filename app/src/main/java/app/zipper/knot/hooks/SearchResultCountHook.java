@@ -52,7 +52,10 @@ public class SearchResultCountHook implements BaseHook {
     if (config.chat.searchFtsInChatQueryClass.isEmpty()
         || config.chat.searchFtsQueryField.isEmpty()
         || config.chat.searchFtsChatIdField.isEmpty()
-        || config.chat.searchFtsLimitField.isEmpty()) return;
+        || config.chat.searchFtsLimitField.isEmpty()
+        || config.chat.searchFtsPrepareMethod.isEmpty()
+        || config.chat.searchFtsBindTextMethod.isEmpty()
+        || config.chat.searchFtsStepMethod.isEmpty()) return;
 
     try {
       Class<?> queryClass = Reflect.findClass(config.chat.searchFtsInChatQueryClass, classLoader);
@@ -127,7 +130,7 @@ public class SearchResultCountHook implements BaseHook {
           (String) Reflect.getObjectField(chain.getThisObject(), config.chat.searchFtsQueryField);
       if (chatId == null || ftsQuery == null || ftsQuery.isEmpty()) return;
 
-      Integer count = fetchFtsInChatCount(args.get(0), chatId, ftsQuery);
+      Integer count = fetchFtsInChatCount(args.get(0), chatId, ftsQuery, config.chat);
       if (count == null || count <= LINE_SEARCH_DISPLAY_CAP) return;
 
       rememberRecentFtsCount(chatId, count);
@@ -136,22 +139,23 @@ public class SearchResultCountHook implements BaseHook {
     }
   }
 
-  private static Integer fetchFtsInChatCount(Object dbHandle, String chatId, String ftsQuery) {
+  private static Integer fetchFtsInChatCount(
+      Object dbHandle, String chatId, String ftsQuery, LineVersion.Config.Chat chat) {
     Object statement = null;
     try {
       statement =
           Reflect.callMethod(
               dbHandle,
-              "E1",
+              chat.searchFtsPrepareMethod,
               "SELECT COUNT(*)"
                   + " FROM fts_message"
                   + " JOIN message_chat_relation"
                   + " ON fts_message.rowid = message_chat_relation.message_id"
                   + " WHERE message_chat_relation.chat_id = ?"
                   + " AND fts_message.formatted_message MATCH ?");
-      Reflect.callMethod(statement, "X1", 1, chatId);
-      Reflect.callMethod(statement, "X1", 2, ftsQuery);
-      Object hasRow = Reflect.callMethod(statement, "A1");
+      Reflect.callMethod(statement, chat.searchFtsBindTextMethod, 1, chatId);
+      Reflect.callMethod(statement, chat.searchFtsBindTextMethod, 2, ftsQuery);
+      Object hasRow = Reflect.callMethod(statement, chat.searchFtsStepMethod);
       if (!Boolean.TRUE.equals(hasRow)) return null;
 
       Object count = Reflect.callMethod(statement, "getLong", 0);

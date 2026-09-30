@@ -100,6 +100,7 @@ public class SearchByMemberHook implements BaseHook {
 
   private boolean isValidConfig(LineVersion.Config config) {
     return !config.chat.searchHeaderHelperClass.isEmpty()
+        && !config.chat.searchHeaderShowMethod.isEmpty()
         && !config.chat.searchHeaderControllerField.isEmpty()
         && !config.chat.searchHeaderEventBusField.isEmpty()
         && !config.chat.searchControllerSearchBoxMethod.isEmpty()
@@ -108,6 +109,7 @@ public class SearchByMemberHook implements BaseHook {
         && !config.chat.searchResultWrapperClass.isEmpty()
         && !config.chat.searchBoxViewClass.isEmpty()
         && !config.chat.searchBoxEditTextField.isEmpty()
+        && !config.chat.searchBoxIconField.isEmpty()
         && !config.chat.searchKeywordEventClass.isEmpty()
         && !config.chat.searchPresenterKeywordChangedMethod.isEmpty()
         && !config.chat.searchPresenterKeywordSubjectField.isEmpty()
@@ -119,7 +121,7 @@ public class SearchByMemberHook implements BaseHook {
     try {
       Class<?> helperCls = Reflect.findClass(config.chat.searchHeaderHelperClass, classLoader);
       Knot.module
-          .hook(Reflect.findMethodExact(helperCls, "a"))
+          .hook(Reflect.findMethodExact(helperCls, config.chat.searchHeaderShowMethod))
           .intercept(
               chain -> {
                 Object result = chain.proceed();
@@ -238,7 +240,10 @@ public class SearchByMemberHook implements BaseHook {
           .intercept(
               chain -> {
                 Object result = chain.proceed();
-                ImageView icon = (ImageView) Reflect.getObjectField(chain.getThisObject(), "d");
+                ImageView icon =
+                    (ImageView)
+                        Reflect.getObjectField(
+                            chain.getThisObject(), config.chat.searchBoxIconField);
                 if (icon != null && MEMBER_ICON_TAG.equals(icon.getTag())) icon.setEnabled(true);
                 return result;
               });

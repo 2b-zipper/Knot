@@ -57,6 +57,11 @@ public class PlusMenuHook implements BaseHook {
       return;
     }
     final int composerArg = Reflect.paramIndex(itemEntry, composerCls);
+    final int iconArg = Reflect.paramIndex(itemEntry, int.class);
+    if (iconArg < 0) {
+      Knot.log("Knot: PlusMenu item entry has no icon parameter");
+      return;
+    }
 
     final Map<ReadToggle, Object> callbacks = new EnumMap<>(ReadToggle.class);
     for (ReadToggle toggle : ReadToggle.values()) {
@@ -94,7 +99,7 @@ public class PlusMenuHook implements BaseHook {
               if (!isMenuDisplayed || injectionActive) return result;
 
               int drawableId = resolveTargetDrawableId(cfg);
-              if (drawableId == 0 || (int) chain.getArg(0) != drawableId) return result;
+              if (drawableId == 0 || (int) chain.getArg(iconArg) != drawableId) return result;
 
               Object composer = chain.getArg(composerArg);
               injectionActive = true;

@@ -349,9 +349,10 @@ public class SettingsButtonLongPress implements BaseHook {
 
   // Cache the result per callback; Compose compares modifier elements by equality
   private static Object kotlinCallback(Class<?> type, String label, CallbackBody body) {
+    LineVersion.Config.Kotlin kotlin = LineVersion.get().kotlin;
     Object unit =
         Reflect.getStaticObjectField(
-            Reflect.findClass("kotlin.Unit", type.getClassLoader()), "INSTANCE");
+            Reflect.findClass(kotlin.unitClass, type.getClassLoader()), kotlin.fieldUnitInstance);
     return Proxy.newProxyInstance(
         type.getClassLoader(),
         new Class<?>[] {type},

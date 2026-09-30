@@ -49,6 +49,12 @@ public class LineVersion {
     public NightMode nightMode = new NightMode();
     public Compose compose = new Compose();
     public Home26NavIcon home26NavIcon = new Home26NavIcon();
+    public Kotlin kotlin = new Kotlin();
+
+    public static class Kotlin {
+      public String unitClass = "";
+      public String fieldUnitInstance = "";
+    }
 
     public static class Compose {
       public String composerClass = "";
@@ -419,6 +425,7 @@ public class LineVersion {
       public String chatIdField = "";
       public String methodGetChatId = "";
       public String searchHeaderHelperClass = "";
+      public String searchHeaderShowMethod = "";
       public String searchHeaderControllerField = "";
       public String searchHeaderEventBusField = "";
       public String searchControllerSearchBoxMethod = "";
@@ -430,6 +437,7 @@ public class LineVersion {
       public String searchResultWrapperClass = "";
       public String searchBoxViewClass = "";
       public String searchBoxEditTextField = "";
+      public String searchBoxIconField = "";
       public String searchKeywordEventClass = "";
       public String searchKeywordEventKeywordField = "";
       public String searchPresenterKeywordChangedMethod = "";
@@ -445,6 +453,9 @@ public class LineVersion {
       public String searchFtsQueryField = "";
       public String searchFtsChatIdField = "";
       public String searchFtsLimitField = "";
+      public String searchFtsPrepareMethod = "";
+      public String searchFtsBindTextMethod = "";
+      public String searchFtsStepMethod = "";
     }
 
     public static class ChatHeader {
@@ -607,6 +618,7 @@ public class LineVersion {
     VERSION_TABLE.put("26.13.0", app.zipper.knot.versions.Version26130.create());
     VERSION_TABLE.put("26.13.1", app.zipper.knot.versions.Version26131.create());
     VERSION_TABLE.put("26.14.0", app.zipper.knot.versions.Version26140.create());
+    VERSION_TABLE.put("26.15.0", app.zipper.knot.versions.Version26150.create());
   }
 
   private static volatile Config cachedConfig = null;
