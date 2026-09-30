@@ -123,8 +123,6 @@
     <string name="edit_history_original">元のメッセージ</string>
     <string name="edit_history_edited">編集</string>
     <string name="edit_history_delete_confirm_msg">このメッセージの編集履歴を削除しますか？</string>
-    <string name="opt_fix_announcement_name_label">アナウンス者名の表示を修正</string>
-    <string name="opt_fix_announcement_name_desc">パッチ済みのLINEで、アナウンス登録時のシステムメッセージが「がアナウンスしました」と名前が空になる不具合を修正し、正しく表示されるようにします。</string>
     <string name="opt_hide_ai_icon_permanently_label">トークルームのAgent iを永久に非表示</string>
     <string name="opt_hide_ai_icon_permanently_desc">トークルームのメッセージ入力欄に表示されるAgent iを常に非表示にします。通常は30日間のみ非表示にできますが、このオプションを有効にすると設定に関わらず永続的に非表示になります。</string>
     <string name="opt_open_url_in_default_browser_label">URLをデフォルトブラウザで開く</string>
@@ -184,8 +182,6 @@
     <string name="opt_stack_message_notifications_desc">通知を上書きせず、最大7件まで一つの通知の中にまとめて表示します。</string>
     <string name="opt_remove_notification_mute_button_label">「通知をオフ」ボタンを非表示</string>
     <string name="opt_remove_notification_mute_button_desc">LINEの通知に表示される「通知をオフ」ボタンを削除します。</string>
-    <string name="opt_fix_settings_talk_crash_label">トーク設定のクラッシュを修正</string>
-    <string name="opt_fix_settings_talk_crash_desc">パッチ済みのLINEで、公式設定の「トーク」を開くとクラッシュする問題を修正します。</string>
     <string name="opt_experimental_fcm_fix_desc">非root環境で通知が1分程度で届かなくなる問題を回避するため、LINEのFCM通知受信処理を直接サービスに引き渡す挙動を有効にします。</string>
     <string name="opt_fcm_fix_mode_desc">FCM Fixの動作モードを選択します。従来（Legy維持）はLINE独自のストリーミング接続を維持して通知を届けます。FIS（証明書偽装）はFCMトークン発行時の署名を公式証明書に偽装します。</string>
     <string name="fcm_fix_mode_legy">従来（Legy維持）</string>

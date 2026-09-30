@@ -384,11 +384,6 @@ public class Version26110 {
     v.chat.searchFtsBindTextMethod = "s2";
     v.chat.searchFtsStepMethod = "V1";
 
-    v.announcementFix.formatterClass = "cl1.c";
-    v.announcementFix.formatMethod = "a";
-    v.announcementFix.nameResolverMethod = "b";
-    v.announcementFix.announcementEventClass = "l11.h$d0";
-
     v.chatJump.requestClass = "com.linecorp.line.chat.request.ChatHistoryRequest";
     v.chatJump.launchActivityClass =
         "jp.naver.line.android.activity.chathistory.ChatHistoryActivityLaunchActivity";

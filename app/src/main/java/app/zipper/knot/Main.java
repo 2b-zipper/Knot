@@ -140,7 +140,6 @@ public class Main extends XposedModule {
     applyHook(new ShowConfigWarning(), lpparam);
     applyHook(new ReleaseNotesPopup(), lpparam);
     applyHook(new HomeSettingsTooltip(), lpparam);
-    applyHook(new SafeResourceFix(), lpparam);
 
     // Always installed; self-gates at runtime to avoid the cold-start settings-load race
     applyHook(new ReadReceiptHandler(), lpparam);
@@ -162,7 +161,6 @@ public class Main extends XposedModule {
       applyHook(new SearchMin1CharHook(), lpparam);
       applyHook(new SearchResultCountHook(), lpparam);
     }
-    if (options.fixAnnouncementName.enabled) applyHook(new AnnouncementNameFix(), lpparam);
     if (options.showSecondsInChatTime.enabled) applyHook(new ChatTimestampSeconds(), lpparam);
     if (options.selectAllInEditMode.enabled) applyHook(new ChatEditSelectAllHook(), lpparam);
     if (options.showEditHistory.enabled) applyHook(new EditHistoryHook(), lpparam);

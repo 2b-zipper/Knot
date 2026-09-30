@@ -142,8 +142,6 @@
     <string name="edit_history_original">Original message</string>
     <string name="edit_history_edited">Edit</string>
     <string name="edit_history_delete_confirm_msg">Delete the edit history of this message?</string>
-    <string name="opt_fix_announcement_name_label">Fix the announcer name</string>
-    <string name="opt_fix_announcement_name_desc">On patched builds of LINE the system message for a new announcement shows an empty name (\"announced this\"). This restores the correct name.</string>
 
     <string name="opt_hide_ai_icon_permanently_label">Hide Agent i in chat rooms permanently</string>
     <string name="opt_hide_ai_icon_permanently_desc">Always hides the Agent i entry in the chat room message field. LINE normally only lets you hide it for 30 days; with this option it stays hidden regardless of that setting.</string>
@@ -214,9 +212,6 @@
 
     <string name="opt_remove_notification_mute_button_label">Hide the \"Mute\" notification button</string>
     <string name="opt_remove_notification_mute_button_desc">Removes the \"Mute\" action button from LINE notifications.</string>
-
-    <string name="opt_fix_settings_talk_crash_label">Fix the chat settings crash</string>
-    <string name="opt_fix_settings_talk_crash_desc">Fixes the crash when opening \"Chats\" in LINE\'s own settings on patched builds.</string>
 
     <string name="opt_experimental_fcm_fix_label" translatable="false">FCM Fix</string>
     <string name="opt_experimental_fcm_fix_desc">Hands LINE\'s FCM notification handling directly to the service, working around notifications that stop arriving after about a minute on non-rooted devices.</string>

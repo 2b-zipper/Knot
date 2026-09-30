@@ -36,7 +36,6 @@ public class LineVersion {
     public Media media = new Media();
     public Profile profile = new Profile();
     public ProfileTimestamps profileTimestamps = new ProfileTimestamps();
-    public AnnouncementFix announcementFix = new AnnouncementFix();
     public ChatJump chatJump = new ChatJump();
     public ChatTimestamp chatTimestamp = new ChatTimestamp();
     public ChatEditSelectAll chatEditSelectAll = new ChatEditSelectAll();
@@ -163,13 +162,6 @@ public class LineVersion {
 
     public static class Iab {
       public String inAppBrowserActivityClass = "";
-    }
-
-    public static class AnnouncementFix {
-      public String formatterClass = "";
-      public String formatMethod = "";
-      public String nameResolverMethod = "";
-      public String announcementEventClass = "";
     }
 
     public static class ChatJump {

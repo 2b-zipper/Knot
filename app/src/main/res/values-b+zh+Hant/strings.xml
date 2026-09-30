@@ -123,8 +123,6 @@
     <string name="edit_history_original">原始訊息</string>
     <string name="edit_history_edited">編輯</string>
     <string name="edit_history_delete_confirm_msg">要刪除這則訊息的編輯記錄嗎？</string>
-    <string name="opt_fix_announcement_name_label">修正公告者名稱的顯示</string>
-    <string name="opt_fix_announcement_name_desc">修正已修補的LINE中，建立公告時系統訊息的名稱變成空白（顯示為「發布了公告」）的問題，讓名稱正確顯示。</string>
     <string name="opt_hide_ai_icon_permanently_label">永久隱藏聊天室的Agent i</string>
     <string name="opt_hide_ai_icon_permanently_desc">永遠隱藏聊天室訊息輸入欄中的Agent i。一般只能隱藏30天，啟用此選項後將不受該設定影響而永久隱藏。</string>
     <string name="opt_open_url_in_default_browser_label">以預設瀏覽器開啟連結</string>
@@ -184,8 +182,6 @@
     <string name="opt_stack_message_notifications_desc">不覆蓋先前的通知，最多將7則訊息合併顯示於同一則通知中。</string>
     <string name="opt_remove_notification_mute_button_label">隱藏「關閉通知」按鈕</string>
     <string name="opt_remove_notification_mute_button_desc">移除LINE通知中顯示的「關閉通知」按鈕。</string>
-    <string name="opt_fix_settings_talk_crash_label">修正聊天設定的當機問題</string>
-    <string name="opt_fix_settings_talk_crash_desc">修正已修補的LINE中，開啟LINE設定的「聊天」時會當機的問題。</string>
     <string name="opt_experimental_fcm_fix_desc">將LINE的FCM通知接收處理直接交給服務，以迴避在非root環境下通知約1分鐘後就收不到的問題。</string>
     <string name="opt_fcm_fix_mode_desc">選擇FCM Fix的運作模式。傳統（維持Legy）會維持LINE專屬的串流連線來傳送通知。FIS（偽裝憑證）會在發行FCM權杖時將簽章偽裝為官方憑證。</string>
     <string name="fcm_fix_mode_legy">傳統（維持Legy）</string>
