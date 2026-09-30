@@ -44,8 +44,6 @@ Closes #
 
 ## テストしたLINEバージョン / Tested LINE versions
 <!-- 動作確認したLINEのバージョンにチェックを入れてください / Check the LINE versions you tested -->
-- [ ] 26.10.0
-- [ ] 26.10.1
 - [ ] 26.11.0
 - [ ] 26.13.0
 - [ ] 26.13.1
