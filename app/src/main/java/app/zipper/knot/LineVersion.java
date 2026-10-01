@@ -49,6 +49,12 @@ public class LineVersion {
     public Compose compose = new Compose();
     public Home26NavIcon home26NavIcon = new Home26NavIcon();
     public Kotlin kotlin = new Kotlin();
+    public Room room = new Room();
+
+    public static class Room {
+      public String migrationUtilClass = "";
+      public String methodIsMigrationRequired = "";
+    }
 
     public static class Kotlin {
       public String unitClass = "";
