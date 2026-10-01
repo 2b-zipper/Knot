@@ -212,6 +212,8 @@
     <string name="opt_spoof_version_desc">永遠將應用程式版本偽裝為15.12.2。若無特殊目的請勿使用。</string>
     <string name="opt_fix_signature_mismatch_label">偽裝官方簽章</string>
     <string name="opt_fix_signature_mismatch_desc">迴避已修補的LINE中，下載字型或生物辨識連動等功能失敗的問題。</string>
+    <string name="opt_fix_downgrade_crash_label">修正降版後的閃退</string>
+    <string name="opt_fix_downgrade_crash_desc">修正將LINE降回舊版本後無法啟動的問題。由新版本更新過的部分資料（快取等）會被刪除。聊天記錄等主要資料不受影響。</string>
     <string name="opt_debug_menu_label">搖動開啟偵錯選單</string>
     <string name="opt_debug_menu_desc">搖動裝置即可開啟偵錯選單，查看記錄檔與 Hook 狀態。</string>
     <!-- Storage / backup rows -->

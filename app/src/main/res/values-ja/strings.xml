@@ -212,6 +212,8 @@
     <string name="opt_spoof_version_desc">常にアプリバージョンを15.12.2に偽装します。なにか特別な目的がない限り使用しないでください。</string>
     <string name="opt_fix_signature_mismatch_label">公式署名を偽装</string>
     <string name="opt_fix_signature_mismatch_desc">パッチ済みのLINEで、フォントのダウンロードや生体認証の連携などに失敗する問題を回避します。</string>
+    <string name="opt_fix_downgrade_crash_label">ダウングレード後のクラッシュを修正</string>
+    <string name="opt_fix_downgrade_crash_desc">LINEを古いバージョンに戻したときに起動できなくなる問題を修正します。新しいバージョンで更新された一部のデータ (キャッシュなど) は削除されます。トーク履歴などの本体のデータには触れません。</string>
     <string name="opt_debug_menu_label">振ってデバッグメニューを開く</string>
     <string name="opt_debug_menu_desc">端末を振ると、ログやフックの状態を確認できるデバッグメニューを開きます。</string>
     <!-- Storage / backup rows -->

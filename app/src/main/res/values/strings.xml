@@ -247,6 +247,8 @@
 
     <string name="opt_fix_signature_mismatch_label">Spoof the official signature</string>
     <string name="opt_fix_signature_mismatch_desc">Works around failures on patched builds of LINE, such as font downloads and biometric authentication.</string>
+    <string name="opt_fix_downgrade_crash_label">Fix crashes after downgrading LINE</string>
+    <string name="opt_fix_downgrade_crash_desc">Prevents crashes after downgrading LINE to an older version. Some data that the newer version upgraded (such as caches) is deleted. Core data such as chat history is never touched.</string>
     <string name="opt_debug_menu_label">Shake to open the debug menu</string>
     <string name="opt_debug_menu_desc">Shake the device to open a menu for checking logs and hook status.</string>
 

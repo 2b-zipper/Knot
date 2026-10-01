@@ -132,6 +132,7 @@ public class KnotConfig {
   public final Item customRingtonePath           = item("custom_ringtone_path",             R.string.opt_custom_ringtone_path_label,             R.string.opt_custom_ringtone_path_desc,             false, Category.NOTIFICATION, R.string.sec_call);
   public final Item spoofVersion                 = item("spoof_version",                    R.string.opt_spoof_version_label,                    R.string.opt_spoof_version_desc,                    false, Category.SYSTEM,       0);
   public final Item fixSignatureMismatch         = item("fix_signature_mismatch",           R.string.opt_fix_signature_mismatch_label,           R.string.opt_fix_signature_mismatch_desc,           true,  Category.SYSTEM,       0);
+  public final Item fixDowngradeCrash            = item("fix_downgrade_crash",              R.string.opt_fix_downgrade_crash_label,              R.string.opt_fix_downgrade_crash_desc,              true,  Category.SYSTEM,       0);
   public final Item debugMenu                    = item("debug_menu",                       R.string.opt_debug_menu_label,                       R.string.opt_debug_menu_desc,                       true,  Category.SYSTEM,       0);
   // @formatter:on
 

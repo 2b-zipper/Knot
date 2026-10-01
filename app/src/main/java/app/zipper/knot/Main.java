@@ -219,6 +219,7 @@ public class Main extends XposedModule {
       applyHook(new VersionSpoof(), lpparam);
     }
     if (options.fixSignatureMismatch.enabled) applyHook(new SignatureSpoofHook(), lpparam);
+    if (options.fixDowngradeCrash.enabled) applyHook(new RoomDowngradeHook(), lpparam);
   }
 
   // Most hooks catch their own failures and only log them, so the log lines are the real outcome

@@ -533,6 +533,9 @@ public class Version26140 {
     v.nightMode.methodThemeMode = "w";
     v.nightMode.methodIsDefaultTheme = "y";
 
+    v.room.migrationUtilClass = "nd.g";
+    v.room.methodIsMigrationRequired = "b";
+
     return v;
   }
 }
