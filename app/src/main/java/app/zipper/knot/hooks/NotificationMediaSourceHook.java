@@ -7,6 +7,7 @@ import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Map;
 import org.json.JSONObject;
 
@@ -221,31 +222,44 @@ public class NotificationMediaSourceHook implements BaseHook {
     }
 
     ClassLoader loader = lpparam.classLoader;
+    Class<?> processorClass = Reflect.findClass(config.messageProcessorClass, loader);
     Class<?> metadataClass = Reflect.findClass(config.messageProcessorMetadataClass, loader);
+    Object[] params = {
+      messageClass,
+      Reflect.findClass(config.messageProcessorContentTypeClass, loader),
+      metadataClass,
+      String.class,
+      Reflect.findClass(config.messageProcessorAuxClass, loader),
+      Long.class,
+      Reflect.findClass(config.messageProcessorContinuationClass, loader)
+    };
+    Method method;
+    int offset;
+    try {
+      method = Reflect.findMethodExact(processorClass, config.messageProcessorMethod, params);
+      offset = 0;
+    } catch (NoSuchMethodError e) {
+      Object[] staticParams = new Object[params.length + 1];
+      staticParams[0] = processorClass;
+      System.arraycopy(params, 0, staticParams, 1, params.length);
+      method = Reflect.findMethodExact(processorClass, config.messageProcessorMethod, staticParams);
+      offset = 1;
+    }
+    int argOffset = offset;
     Knot.module
-        .hook(
-            Reflect.findMethodExact(
-                Reflect.findClass(config.messageProcessorClass, loader),
-                config.messageProcessorMethod,
-                messageClass,
-                Reflect.findClass(config.messageProcessorContentTypeClass, loader),
-                metadataClass,
-                String.class,
-                Reflect.findClass(config.messageProcessorAuxClass, loader),
-                Long.class,
-                Reflect.findClass(config.messageProcessorContinuationClass, loader)))
+        .hook(method)
         .intercept(
             chain -> {
               try {
-                Object message = chain.getArg(0);
+                Object message = chain.getArg(argOffset);
                 Object contentType =
                     message == null ? null : objectField(message, config.messageContentTypeField);
                 String type = contentType == null ? null : contentType.toString();
                 if ("IMAGE".equals(type) || "VIDEO".equals(type)) {
                   String messageId = stringField(message, config.messageServerIdField);
-                  Object metadata = chain.getArg(2);
-                  Object chatId = chain.getArg(3);
-                  Object localId = chain.getArg(5);
+                  Object metadata = chain.getArg(argOffset + 2);
+                  Object chatId = chain.getArg(argOffset + 3);
+                  Object localId = chain.getArg(argOffset + 5);
                   if (hasText(messageId)
                       && metadata != null
                       && chatId instanceof String

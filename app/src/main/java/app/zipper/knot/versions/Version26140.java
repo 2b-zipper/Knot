@@ -245,7 +245,7 @@ public class Version26140 {
     v.notification.glideWithContextMethod = "e";
     v.notification.glideRetrieverMethod = "c";
     v.notification.glideRetrieverGetMethod = "f";
-    v.notification.glideAsFileMethod = "k";
+    v.notification.glideAsFileMethod = "p";
     v.notification.glideLoadMethod = "b0";
     v.notification.glideSubmitMethod = "g0";
     v.notification.glideClearMethod = "n";
