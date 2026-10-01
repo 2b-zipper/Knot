@@ -209,6 +209,8 @@
 
     <string name="opt_stack_message_notifications_label">Do not overwrite notifications</string>
     <string name="opt_stack_message_notifications_desc">Groups up to seven messages in a single notification instead of replacing the previous one.</string>
+    <string name="opt_notification_media_preview_label">Show media previews in notifications</string>
+    <string name="opt_notification_media_preview_desc">Preview images, video thumbnails, stickers, arranged stickers, and emoji in message notifications.</string>
 
     <string name="opt_remove_notification_mute_button_label">Hide the \"Mute\" notification button</string>
     <string name="opt_remove_notification_mute_button_desc">Removes the \"Mute\" action button from LINE notifications.</string>
