@@ -180,6 +180,8 @@
     <string name="opt_reaction_notification_desc">メッセージについたリアクションを通知します。※アプリを開くと送信されます。フォアグラウンドサービス化している場合、LINEを起動していなくても通知が届きます。</string>
     <string name="opt_stack_message_notifications_label">通知を上書きしない</string>
     <string name="opt_stack_message_notifications_desc">通知を上書きせず、最大7件まで一つの通知の中にまとめて表示します。</string>
+    <string name="opt_notification_media_preview_label">通知にメディアプレビューを表示</string>
+    <string name="opt_notification_media_preview_desc">画像・動画サムネイル・スタンプ・アレンジスタンプ・絵文字をメッセージ通知内にプレビュー表示します。</string>
     <string name="opt_remove_notification_mute_button_label">「通知をオフ」ボタンを非表示</string>
     <string name="opt_remove_notification_mute_button_desc">LINEの通知に表示される「通知をオフ」ボタンを削除します。</string>
     <string name="opt_experimental_fcm_fix_desc">非root環境で通知が1分程度で届かなくなる問題を回避するため、LINEのFCM通知受信処理を直接サービスに引き渡す挙動を有効にします。</string>

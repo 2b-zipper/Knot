@@ -3,8 +3,10 @@ package app.zipper.knot.hooks;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
@@ -17,19 +19,24 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class StackMessageNotificationsHook implements BaseHook {
   private static final String MESSAGE_TEXT_KEY = "text";
   private static final String MESSAGE_TIME_KEY = "time";
   private static final String MESSAGE_SENDER_KEY = "sender";
   private static final String MESSAGE_SENDER_PERSON_KEY = "sender_person";
+  private static final String MESSAGE_DATA_MIME_TYPE_KEY = "type";
+  private static final String MESSAGE_DATA_URI_KEY = "uri";
+  private static final String MEDIA_MESSAGE_ID_EXTRA = "knot.media_message_id";
   private static final String KNOT_REACTION_CHANNEL_ID = "knot_reaction";
   private static final int MAX_STACKED_LINES = 7;
   private static final int MAX_CACHE_KEYS = 32;
-  private static final LinkedHashMap<NotificationKey, List<MessageLine>> stackedLines =
-      new LinkedHashMap<NotificationKey, List<MessageLine>>(16, 0.75f, true) {
+  private static final long MEDIA_HANDOFF_GRACE_MS = TimeUnit.SECONDS.toMillis(5);
+  private static final LinkedHashMap<NotificationKey, StackState> stackedLines =
+      new LinkedHashMap<NotificationKey, StackState>(MAX_CACHE_KEYS, 0.75f, true) {
         @Override
-        protected boolean removeEldestEntry(Map.Entry<NotificationKey, List<MessageLine>> eldest) {
+        protected boolean removeEldestEntry(Map.Entry<NotificationKey, StackState> eldest) {
           return size() > MAX_CACHE_KEYS;
         }
       };
@@ -44,12 +51,20 @@ public class StackMessageNotificationsHook implements BaseHook {
             chain -> {
               if (!config.stackMessageNotifications.enabled) return chain.proceed();
 
-              String tag = (String) chain.getArg(0);
-              int id = (int) chain.getArg(1);
-              Notification notification = (Notification) chain.getArg(2);
-              Notification stacked = stackMessageNotification(tag, id, notification);
-              if (stacked == notification) return chain.proceed();
-              return chain.proceed(new Object[] {tag, id, stacked});
+              synchronized (NotificationMediaPreviewHook.NOTIFICATION_POST_LOCK) {
+                String tag = (String) chain.getArg(0);
+                int id = (int) chain.getArg(1);
+                Notification notification = (Notification) chain.getArg(2);
+                if (notification.extras != null
+                    && notification.extras.getBoolean(
+                        NotificationMediaPreviewHook.REPOST_MARKER, false)) {
+                  return chain.proceed();
+                }
+                Notification stacked =
+                    mergeNotification(Knot.currentApplication(), tag, id, notification);
+                if (stacked == notification) return chain.proceed();
+                return chain.proceed(new Object[] {tag, id, stacked});
+              }
             });
 
     Knot.module
@@ -77,17 +92,20 @@ public class StackMessageNotificationsHook implements BaseHook {
             });
   }
 
-  private static Notification stackMessageNotification(
-      String tag, int id, Notification notification) {
-    LineVersion.Config.Notification notificationConfig = LineVersion.get().notification;
+  static Notification mergeNotification(
+      Context context, String tag, int id, Notification notification) {
+    LineVersion.Config version = LineVersion.get();
+    if (version == null) return notification;
+    LineVersion.Config.Notification notificationConfig = version.notification;
     if (!isLineMessageNotificationTag(notificationConfig, tag)) return notification;
     if (!isLineMessageNotification(notification)) return notification;
-
-    Context context = Knot.currentApplication();
     if (context == null) return notification;
 
     Bundle extras = notification.extras;
-    String messageId = stringExtra(extras, notificationConfig.messageIdExtra);
+    String messageId = stringExtra(extras, MEDIA_MESSAGE_ID_EXTRA);
+    if (!hasText(messageId)) {
+      messageId = stringExtra(extras, notificationConfig.messageIdExtra);
+    }
     CharSequence text = firstText(extras);
     if (!hasText(messageId) || !hasText(text)) return notification;
 
@@ -133,13 +151,20 @@ public class StackMessageNotificationsHook implements BaseHook {
       Context context, NotificationKey key, MessageLine incomingLine) {
     List<MessageLine> lines = new ArrayList<>();
     Notification active = findActiveNotification(context, key);
-    if (active == null) {
+    StackState cachedState = stackedLines.get(key);
+    long now = SystemClock.elapsedRealtime();
+    boolean recentMediaHandoff =
+        active == null
+            && incomingLine.hasData()
+            && cachedState != null
+            && now - cachedState.updatedAtMs <= MEDIA_HANDOFF_GRACE_MS;
+    if (active == null && !recentMediaHandoff) {
       stackedLines.remove(key);
+      cachedState = null;
     }
 
-    List<MessageLine> cached = stackedLines.get(key);
-    if (cached != null) {
-      for (MessageLine line : cached) {
+    if (cachedState != null) {
+      for (MessageLine line : cachedState.lines) {
         addLine(lines, line);
       }
     }
@@ -161,7 +186,7 @@ public class StackMessageNotificationsHook implements BaseHook {
     while (lines.size() > MAX_STACKED_LINES) {
       lines.remove(0);
     }
-    stackedLines.put(key, new ArrayList<>(lines));
+    stackedLines.put(key, new StackState(new ArrayList<>(lines), now));
     return lines;
   }
 
@@ -171,11 +196,51 @@ public class StackMessageNotificationsHook implements BaseHook {
     CharSequence conversationTitle = conversationTitle(lines, extras);
     if (hasText(conversationTitle)) style.setConversationTitle(conversationTitle);
     for (MessageLine line : lines) {
-      if (!addPersonMessage(style, line)) {
-        style.addMessage(line.text, line.timestamp, line.sender);
-      }
+      style.addMessage(message(line));
     }
     return style;
+  }
+
+  static Notification buildMediaMessageNotification(
+      Context context,
+      String tag,
+      int id,
+      Notification base,
+      Notification mediaSource,
+      String messageId,
+      NotificationMediaFileStore.Attachment attachment,
+      boolean stackEnabled) {
+    if (context == null
+        || base == null
+        || base.extras == null
+        || mediaSource == null
+        || mediaSource.extras == null
+        || attachment == null) {
+      return null;
+    }
+
+    try {
+      CharSequence mediaText = firstText(mediaSource.extras);
+      if (!hasText(mediaText)) return null;
+      MessageLine line =
+          incomingLine(mediaSource.extras, messageId, mediaText)
+              .withData(attachment.mimeType, attachment.uri);
+      Notification.Builder builder = Notification.Builder.recoverBuilder(context, base);
+      CharSequence currentText = firstText(base.extras);
+      builder.setContentText(hasText(currentText) ? currentText : mediaText);
+      builder.setOnlyAlertOnce(true);
+      List<MessageLine> lines = new ArrayList<>();
+      lines.add(line);
+      builder.setStyle(messagingStyle(lines, mediaSource.extras));
+      Bundle mediaExtras = new Bundle();
+      mediaExtras.putString(MEDIA_MESSAGE_ID_EXTRA, messageId);
+      builder.addExtras(mediaExtras);
+      Notification built = builder.build();
+      return stackEnabled ? mergeNotification(context, tag, id, built) : built;
+    } catch (Throwable t) {
+      Knot.log("Knot: media MessagingStyle build failed: " + t.getClass().getSimpleName());
+      return null;
+    }
   }
 
   private static Notification.InboxStyle inboxStyle(List<MessageLine> lines, Bundle extras) {
@@ -202,7 +267,8 @@ public class StackMessageNotificationsHook implements BaseHook {
       }
       return;
     }
-    if (isLineMessageNotificationTag(LineVersion.get().notification, tag)) {
+    LineVersion.Config version = LineVersion.get();
+    if (version != null && isLineMessageNotificationTag(version.notification, tag)) {
       stackedLines.remove(new NotificationKey(tag, id));
     }
   }
@@ -226,8 +292,13 @@ public class StackMessageNotificationsHook implements BaseHook {
     return null;
   }
 
+  static Notification activeNotification(Context context, String tag, int id) {
+    if (context == null) return null;
+    return findActiveNotification(context, new NotificationKey(tag, id));
+  }
+
   private static void addLine(List<MessageLine> lines, MessageLine next) {
-    if (next == null || !hasText(next.text)) return;
+    if (next == null || (!hasText(next.text) && !next.hasData())) return;
     for (int i = 0; i < lines.size(); i++) {
       MessageLine current = lines.get(i);
       if (hasText(next.messageId) && next.messageId.equals(current.messageId)) {
@@ -280,27 +351,38 @@ public class StackMessageNotificationsHook implements BaseHook {
   private static MessageLine messagingLine(
       Bundle message, String messageId, CharSequence conversationTitle) {
     CharSequence text = message.getCharSequence(MESSAGE_TEXT_KEY);
-    if (!hasText(text)) return null;
+    String dataMimeType = message.getString(MESSAGE_DATA_MIME_TYPE_KEY);
+    Parcelable dataValue = message.getParcelable(MESSAGE_DATA_URI_KEY);
+    Uri dataUri = dataValue instanceof Uri ? (Uri) dataValue : null;
+    if (!hasText(text) && (!hasText(dataMimeType) || dataUri == null)) return null;
 
     Parcelable senderPerson = message.getParcelable(MESSAGE_SENDER_PERSON_KEY);
     CharSequence sender = messageSender(message, senderPerson);
     long timestamp = message.getLong(MESSAGE_TIME_KEY, System.currentTimeMillis());
-    return new MessageLine(messageId, text, sender, senderPerson, conversationTitle, timestamp);
+    return new MessageLine(
+        messageId, text, sender, senderPerson, conversationTitle, timestamp, dataMimeType, dataUri);
   }
 
-  private static boolean addPersonMessage(Notification.MessagingStyle style, MessageLine line) {
-    if (line.senderPerson == null) return false;
+  private static Notification.MessagingStyle.Message message(MessageLine line) {
+    Notification.MessagingStyle.Message message = null;
     try {
       Class<?> personClass = Class.forName("android.app.Person");
-      if (!personClass.isInstance(line.senderPerson)) return false;
-      style
-          .getClass()
-          .getMethod("addMessage", CharSequence.class, long.class, personClass)
-          .invoke(style, line.text, line.timestamp, line.senderPerson);
-      return true;
+      if (personClass.isInstance(line.senderPerson)) {
+        Object value =
+            Notification.MessagingStyle.Message.class
+                .getConstructor(CharSequence.class, long.class, personClass)
+                .newInstance(line.text, line.timestamp, line.senderPerson);
+        if (value instanceof Notification.MessagingStyle.Message) {
+          message = (Notification.MessagingStyle.Message) value;
+        }
+      }
     } catch (Throwable ignored) {
-      return false;
     }
+    if (message == null) {
+      message = new Notification.MessagingStyle.Message(line.text, line.timestamp, line.sender);
+    }
+    if (line.hasData()) message.setData(line.dataMimeType, line.dataUri);
+    return message;
   }
 
   private static CharSequence messageSender(Bundle message, Parcelable senderPerson) {
@@ -355,7 +437,7 @@ public class StackMessageNotificationsHook implements BaseHook {
 
   private static boolean usesMessagingStyle(List<MessageLine> lines) {
     for (MessageLine line : lines) {
-      if (hasText(line.sender) || line.senderPerson != null) return true;
+      if (hasText(line.sender) || line.senderPerson != null || line.hasData()) return true;
     }
     return false;
   }
@@ -416,6 +498,16 @@ public class StackMessageNotificationsHook implements BaseHook {
     }
   }
 
+  private static final class StackState {
+    final List<MessageLine> lines;
+    final long updatedAtMs;
+
+    StackState(List<MessageLine> lines, long updatedAtMs) {
+      this.lines = lines;
+      this.updatedAtMs = updatedAtMs;
+    }
+  }
+
   private static final class MessageLine {
     final String messageId;
     final CharSequence text;
@@ -423,6 +515,8 @@ public class StackMessageNotificationsHook implements BaseHook {
     final Parcelable senderPerson;
     final CharSequence conversationTitle;
     final long timestamp;
+    final String dataMimeType;
+    final Uri dataUri;
 
     MessageLine(
         String messageId,
@@ -431,12 +525,35 @@ public class StackMessageNotificationsHook implements BaseHook {
         Parcelable senderPerson,
         CharSequence conversationTitle,
         long timestamp) {
+      this(messageId, text, sender, senderPerson, conversationTitle, timestamp, null, null);
+    }
+
+    MessageLine(
+        String messageId,
+        CharSequence text,
+        CharSequence sender,
+        Parcelable senderPerson,
+        CharSequence conversationTitle,
+        long timestamp,
+        String dataMimeType,
+        Uri dataUri) {
       this.messageId = messageId;
       this.text = text;
       this.sender = sender;
       this.senderPerson = senderPerson;
       this.conversationTitle = conversationTitle;
       this.timestamp = timestamp;
+      this.dataMimeType = dataMimeType;
+      this.dataUri = dataUri;
+    }
+
+    MessageLine withData(String mimeType, Uri uri) {
+      return new MessageLine(
+          messageId, text, sender, senderPerson, conversationTitle, timestamp, mimeType, uri);
+    }
+
+    boolean hasData() {
+      return hasText(dataMimeType) && dataUri != null;
     }
   }
 }
