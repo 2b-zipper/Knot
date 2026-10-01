@@ -667,6 +667,9 @@ public class LineVersion {
       public String commerceHeaderMethod = "";
 
       public String imageViewerAiButtonClass = "";
+
+      public String chatImageAiButtonClass = "";
+      public String chatImageAiButtonMethod = "";
     }
 
     public static class AgentIInChat {

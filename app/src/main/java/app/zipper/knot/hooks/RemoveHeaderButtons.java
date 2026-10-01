@@ -42,6 +42,7 @@ public class RemoveHeaderButtons implements BaseHook {
       hookHome26AgentButton(cfg, lpparam.classLoader);
       hookCommerceTabAgentButton(cfg, lpparam.classLoader);
       hookImageViewerAgentButton(cfg, lpparam.classLoader);
+      hookChatImageAgentButton(cfg, lpparam.classLoader);
     }
 
     if (cfg.talkTabHeader.chatTabHeaderStateClass.isEmpty()) return;
@@ -296,6 +297,30 @@ public class RemoveHeaderButtons implements BaseHook {
       Knot.log("Knot: RemoveHeaderButtons hooked image viewer Agent i button.");
     } catch (Throwable t) {
       Knot.log("Knot: RemoveHeaderButtons could not hook image viewer Agent i button: " + t);
+    }
+  }
+
+  private static void hookChatImageAgentButton(LineVersion.Config cfg, ClassLoader classLoader) {
+    if (cfg.searchBarAgentI.chatImageAiButtonClass.isEmpty()
+        || cfg.searchBarAgentI.chatImageAiButtonMethod.isEmpty()) return;
+
+    try {
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  cfg.searchBarAgentI.chatImageAiButtonClass,
+                  classLoader,
+                  cfg.searchBarAgentI.chatImageAiButtonMethod,
+                  Integer.class))
+          .intercept(
+              chain -> {
+                if (!Main.options.removeSearchBarAgentIButton.enabled) return chain.proceed();
+                // LINE hides the button when the image height is unknown.
+                return chain.proceed(new Object[] {null});
+              });
+      Knot.log("Knot: RemoveHeaderButtons hooked chat image Agent i button.");
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveHeaderButtons could not hook chat image Agent i button: " + t);
     }
   }
 

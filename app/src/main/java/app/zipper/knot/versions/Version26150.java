@@ -370,6 +370,8 @@ public class Version26150 {
     v.searchBarAgentI.commerceHeaderClass = "com.linecorp.line.commerce.impl.c";
     v.searchBarAgentI.commerceHeaderMethod = "d";
     v.searchBarAgentI.imageViewerAiButtonClass = "v88.f0";
+    v.searchBarAgentI.chatImageAiButtonClass = "ks1.d";
+    v.searchBarAgentI.chatImageAiButtonMethod = "a";
     v.home26NavIcon.rendererClass = "lm2.n";
     v.home26NavIcon.rendererMethod = "b";
     v.home26NavIcon.agentDrawableId = 0x7f080b9f;
