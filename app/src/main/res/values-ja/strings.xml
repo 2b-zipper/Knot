@@ -112,6 +112,8 @@
     <string name="opt_search_by_member_desc">検索ボックス内の虫眼鏡アイコンを押すことで、メンバーを選んでそのユーザーのメッセージのみを絞り込み検索できるようにします。</string>
     <string name="opt_search_min_1_char_label">1文字からトーク内検索</string>
     <string name="opt_search_min_1_char_desc">トーク内検索の最低文字数を2文字から1文字に緩和します。</string>
+    <string name="opt_keyword_assist_in_search_bar_label">検索キーワードアシストを検索バーに埋め込む</string>
+    <string name="opt_keyword_assist_in_search_bar_desc">トーク内検索の下に表示される「Agent iの検索キーワードアシスト」の行を消し、検索バーの中のボタンでオン/オフを切り替えられるようにします。※LINE 26.15.0以上のみ対応しています。</string>
     <string name="opt_show_seconds_in_chat_time_label">チャットの時刻に秒を表示</string>
     <string name="opt_show_seconds_in_chat_time_desc">各メッセージ横の時刻表示に秒を追加します。 (例: 12:34 → 12:34:56)</string>
     <string name="opt_select_all_in_edit_mode_label">メッセージ削除画面に全選択ボタンを追加</string>
