@@ -541,6 +541,17 @@ public class Version26150 {
     v.room.migrationUtilClass = "sd.h";
     v.room.methodIsMigrationRequired = "b";
 
+    v.keywordAssist.toggleViewClass = "ry1.d";
+    v.keywordAssist.methodGetChecked = "getChecked";
+    v.keywordAssist.methodSetChecked = "setChecked";
+    v.keywordAssist.methodGetOnCheckedChange = "getOnCheckedChange";
+    v.keywordAssist.resSearchBarBg = "search_bar_bg";
+    v.keywordAssist.resSearchBarInput = "searchbar_input_text";
+    v.keywordAssist.resSearchBarCancel = "searchbar_cancel_button";
+    v.keywordAssist.resSearchBarIcon = "v2_common_search_icon";
+    v.keywordAssist.resOnColor = "primaryFill";
+    v.keywordAssist.resTitle = "search_keywordassist_title_keywordassist";
+
     return v;
   }
 }

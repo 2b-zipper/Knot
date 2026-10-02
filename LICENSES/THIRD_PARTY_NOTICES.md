@@ -10,7 +10,7 @@ Knot bundles the following third-party assets. This folder is also packaged into
 
 ## Tabler Icons
 
-- Files: `app/src/main/res/drawable/clock_edit.xml`, `ic_book.xml`, `ic_info_circle.xml`, `message_off.xml`, `ic_prevent_read_on.xml`, `ic_prevent_read_off.xml`, `ic_send_mark_read_on.xml`, `ic_send_mark_read_off.xml`, `ic_reaction_mark_read_on.xml`, `ic_reaction_mark_read_off.xml` (converted to vector drawables)
+- Files: `app/src/main/res/drawable/clock_edit.xml`, `ic_book.xml`, `ic_info_circle.xml`, `message_off.xml`, `ic_prevent_read_on.xml`, `ic_prevent_read_off.xml`, `ic_send_mark_read_on.xml`, `ic_send_mark_read_off.xml`, `ic_reaction_mark_read_on.xml`, `ic_reaction_mark_read_off.xml`, `ic_keyword_assist.xml` (converted to vector drawables)
 - Source: https://github.com/tabler/tabler-icons
 - License: MIT (see [MIT-Tabler-Icons.txt](MIT-Tabler-Icons.txt))
 

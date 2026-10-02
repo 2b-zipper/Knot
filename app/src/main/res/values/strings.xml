@@ -130,6 +130,8 @@
     <string name="opt_search_by_member_desc">Tap the magnifier icon inside the search box to pick a member and search only their messages.</string>
     <string name="opt_search_min_1_char_label">Search chats from one character</string>
     <string name="opt_search_min_1_char_desc">Lowers the minimum in-chat search length from two characters to one.</string>
+    <string name="opt_keyword_assist_in_search_bar_label">Embed Search Keyword Assist in the search bar</string>
+    <string name="opt_keyword_assist_in_search_bar_desc">Replaces the \"Agent i Search Keyword Assist\" row under the in-chat search bar with a button inside the search bar. Note: requires LINE 26.15.0 or later.</string>
 
     <string name="opt_show_seconds_in_chat_time_label">Show seconds on chat timestamps</string>
     <string name="opt_show_seconds_in_chat_time_desc">Adds seconds to the time shown next to each message (for example 12:34 → 12:34:56).</string>
