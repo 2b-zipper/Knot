@@ -112,6 +112,8 @@
     <string name="opt_search_by_member_desc">點擊搜尋框中的放大鏡圖示，即可選擇成員並只搜尋該使用者的訊息。</string>
     <string name="opt_search_min_1_char_label">可用1個字搜尋聊天內容</string>
     <string name="opt_search_min_1_char_desc">將聊天室內搜尋的最少字數從2個字放寬為1個字。</string>
+    <string name="opt_keyword_assist_in_search_bar_label">將搜尋關鍵字輔助嵌入搜尋列</string>
+    <string name="opt_keyword_assist_in_search_bar_desc">移除聊天室內搜尋下方的「Agent i Search Keyword Assist」列，改為以搜尋列中的按鈕切換開關。※僅支援LINE 26.15.0以上版本。</string>
     <string name="opt_show_seconds_in_chat_time_label">在聊天時間中顯示秒數</string>
     <string name="opt_show_seconds_in_chat_time_desc">在每則訊息旁的時間顯示中加入秒數。（例如12:34 → 12:34:56）</string>
     <string name="opt_select_all_in_edit_mode_label">在刪除訊息畫面加入全選按鈕</string>
