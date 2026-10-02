@@ -50,6 +50,20 @@ public class LineVersion {
     public Home26NavIcon home26NavIcon = new Home26NavIcon();
     public Kotlin kotlin = new Kotlin();
     public Room room = new Room();
+    public KeywordAssist keywordAssist = new KeywordAssist();
+
+    public static class KeywordAssist {
+      public String toggleViewClass = "";
+      public String methodGetChecked = "";
+      public String methodSetChecked = "";
+      public String methodGetOnCheckedChange = "";
+      public String resSearchBarBg = "";
+      public String resSearchBarInput = "";
+      public String resSearchBarCancel = "";
+      public String resSearchBarIcon = "";
+      public String resOnColor = "";
+      public String resTitle = "";
+    }
 
     public static class Room {
       public String migrationUtilClass = "";
