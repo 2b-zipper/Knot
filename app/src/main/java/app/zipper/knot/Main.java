@@ -180,6 +180,8 @@ public class Main extends XposedModule {
     }
     if (options.removeTabNews.enabled
         || options.removeTabMini.enabled
+        || options.removeTabCommerce.enabled
+        || options.removeTabWallet.enabled
         || options.hideTabText.enabled
         || options.extendTabClickArea.enabled) {
       applyHook(new RemoveTabs(), lpparam);
