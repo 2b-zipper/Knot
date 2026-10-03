@@ -418,11 +418,6 @@ public class LineVersion {
       public String resServiceCarouselId = "";
       public String resServiceTitleId = "";
       public String resNoServicesId = "";
-      public String lypRecommendationModuleArgClass = "";
-      public String lypRecommendationContextClass = "";
-      public String lypRecommendationModuleClass = "";
-      public String lypRecommendationControllerClass = "";
-      public String lypRecommendationSectionClass = "";
 
       public String home26FeedTypePrefixes = "";
       public String home26ServiceTypePrefixes = "";

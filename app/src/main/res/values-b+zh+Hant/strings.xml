@@ -136,8 +136,6 @@
     <string name="opt_remove_home_recommendations_desc">隱藏主頁畫面（含HOME26）中顯示的推薦內容與動態。</string>
     <string name="opt_remove_home_services_label">隱藏主頁的服務清單</string>
     <string name="opt_remove_home_services_desc">隱藏主頁畫面中顯示的服務清單。</string>
-    <string name="opt_remove_home_accordion_label">隱藏主頁上方的摺疊區塊</string>
-    <string name="opt_remove_home_accordion_desc">隱藏主頁分頁上方（搜尋列與好友清單之間）顯示的LYP優惠等摺疊區塊。</string>
     <string name="opt_remove_tab_news_label">隱藏新聞／通話分頁</string>
     <string name="opt_remove_tab_news_desc">隱藏下方的新聞／通話分頁。</string>
     <string name="opt_remove_tab_mini_label">隱藏應用程式分頁</string>

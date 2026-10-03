@@ -136,8 +136,6 @@
     <string name="opt_remove_home_recommendations_desc">ホーム画面（HOME26を含む）に表示されるおすすめコンテンツやフィードを非表示にします。</string>
     <string name="opt_remove_home_services_label">ホームのサービス一覧を非表示</string>
     <string name="opt_remove_home_services_desc">ホーム画面に表示されるサービス一覧を非表示にします。</string>
-    <string name="opt_remove_home_accordion_label">ホーム上部のアコーディオンを非表示</string>
-    <string name="opt_remove_home_accordion_desc">ホームタブ上部（検索バーと友達リストの間）に表示されるLYP特典などのアコーディオン枠を非表示にします。</string>
     <string name="opt_remove_tab_news_label">ニュース/通話タブを非表示</string>
     <string name="opt_remove_tab_news_desc">下部のニュース/通話タブを隠します。</string>
     <string name="opt_remove_tab_mini_label">アプリタブを非表示</string>

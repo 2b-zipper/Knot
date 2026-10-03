@@ -23,7 +23,6 @@ public class RemoveHomeContents implements BaseHook {
   private static int svcTitleId = 0;
   private static int noServicesId = 0;
   private static boolean isSetupDone = false;
-  private static Object emptySectionInstance = null;
 
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
@@ -82,38 +81,6 @@ public class RemoveHomeContents implements BaseHook {
                 }
               }
               return chain.proceed();
-            });
-
-    if (cfg == null
-        || cfg.home.lypRecommendationControllerClass.isEmpty()
-        || cfg.home.lypRecommendationModuleArgClass.isEmpty()
-        || cfg.home.lypRecommendationContextClass.isEmpty()
-        || cfg.compose.composerClass.isEmpty()) return;
-
-    Knot.module
-        .hook(
-            Reflect.findMethodExact(
-                cfg.home.lypRecommendationControllerClass,
-                lpparam.classLoader,
-                "a",
-                String.class,
-                cfg.home.lypRecommendationModuleArgClass,
-                cfg.home.lypRecommendationContextClass,
-                cfg.compose.composerClass))
-        .intercept(
-            chain -> {
-              if (!SettingsStore.get(
-                  config.removeHomeAccordion.key, config.removeHomeAccordion.enabled)) {
-                return chain.proceed();
-              }
-
-              Object module = chain.getArg(1);
-              if (module == null
-                  || !module.getClass().getName().equals(cfg.home.lypRecommendationModuleClass)) {
-                return chain.proceed();
-              }
-
-              return getEmptySectionInstance(lpparam.classLoader);
             });
 
     hookHome26ModuleFiltering(config, lpparam);
@@ -231,17 +198,5 @@ public class RemoveHomeContents implements BaseHook {
       params.height = 0;
       target.setLayoutParams(params);
     }
-  }
-
-  private static Object getEmptySectionInstance(ClassLoader classLoader) {
-    if (emptySectionInstance != null) return emptySectionInstance;
-    LineVersion.Config c = LineVersion.get();
-    String sectionClassName =
-        (c != null && !c.home.lypRecommendationSectionClass.isEmpty())
-            ? c.home.lypRecommendationSectionClass
-            : "l02.e";
-    Class<?> sectionClass = Reflect.findClass(sectionClassName, classLoader);
-    emptySectionInstance = Reflect.getStaticObjectField(sectionClass, "e");
-    return emptySectionInstance;
   }
 }

@@ -173,9 +173,7 @@ public class Main extends XposedModule {
     if (options.showProfileTimestamps.enabled) applyHook(new ProfileTimestampsHook(), lpparam);
 
     if (options.removeAds.enabled) applyHook(new RemoveAds(), lpparam);
-    if (options.removeHomeRecommendations.enabled
-        || options.removeHomeServices.enabled
-        || options.removeHomeAccordion.enabled) {
+    if (options.removeHomeRecommendations.enabled || options.removeHomeServices.enabled) {
       applyHook(new RemoveHomeContents(), lpparam);
     }
     if (options.removeTabNews.enabled

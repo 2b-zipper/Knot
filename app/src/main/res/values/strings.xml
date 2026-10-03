@@ -158,8 +158,6 @@
     <string name="opt_remove_home_recommendations_desc">Hides the recommended content and feed shown on the Home screen (including HOME26).</string>
     <string name="opt_remove_home_services_label">Hide the Home service list</string>
     <string name="opt_remove_home_services_desc">Hides the service list shown on the Home screen.</string>
-    <string name="opt_remove_home_accordion_label">Hide the accordion at the top of Home</string>
-    <string name="opt_remove_home_accordion_desc">Hides the accordion panel (LYP benefits and similar) between the search bar and the friend list at the top of the Home tab.</string>
     <string name="opt_remove_tab_news_label">Hide the News/Calls tab</string>
     <string name="opt_remove_tab_news_desc">Hides the News/Calls tab in the bottom bar.</string>
     <string name="opt_remove_tab_mini_label">Hide the Apps tab</string>

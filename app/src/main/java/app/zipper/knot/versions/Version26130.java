@@ -154,11 +154,6 @@ public class Version26130 {
     v.home.resServiceCarouselId = "home_tab_service_carousel";
     v.home.resServiceTitleId = "home_tab_service_title";
     v.home.resNoServicesId = "home_tab_no_services_title";
-    v.home.lypRecommendationModuleArgClass = "s72.k0";
-    v.home.lypRecommendationContextClass = "da2.r";
-    v.home.lypRecommendationModuleClass = "s72.k0$q0";
-    v.home.lypRecommendationControllerClass = "wg2.j";
-    v.home.lypRecommendationSectionClass = "t92.g";
 
     v.home.home26FeedTypePrefixes =
         "HomeFeed,HomeContentsRecommendation,GlobalHomePage,GlobalHomeDefault,AdModel,HomePerformanceAd";
