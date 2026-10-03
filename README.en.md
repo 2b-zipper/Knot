@@ -45,7 +45,7 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 
 ### Appearance & UI
 - **Hide ads and recommendations**: Hides the ads in the chat list and on the Home screen, as well as recommended content and the service list.
-- **Tab customization**: Hide tabs you don't need (VOOM, News/Calls, Apps, and more) and the labels under the tab icons, and extend the tab tap area.
+- **Tab customization**: Hide tabs you don't need (News/Calls, Apps, and more) and the labels under the tab icons, and extend the tab tap area.
 - **Remove unneeded buttons**: Removes the "AI Friends" and "OpenChat" buttons at the top right of the Chats tab, as well as the "Agent i" UI next to the search bar and elsewhere.
 - **Custom font**: Apply a TTF/OTF font file of your choice across the whole app.
 

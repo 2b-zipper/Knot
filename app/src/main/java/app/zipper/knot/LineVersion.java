@@ -395,7 +395,6 @@ public class LineVersion {
 
     public static class Tabs {
       public String bottomNavigationBarTextViewClass = "";
-      public String resVoom = "bnb_timeline";
       public String resNews = "bnb_news";
       public String resMini = "bnb_mini";
       public String resContainer = "main_tab_container";

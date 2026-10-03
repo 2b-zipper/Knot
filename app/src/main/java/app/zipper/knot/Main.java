@@ -178,8 +178,7 @@ public class Main extends XposedModule {
         || options.removeHomeAccordion.enabled) {
       applyHook(new RemoveHomeContents(), lpparam);
     }
-    if (options.removeTabVoom.enabled
-        || options.removeTabNews.enabled
+    if (options.removeTabNews.enabled
         || options.removeTabMini.enabled
         || options.hideTabText.enabled
         || options.extendTabClickArea.enabled) {

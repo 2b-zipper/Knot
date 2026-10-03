@@ -25,8 +25,6 @@ public class RemoveTabs implements BaseHook {
               Activity host = (Activity) chain.getThisObject();
               LineVersion.Config c = LineVersion.get();
 
-              if (SettingsStore.get(config.removeTabVoom.key, config.removeTabVoom.enabled))
-                deactivateTab(host, c.tabs.resVoom);
               if (SettingsStore.get(config.removeTabNews.key, config.removeTabNews.enabled)) {
                 deactivateTab(host, c.tabs.resNews);
                 deactivateTab(host, c.tabs.resCall);
