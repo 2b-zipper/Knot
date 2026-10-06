@@ -207,6 +207,9 @@ public class Version26130 {
     v.res.resTooltipBackground = "home_tooltip_background";
     v.res.resTooltipArrowUp = "home_tooltip_arrow_up";
 
+    v.notification.accessServiceCallbackClass =
+        "jp.naver.line.android.access.remote.LineAccessServiceForNotification$b";
+    v.notification.accessServiceCallbackMethod = "g";
     v.notification.chatHistoryRequestClass = "com.linecorp.line.chat.request.ChatHistoryRequest";
     v.notification.chatHistoryActivityLaunchActivityClass =
         "jp.naver.line.android.activity.chathistory.ChatHistoryActivityLaunchActivity";

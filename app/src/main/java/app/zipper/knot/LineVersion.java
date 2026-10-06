@@ -516,6 +516,16 @@ public class LineVersion {
       public String messageIdExtra = "line.message.id";
       public String messageNotificationTag = "NOTIFICATION_TAG_MESSAGE";
       public String chatNotificationTag = "jp.naver.line.android.notification.tag.chat";
+      public String chatIdExtra = "line.chat.id";
+      public String squareNotificationExtra = "line.square.notification";
+      public String accessServiceClass =
+          "jp.naver.line.android.access.remote.LineAccessServiceForNotification";
+      public String accessServiceCallbackClass = "";
+      public String accessServiceCallbackMethod = "";
+      public String accessServiceChatIdExtra = "chatId";
+      public String markAsReadAction =
+          "jp.naver.line.android.access.remote.action.MARK_AS_READ_ACTION";
+      public String markAsReadLabelRes = "chatlist_longtap_menu_label_markasread";
       public String decryptedResultClass = "";
       public String messageClass = "";
       public String messageServerIdField = "";
