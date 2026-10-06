@@ -327,7 +327,7 @@ final class LineCombinationStickerMediaResolver {
           matrix.setRectToRect(
               new RectF(0, 0, bitmap.getWidth(), bitmap.getHeight()),
               target,
-              Matrix.ScaleToFit.FILL);
+              Matrix.ScaleToFit.CENTER);
           if (part.rotation != 0.0f) {
             matrix.postRotate(part.rotation, target.centerX(), target.centerY());
           }
