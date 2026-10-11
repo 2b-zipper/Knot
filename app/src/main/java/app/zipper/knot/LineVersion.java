@@ -344,6 +344,8 @@ public class LineVersion {
       public int methodBindIndex = 0;
       public String methodGetItemView = "";
       public String methodGetCommonData = "";
+      public String carouselAdapterClass = "";
+      public String methodCarouselBindViewHolder = "";
       public int operationTypeDummy = 0;
 
       public String chatServiceConfigClass = "";

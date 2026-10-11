@@ -97,6 +97,8 @@ public class Version26140 {
     v.unsend.methodBindIndex = 1;
     v.unsend.methodGetItemView = "a0";
     v.unsend.methodGetCommonData = "b";
+    v.unsend.carouselAdapterClass = "sl1.a";
+    v.unsend.methodCarouselBindViewHolder = "onBindViewHolder";
     v.unsend.operationTypeDummy = 40;
     v.unsend.chatServiceConfigClass = "g45.s";
     v.unsend.methodUnsendLimit = "j";
