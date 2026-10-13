@@ -66,6 +66,11 @@ public class ReadReceiptHandler implements BaseHook {
     }
   }
 
+  // Lets one read that the user explicitly asked Knot for pass read avoidance
+  static void addPendingManualRead(String chatId) {
+    pendingManualReads.add(chatId);
+  }
+
   private boolean recordingEnabled() {
     return SettingsStore.get("record_read_history", false);
   }

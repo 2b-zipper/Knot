@@ -211,6 +211,9 @@ public class Main extends XposedModule {
       applyHook(new NotificationMediaSourceHook(), lpparam);
       applyHook(new NotificationMediaPreviewHook(), lpparam);
     }
+    if (options.notificationMarkAsRead.enabled) {
+      applyHook(new NotificationMarkReadHook(), lpparam);
+    }
     if (options.lineForegroundKeepAlive.enabled) {
       applyHook(new LineForegroundKeepAliveHook(), lpparam);
     }
