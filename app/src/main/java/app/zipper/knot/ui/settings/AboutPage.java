@@ -31,7 +31,7 @@ public final class AboutPage {
   private static final String CROWDIN_URL = "https://crowdin.com/project/knot";
   private static final String KOFI_URL = "https://ko-fi.com/2ipper";
   private static final String[][] CONTRIBUTOR_SECTIONS = {
-    {"2b-zipper", "Nich87"}, {"atuy1219"},
+    {"2b-zipper", "Nich87"}, {"atuy1219", "nmu-nyasan"},
   };
 
   private static final int[] CONTRIBUTOR_SECTION_TITLES = {
