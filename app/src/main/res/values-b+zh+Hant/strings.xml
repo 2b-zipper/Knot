@@ -180,6 +180,8 @@
     <string name="opt_stack_message_notifications_desc">不覆蓋先前的通知，最多將7則訊息合併顯示於同一則通知中。</string>
     <string name="opt_notification_media_preview_label">在通知中顯示媒體預覽</string>
     <string name="opt_notification_media_preview_desc">在訊息通知中預覽圖片、影片縮圖、貼圖、排列貼圖與表情符號。</string>
+    <string name="opt_notification_mark_as_read_label">Add a \"Mark as read\" notification button</string>
+    <string name="opt_notification_mark_as_read_desc">Adds a button to message notifications that marks the chat as read and dismisses its notifications, the same as \"Mark as read\" in the chat list. The read receipt is sent even when read avoidance is on.</string>
     <string name="opt_remove_notification_mute_button_label">隱藏「關閉通知」按鈕</string>
     <string name="opt_remove_notification_mute_button_desc">移除LINE通知中顯示的「關閉通知」按鈕。</string>
     <string name="opt_experimental_fcm_fix_desc">將LINE的FCM通知接收處理直接交給服務，以迴避在非root環境下通知約1分鐘後就收不到的問題。</string>
