@@ -6,6 +6,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import app.zipper.knot.Knot;
@@ -251,8 +252,9 @@ public class AmoledThemeHook implements BaseHook {
                 Object result = chain.proceed();
                 if (!enabled()) return result;
                 try {
-                  Window window = ((Activity) chain.getThisObject()).getWindow();
-                  if (window != null && !window.isFloating()) {
+                  Activity activity = (Activity) chain.getThisObject();
+                  Window window = activity.getWindow();
+                  if (window != null && !window.isFloating() && !isTranslucent(activity)) {
                     window.getDecorView().setBackgroundColor(BLACK);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                       window.setNavigationBarContrastEnforced(false);
@@ -265,6 +267,23 @@ public class AmoledThemeHook implements BaseHook {
     } catch (Throwable t) {
       log("window blackening failed: " + t);
     }
+  }
+
+  private static boolean isTranslucent(Activity activity) {
+    try {
+      String name = activity.getClass().getName();
+      if (name.contains("Preview") || name.contains("BottomSheet") || name.contains("Popup")) {
+        return true;
+      }
+      TypedValue tv = new TypedValue();
+      if (activity.getTheme().resolveAttribute(android.R.attr.windowIsTranslucent, tv, true)
+          && tv.type == TypedValue.TYPE_INT_BOOLEAN
+          && tv.data != 0) {
+        return true;
+      }
+    } catch (Throwable ignored) {
+    }
+    return false;
   }
 
   // LINE draws the area behind the gesture/button bar with its own view: the window is edge-to-edge
