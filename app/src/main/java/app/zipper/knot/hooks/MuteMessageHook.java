@@ -1,7 +1,6 @@
 package app.zipper.knot.hooks;
 
 import android.content.Context;
-import android.os.SystemClock;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
@@ -9,21 +8,20 @@ import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
 import app.zipper.knot.Reflect;
 import io.github.libxposed.api.XposedInterface;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class MuteMessageHook implements BaseHook {
 
   private static final String LAB_MODE = "LAB";
-  private static final String SILENT_STATE = "TO_BE_SENT_SILENTLY";
+  private static final String NOTIFICATION_DISABLED = "NOTIFICATION_DISABLED";
   private static final String SPOOF_VERSION = "26.11.0";
-  private static final long MUTE_SEND_WINDOW_MS = 10_000;
   private static final Set<String> SEND_METHODS =
       new HashSet<>(Arrays.asList("sendMessage", "sendMessageForLineCompactProtocol"));
 
-  private static volatile long muteSendAt;
   private static final ThreadLocal<Boolean> spoofingVersion = ThreadLocal.withInitial(() -> false);
 
   @Override
@@ -35,7 +33,6 @@ public class MuteMessageHook implements BaseHook {
     ClassLoader cl = lpparam.classLoader;
     hookLabGate(cl, version.muteMessage);
     hookSendMode(cl, version.muteMessage);
-    markMuteSends(cl, version.muteMessage);
     spoofVersionOnSend(cl, version);
   }
 
@@ -77,41 +74,12 @@ public class MuteMessageHook implements BaseHook {
     }
   }
 
-  // Mute messages share the send RPC with normal ones, so the request is tagged while it is built.
-  private static void markMuteSends(ClassLoader cl, LineVersion.Config.MuteMessage cfg) {
-    if (cfg.silentFlagWriterClass.isEmpty()) return;
-    try {
-      Method writer =
-          findMethod(
-              Reflect.findClass(cfg.silentFlagWriterClass, cl), cfg.methodWriteSilentFlag, 2);
-      if (writer == null) {
-        Knot.log("Knot: mute message silent writer not found on " + cfg.silentFlagWriterClass);
-        return;
-      }
-
-      Knot.module
-          .hook(writer)
-          .intercept(
-              chain -> {
-                if (enabled() && isSilentState(chain.getArg(1))) {
-                  muteSendAt = SystemClock.elapsedRealtime();
-                }
-                return chain.proceed();
-              });
-      Knot.log("Knot: mute message send marker hooked on " + cfg.silentFlagWriterClass);
-    } catch (Throwable t) {
-      Knot.log("Knot: mute message send marker hook failed: " + t);
-    }
-  }
-
   private static void spoofVersionOnSend(ClassLoader cl, LineVersion.Config version) {
-    if (version.muteMessage.silentFlagWriterClass.isEmpty()
-        || version.thrift.protocolClass.isEmpty()
-        || version.unsend.appInfoProviderClass.isEmpty()) {
+    if (version.thrift.protocolClass.isEmpty() || version.unsend.appInfoProviderClass.isEmpty()) {
       return;
     }
     try {
-      hookSendBoundary(cl, version.thrift);
+      hookSendBoundary(cl, version);
       hookUserAgent(cl, version.unsend);
       Knot.log("Knot: mute message version spoof armed (" + SPOOF_VERSION + ")");
     } catch (Throwable t) {
@@ -119,7 +87,8 @@ public class MuteMessageHook implements BaseHook {
     }
   }
 
-  private static void hookSendBoundary(ClassLoader cl, LineVersion.Config.Thrift thrift) {
+  private static void hookSendBoundary(ClassLoader cl, LineVersion.Config version) {
+    LineVersion.Config.Thrift thrift = version.thrift;
     Knot.module
         .hook(
             Reflect.findMethodExact(
@@ -130,9 +99,11 @@ public class MuteMessageHook implements BaseHook {
                 thrift.messageClass))
         .intercept(
             chain -> {
-              boolean spoof = SEND_METHODS.contains(chain.getArg(0)) && muteSendPending();
+              boolean spoof =
+                  enabled()
+                      && SEND_METHODS.contains(chain.getArg(0))
+                      && isMuteMessage(chain.getArg(1), version);
               if (spoof) {
-                muteSendAt = 0;
                 spoofingVersion.set(Boolean.TRUE);
                 Knot.log("Knot: mute message sent as " + SPOOF_VERSION);
               }
@@ -161,32 +132,72 @@ public class MuteMessageHook implements BaseHook {
         .intercept(patch);
   }
 
+  private static boolean isMuteMessage(Object args, LineVersion.Config version) {
+    if (args == null) return false;
+    String metaFieldName = version != null ? version.notification.messageMetadataField : "";
+    if (hasNotificationDisabled(args, metaFieldName)) return true;
+
+    try {
+      String messageClassName = version != null ? version.notification.messageClass : "";
+      for (Field field : args.getClass().getDeclaredFields()) {
+        Class<?> type = field.getType();
+        if (type.isPrimitive() || type == String.class) continue;
+        if (!messageClassName.isEmpty() && !type.getName().equals(messageClassName)) {
+          if (type.getName().startsWith("java.")) continue;
+        }
+        field.setAccessible(true);
+        Object message = field.get(args);
+        if (message != null && hasNotificationDisabled(message, metaFieldName)) {
+          return true;
+        }
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: mute message inspection failed: " + t);
+    }
+    return false;
+  }
+
+  private static boolean hasNotificationDisabled(Object target, String metaFieldName) {
+    if (target == null) return false;
+    try {
+      if (!metaFieldName.isEmpty()) {
+        Field f = target.getClass().getDeclaredField(metaFieldName);
+        f.setAccessible(true);
+        Object meta = f.get(target);
+        if (meta instanceof Map && isNotificationDisabledMap((Map<?, ?>) meta)) {
+          return true;
+        }
+      }
+    } catch (Throwable ignored) {
+    }
+
+    try {
+      for (Field f : target.getClass().getDeclaredFields()) {
+        if (Map.class.isAssignableFrom(f.getType())) {
+          f.setAccessible(true);
+          Object meta = f.get(target);
+          if (meta instanceof Map && isNotificationDisabledMap((Map<?, ?>) meta)) {
+            return true;
+          }
+        }
+      }
+    } catch (Throwable ignored) {
+    }
+    return false;
+  }
+
+  private static boolean isNotificationDisabledMap(Map<?, ?> map) {
+    Object val = map.get(NOTIFICATION_DISABLED);
+    return "true".equals(val) || Boolean.TRUE.equals(val);
+  }
+
   private static boolean enabled() {
     return Main.options.enableMuteMessage.enabled;
-  }
-
-  private static boolean muteSendPending() {
-    long markedAt = muteSendAt;
-    return markedAt > 0 && SystemClock.elapsedRealtime() - markedAt < MUTE_SEND_WINDOW_MS;
-  }
-
-  private static boolean isSilentState(Object state) {
-    return state instanceof Enum && SILENT_STATE.equals(((Enum<?>) state).name());
   }
 
   private static Object enumConstant(Class<?> enumClass, String name) {
     for (Object constant : enumClass.getEnumConstants()) {
       if (((Enum<?>) constant).name().equals(name)) return constant;
-    }
-    return null;
-  }
-
-  private static Method findMethod(Class<?> owner, String name, int paramCount) {
-    for (Method method : owner.getDeclaredMethods()) {
-      if (method.getName().equals(name) && method.getParameterTypes().length == paramCount) {
-        method.setAccessible(true);
-        return method;
-      }
     }
     return null;
   }
