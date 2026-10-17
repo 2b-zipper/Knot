@@ -104,6 +104,8 @@
     <string name="opt_long_video_desc">解除傳送影片時的5分鐘限制，讓你可以傳送較長的影片。</string>
     <string name="opt_enable_mute_message_label">啟用靜音訊息</string>
     <string name="opt_enable_mute_message_desc">重新啟用已從LINE Labs移除的靜音訊息功能。</string>
+    <string name="opt_enable_message_edit_label">啟用訊息編輯</string>
+    <string name="opt_enable_message_edit_desc">重新啟用已從LINE Labs移除的訊息編輯功能。</string>
     <string name="opt_use_default_camera_label">使用系統相機</string>
     <string name="opt_use_default_camera_desc">使用裝置的預設相機應用程式，取代LINE內建的相機。</string>
     <string name="opt_mute_camera_shutter_label">將LINE內建相機靜音</string>

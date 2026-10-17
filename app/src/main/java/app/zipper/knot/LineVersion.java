@@ -43,6 +43,7 @@ public class LineVersion {
     public Camera camera = new Camera();
     public CallTone callTone = new CallTone();
     public MuteMessage muteMessage = new MuteMessage();
+    public EditMessage editMessage = new EditMessage();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
     public NightMode nightMode = new NightMode();
@@ -144,6 +145,18 @@ public class LineVersion {
       public String sendModeEnumClass = "";
       public String silentFlagWriterClass = "";
       public String methodWriteSilentFlag = "";
+    }
+
+    public static class EditMessage {
+      public String labFeatureClass = "";
+      public String methodIsFeatureEnabled = "";
+      public String editMessageFeatureClass = "";
+      public String chatGateClass = "";
+      public String methodIsFeatureAvailable = "";
+      public String methodIsLabEnabled = "";
+      public String methodIsAgreed = "";
+      public String agreementClass = "";
+      public String methodIsAgreementDone = "";
     }
 
     public static class ChatTimestamp {
