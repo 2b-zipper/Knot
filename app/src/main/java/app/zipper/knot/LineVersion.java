@@ -705,7 +705,6 @@ public class LineVersion {
   private static final Map<String, Config> VERSION_TABLE = new HashMap<>();
 
   static {
-    VERSION_TABLE.put("26.11.0", app.zipper.knot.versions.Version26110.create());
     VERSION_TABLE.put("26.13.0", app.zipper.knot.versions.Version26130.create());
     VERSION_TABLE.put("26.13.1", app.zipper.knot.versions.Version26131.create());
     VERSION_TABLE.put("26.14.0", app.zipper.knot.versions.Version26140.create());
