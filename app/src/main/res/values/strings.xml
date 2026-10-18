@@ -34,6 +34,7 @@
     <!-- Sections -->
     <string name="sec_privacy_read">Read receipts</string>
     <string name="sec_privacy_edit">Message editing</string>
+    <string name="sec_privacy_hide">Hidden chats</string>
     <string name="sec_privacy_unsend">Unsend</string>
     <string name="sec_privacy_profile">Profile</string>
     <string name="sec_chat_send">Sending</string>
@@ -99,6 +100,11 @@
     <string name="opt_prevent_mark_as_read_desc">Lets you turn read avoidance on and off from the \"+\" menu at the top right of the Chats tab. When it is on, \"Mark read after sending\" and \"Mark read after reacting\" options appear as well.</string>
     <string name="opt_record_read_history_label">Record read history</string>
     <string name="opt_record_read_history_desc">Records who read each message and when. Open it from the book icon at the top of the chat screen.</string>
+
+    <string name="opt_permanent_hide_chat_label">Permanently hide chats</string>
+    <string name="opt_permanent_hide_chat_desc">Keeps hidden chats hidden even when new messages arrive. When it is on, a toggle to temporarily show them is added to the \"+\" menu at the top right of the Chats tab. While they are shown, you can unhide a chat with \"Unhide\" in its long-press menu.</string>
+    <string name="label_show_hidden_chats">Show hidden chats</string>
+    <string name="unhide_chat_confirm_message">Show this chat in your chat list again?</string>
 
     <string name="opt_prevent_unsend_message_label">Keep unsent messages</string>
     <string name="opt_prevent_unsend_message_desc">Keeps messages on your device even after the sender unsends them. Unsent messages get an icon you can tap to see when they were withdrawn.</string>

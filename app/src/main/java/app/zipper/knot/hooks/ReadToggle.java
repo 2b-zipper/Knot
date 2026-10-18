@@ -1,5 +1,7 @@
 package app.zipper.knot.hooks;
 
+import android.os.Handler;
+import android.os.Looper;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.utils.ModuleResources;
@@ -8,7 +10,9 @@ enum ReadToggle {
   PREVENT_READ("prevent_read_state", true, R.string.label_prevent_read, "ic_prevent_read"),
   SEND_MARK_READ("send_mark_state", false, R.string.label_send_mark_read, "ic_send_mark_read"),
   REACTION_MARK_READ(
-      "reaction_mark_state", false, R.string.label_reaction_mark_read, "ic_reaction_mark_read");
+      "reaction_mark_state", false, R.string.label_reaction_mark_read, "ic_reaction_mark_read"),
+  SHOW_HIDDEN_CHATS(
+      "show_hidden_chats", false, R.string.label_show_hidden_chats, "ic_show_hidden_chats");
 
   private final String key;
   private final boolean defaultValue;
@@ -28,12 +32,20 @@ enum ReadToggle {
 
   void toggle() {
     SettingsStore.save(key, !isOn());
+    if (this == SHOW_HIDDEN_CHATS) {
+      new Handler(Looper.getMainLooper()).post(PermanentHideChatHook::refreshChatList);
+    }
   }
 
   boolean isAvailable() {
-    return this == PREVENT_READ
-        ? SettingsStore.get("prevent_mark_as_read", false)
-        : PREVENT_READ.isActive();
+    switch (this) {
+      case PREVENT_READ:
+        return SettingsStore.get("prevent_mark_as_read", false);
+      case SHOW_HIDDEN_CHATS:
+        return SettingsStore.get("permanent_hide_chat", false);
+      default:
+        return PREVENT_READ.isActive();
+    }
   }
 
   boolean isActive() {

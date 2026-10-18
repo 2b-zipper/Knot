@@ -20,6 +20,7 @@ import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.hooks.PermanentHideChatHook;
 import app.zipper.knot.hooks.SettingsUIInjector;
 import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
@@ -165,6 +166,8 @@ public final class KnotSettingsDialog {
     }
     stateRefreshers.clear();
     if (active == this) active = null;
+    // Re-hides chats shown by the toggle if permanent hide was turned off
+    PermanentHideChatHook.refreshChatList();
   }
 
   Context dialogContext() {

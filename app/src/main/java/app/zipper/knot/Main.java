@@ -145,7 +145,7 @@ public class Main extends XposedModule {
     applyHook(new ReadReceiptHandler(), lpparam);
     applyHook(new UnsendProtector(), lpparam);
 
-    if (options.preventMarkAsRead.enabled) {
+    if (options.preventMarkAsRead.enabled || options.permanentHideChat.enabled) {
       applyHook(new PlusMenuHook(), lpparam);
       applyHook(new ChatListMoreMenuHook(), lpparam);
     }
@@ -167,6 +167,10 @@ public class Main extends XposedModule {
     if (options.showSecondsInChatTime.enabled) applyHook(new ChatTimestampSeconds(), lpparam);
     if (options.selectAllInEditMode.enabled) applyHook(new ChatEditSelectAllHook(), lpparam);
     if (options.showEditHistory.enabled) applyHook(new EditHistoryHook(), lpparam);
+    if (options.permanentHideChat.enabled) {
+      applyHook(new PermanentHideChatHook(), lpparam);
+      applyHook(new UnhideChatHook(), lpparam);
+    }
     if (options.enableMuteMessage.enabled) applyHook(new MuteMessageHook(), lpparam);
     if (options.enableMessageEdit.enabled) applyHook(new EditMessageHook(), lpparam);
     if (options.useDefaultCamera.enabled) applyHook(new UseDefaultCameraHook(), lpparam);

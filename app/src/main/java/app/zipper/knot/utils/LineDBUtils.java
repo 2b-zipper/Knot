@@ -121,6 +121,46 @@ public class LineDBUtils {
     return null;
   }
 
+  public static boolean isChatArchived(String chatId) {
+    if (chatId == null) return false;
+    Context context = Knot.currentApplication();
+    if (context == null) return false;
+    Boolean archived = queryArchived(context, "naver_line", "chat", "chat_id", chatId);
+    if (archived == null) archived = queryOpenChatArchived(context, chatId);
+    return archived != null && archived;
+  }
+
+  private static Boolean queryOpenChatArchived(Context context, String chatMid) {
+    return queryArchived(context, "square", "square_chat", "chat_mid", chatMid);
+  }
+
+  private static Boolean queryArchived(
+      Context context, String dbName, String table, String idColumn, String chatId) {
+    try {
+      File dbFile = context.getDatabasePath(dbName);
+      if (!dbFile.exists()) return null;
+      SQLiteDatabase db =
+          SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+      try {
+        Cursor cursor =
+            db.rawQuery(
+                "SELECT is_archived FROM " + table + " WHERE " + idColumn + " = ? LIMIT 1",
+                new String[] {chatId});
+        try {
+          // OpenChat also uses 2 (DELETED_ARCHIVED) and 3 (CREATED_ARCHIVED)
+          return cursor.moveToFirst() ? cursor.getInt(0) == 1 : null;
+        } finally {
+          cursor.close();
+        }
+      } finally {
+        db.close();
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: queryArchived failed (" + dbName + "): " + t);
+    }
+    return null;
+  }
+
   public static String resolveMessageContent(String serverId) {
     if (serverId == null) return null;
     try {

@@ -52,6 +52,7 @@ public class LineVersion {
     public Kotlin kotlin = new Kotlin();
     public Room room = new Room();
     public KeywordAssist keywordAssist = new KeywordAssist();
+    public PermanentHideChat permanentHideChat = new PermanentHideChat();
 
     public static class KeywordAssist {
       public String toggleViewClass = "";
@@ -712,6 +713,72 @@ public class LineVersion {
     public static class AiIcon {
       public String repoClass = "";
       public String methodGetShownAfterMillis = "";
+    }
+
+    public static class PermanentHideChat {
+      public String chatDaoClass = "";
+      public String methodUpdateChatOnMessage = "";
+      public String squareChatDaoClass = "";
+      public String methodUpdateSquareChat = "";
+      public String squareChatIdField = "";
+      public String squareChatColumnClass = "";
+      public String squareArchivedColumn = "";
+      public String methodGetSquareChat = "";
+      public String squareChatArchiveTypeField = "";
+      public String methodSetSquareArchiveType = "";
+      public String squareArchiveTypeClass = "";
+      public String squareArchivedType = "";
+      public String squareNotArchivedType = "";
+      public String chatOpenLoaderClass = "";
+      public String methodChatOpenLoad = "";
+      public String chatDataClass = "";
+      public String methodChatDataArchived = "";
+      public String eventBusClass = "";
+      public String eventBusProviderField = "";
+      public String serviceLocatorClass = "";
+      public String serviceLocatorMethod = "";
+      public String methodEventBusPost = "";
+      public String updateViewEventClass = "";
+      public String updateViewEventChatList = "";
+      public String chatTabBadgeEventClass = "";
+      public String chatTabBadgeEventField = "";
+      public String messageDataManagerClass = "";
+      public String methodUpdateArchived = "";
+      public String unhideLabelRes = "hidden_restore";
+      public String hideLabelRes = "chatlist_label_hide";
+      public String hideConfirmMessageRes = "chatlist_hideconfirmdialog_message";
+      public String hideConfirmSquareMessageRes = "openchat_chatlist_popup_hidechat";
+      public String cancelLabelRes = "cancel";
+      public String chatMenuHideItemClass = "";
+      public String methodChatMenuItemLabel = "";
+      public String chatPreviewItemClass = "";
+      public String chatPreviewChatIdField = "";
+      public String hidePopupClass = "";
+      public String methodHidePopup = "";
+      public String hidePopupRequestClass = "";
+      public String hidePopupChatIdField = "";
+      public String hidePopupLabelsClass = "";
+      public String hidePopupConfirmLabelField = "";
+      public String textButtonClass = "";
+      public String methodTextButton = "";
+      public String hidePopupMessageClass = "";
+      public String stringResourceClass = "";
+      public String methodStringResource = "";
+      public String dialogBuilderClass = "";
+      public String methodDialogMessage = "";
+      public String methodDialogPositive = "";
+      public String methodDialogNegative = "";
+      public String methodDialogShow = "";
+      public String chatListHideItemClass = "";
+      public String methodChatListMenuItem = "";
+      public String chatListHideItemField = "";
+      public String chatListHideListenerField = "";
+      public String methodChatListItemInfo = "";
+      public String chatListItemChatIdField = "";
+      public String chatListMenuItemClass = "";
+      public String chatListMenuActionClass = "";
+      public String chatListHideConfirmClass = "";
+      public String methodConfirmHide = "";
     }
   }
 

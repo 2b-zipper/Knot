@@ -3,7 +3,9 @@ package app.zipper.knot;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -97,6 +99,14 @@ public final class Reflect {
   public static Method findMethodExact(
       String className, ClassLoader cl, String name, Object... paramTypeSpecs) {
     return findMethodExact(findClass(className, cl), name, paramTypeSpecs);
+  }
+
+  public static List<Method> findMethodsByName(String className, ClassLoader cl, String name) {
+    List<Method> methods = new ArrayList<>();
+    for (Method m : findClass(className, cl).getDeclaredMethods()) {
+      if (m.getName().equals(name)) methods.add(m);
+    }
+    return methods;
   }
 
   public static Constructor<?> findConstructorExact(Class<?> clazz, Object... paramTypeSpecs) {
