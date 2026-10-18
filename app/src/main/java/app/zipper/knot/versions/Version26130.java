@@ -604,6 +604,19 @@ public class Version26130 {
     v.permanentHideChat.chatListMenuActionClass = "kh8.a";
     v.permanentHideChat.chatListHideConfirmClass = "kx1.a";
     v.permanentHideChat.methodConfirmHide = "s6";
+    v.permanentHideChat.chatTabRowClass = "k11.d0";
+    v.permanentHideChat.methodChatTabRowKey = "getKey";
+    v.permanentHideChat.chatTabRowDataClass = "k11.i";
+    v.permanentHideChat.chatTabItemClass = "h11.c2";
+    v.permanentHideChat.methodChatTabItem = "b";
+    v.permanentHideChat.chatTabRowLayoutClass = "k11.o1";
+    v.permanentHideChat.methodChatTabRowLayout = "a";
+    v.permanentHideChat.alphaModifierClass = "b3.g1";
+    v.permanentHideChat.methodAlphaModifier = "a";
+    v.permanentHideChat.chatListRowBinderClass = "rw1.b$a";
+    v.permanentHideChat.methodChatListRowBind = "a";
+    v.permanentHideChat.viewHolderClass = "androidx.recyclerview.widget.RecyclerView$e0";
+    v.permanentHideChat.viewHolderViewField = "a";
 
     return v;
   }

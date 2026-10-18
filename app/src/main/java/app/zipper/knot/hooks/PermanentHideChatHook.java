@@ -25,6 +25,8 @@ public class PermanentHideChatHook implements BaseHook {
 
   private static final ThreadLocal<Boolean> openingChat = ThreadLocal.withInitial(() -> false);
 
+  private static volatile Set<String> hiddenChats;
+
   @Override
   public void hook(KnotConfig options, LoadParam lpparam) throws Throwable {
     LineVersion.Config version = LineVersion.get();
@@ -44,6 +46,13 @@ public class PermanentHideChatHook implements BaseHook {
 
   static boolean showingHidden() {
     return ReadToggle.SHOW_HIDDEN_CHATS.isActive();
+  }
+
+  static boolean isHidden(String chatId) {
+    if (chatId == null || !showingHidden()) return false;
+    Set<String> ids = hiddenChats;
+    if (ids == null) hiddenChats = ids = LineDBUtils.getArchivedChatIds();
+    return ids.contains(chatId);
   }
 
   // The last argument resets is_archived to 0 for an incoming message
@@ -266,6 +275,8 @@ public class PermanentHideChatHook implements BaseHook {
                 }
                 String rewritten = NOT_ARCHIVED.matcher(sql).replaceAll("is_archived IN (0, 1)");
                 if (rewritten.equals(sql)) return chain.proceed();
+                // Reloaded with the list so hides and unhides are picked up
+                hiddenChats = null;
                 Object[] args = chain.getArgs().toArray();
                 args[0] = rewritten;
                 return chain.proceed(args);

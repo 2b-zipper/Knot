@@ -779,6 +779,19 @@ public class LineVersion {
       public String chatListMenuActionClass = "";
       public String chatListHideConfirmClass = "";
       public String methodConfirmHide = "";
+      public String chatTabRowClass = "";
+      public String methodChatTabRowKey = "";
+      public String chatTabRowDataClass = "";
+      public String chatTabItemClass = "";
+      public String methodChatTabItem = "";
+      public String chatTabRowLayoutClass = "";
+      public String methodChatTabRowLayout = "";
+      public String alphaModifierClass = "";
+      public String methodAlphaModifier = "";
+      public String chatListRowBinderClass = "";
+      public String methodChatListRowBind = "";
+      public String viewHolderClass = "";
+      public String viewHolderViewField = "";
     }
   }
 

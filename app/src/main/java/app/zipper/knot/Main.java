@@ -170,6 +170,7 @@ public class Main extends XposedModule {
     if (options.permanentHideChat.enabled) {
       applyHook(new PermanentHideChatHook(), lpparam);
       applyHook(new UnhideChatHook(), lpparam);
+      applyHook(new HiddenChatRowHook(), lpparam);
     }
     if (options.enableMuteMessage.enabled) applyHook(new MuteMessageHook(), lpparam);
     if (options.enableMessageEdit.enabled) applyHook(new EditMessageHook(), lpparam);

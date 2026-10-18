@@ -10,8 +10,10 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class LineDBUtils {
 
@@ -132,6 +134,38 @@ public class LineDBUtils {
 
   private static Boolean queryOpenChatArchived(Context context, String chatMid) {
     return queryArchived(context, "square", "square_chat", "chat_mid", chatMid);
+  }
+
+  public static Set<String> getArchivedChatIds() {
+    Set<String> ids = new HashSet<>();
+    Context context = Knot.currentApplication();
+    if (context == null) return ids;
+    addArchivedIds(context, "naver_line", "chat", "chat_id", ids);
+    addArchivedIds(context, "square", "square_chat", "chat_mid", ids);
+    return ids;
+  }
+
+  private static void addArchivedIds(
+      Context context, String dbName, String table, String idColumn, Set<String> ids) {
+    try {
+      File dbFile = context.getDatabasePath(dbName);
+      if (!dbFile.exists()) return;
+      SQLiteDatabase db =
+          SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+      try {
+        Cursor cursor =
+            db.rawQuery("SELECT " + idColumn + " FROM " + table + " WHERE is_archived = 1", null);
+        try {
+          while (cursor.moveToNext()) ids.add(cursor.getString(0));
+        } finally {
+          cursor.close();
+        }
+      } finally {
+        db.close();
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: getArchivedChatIds failed (" + dbName + "): " + t);
+    }
   }
 
   private static Boolean queryArchived(
