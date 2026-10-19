@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class VersionSpoof implements BaseHook {
 
-  private static final String TARGET_VERSION = "15.12.2";
+  private static final String TARGET_VERSION = "15.16.2";
   private static final ThreadLocal<Boolean> unsendProcessingFlag =
       ThreadLocal.withInitial(() -> false);
   private static final Set<String> targetUnsendMethods = new HashSet<>();
@@ -33,10 +33,8 @@ public class VersionSpoof implements BaseHook {
               cfg.thrift.methodDestroyMessages));
     }
 
-    if (config.spoofVersion.enabled || config.spoofVersionUnsendOnly.enabled) {
-      applyUiLimitPatch(cfg, lpparam);
-      applyVersionPatch(config, cfg, lpparam);
-    }
+    applyUiLimitPatch(cfg, lpparam);
+    applyVersionPatch(config, cfg, lpparam);
   }
 
   private void applyUiLimitPatch(LineVersion.Config cfg, LoadParam lpparam) {
@@ -68,29 +66,19 @@ public class VersionSpoof implements BaseHook {
       XposedInterface.Hooker stringPatchHook =
           chain -> {
             Object result = chain.proceed();
-            if (!(result instanceof String)) return result;
+            if (!(result instanceof String)
+                || !config.spoofVersionUnsendOnly.enabled
+                || !isUnsendActionActive()) {
+              return result;
+            }
             String raw = (String) result;
-
-            if (config.spoofVersion.enabled) {
-              String patched = patchVersionString(raw);
-              Knot.log(
-                  "Knot: Global patch "
-                      + raw.replace("\t", " ")
-                      + " -> "
-                      + patched.replace("\t", " "));
-              return patched;
-            }
-
-            if (config.spoofVersionUnsendOnly.enabled && isUnsendActionActive()) {
-              String patched = patchVersionString(raw);
-              Knot.log(
-                  "Knot: Contextual patch "
-                      + raw.replace("\t", " ")
-                      + " -> "
-                      + patched.replace("\t", " "));
-              return patched;
-            }
-            return result;
+            String patched = patchVersionString(raw);
+            Knot.log(
+                "Knot: Contextual patch "
+                    + raw.replace("\t", " ")
+                    + " -> "
+                    + patched.replace("\t", " "));
+            return patched;
           };
 
       Knot.module

@@ -226,9 +226,7 @@ public class Main extends XposedModule {
     if (options.experimentalFcmFix.enabled) applyHook(new FcmFixHook(), lpparam);
     if (options.disableCustomRingback.enabled) applyHook(new DisableCustomRingbackHook(), lpparam);
     if (options.useCustomRingtone.enabled) applyHook(new CustomRingtoneHook(), lpparam);
-    if (options.spoofVersion.enabled || options.spoofVersionUnsendOnly.enabled) {
-      applyHook(new VersionSpoof(), lpparam);
-    }
+    if (options.spoofVersionUnsendOnly.enabled) applyHook(new VersionSpoof(), lpparam);
     if (options.fixSignatureMismatch.enabled) applyHook(new SignatureSpoofHook(), lpparam);
     if (options.fixDowngradeCrash.enabled) applyHook(new RoomDowngradeHook(), lpparam);
   }

@@ -249,9 +249,7 @@
 
     <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">Extend the unsend time limit</string>
-    <string name="opt_spoof_version_unsend_only_desc">Reports the app version as 15.12.2 during unsend only, restoring the 24-hour limit instead of one hour.</string>
-    <string name="opt_spoof_version_label">Spoof the app version (always)</string>
-    <string name="opt_spoof_version_desc">Always reports the app version as 15.12.2. Do not use this unless you have a specific reason.</string>
+    <string name="opt_spoof_version_unsend_only_desc">During unsend only, reports the app version as 15.16.2, the last version with a 24-hour unsend limit, so the one-hour limit goes back to 24 hours.</string>
 
     <string name="opt_fix_signature_mismatch_label">Spoof the official signature</string>
     <string name="opt_fix_signature_mismatch_desc">Works around failures on patched builds of LINE, such as font downloads and biometric authentication.</string>

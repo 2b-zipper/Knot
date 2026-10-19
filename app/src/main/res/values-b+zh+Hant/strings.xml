@@ -214,9 +214,7 @@
     <string name="ringtone_editor_saving">儲存中…</string>
     <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">延長訊息收回的時間限制</string>
-    <string name="opt_spoof_version_unsend_only_desc">僅在收回訊息時將版本偽裝為15.12.2，將1小時的時間限制恢復為24小時。</string>
-    <string name="opt_spoof_version_label">偽裝應用程式版本（永久）</string>
-    <string name="opt_spoof_version_desc">永遠將應用程式版本偽裝為15.12.2。若無特殊目的請勿使用。</string>
+    <string name="opt_spoof_version_unsend_only_desc">僅在收回訊息時，將版本偽裝為收回期限仍為24小時的最後一個版本15.16.2，將1小時的時間限制恢復為24小時。</string>
     <string name="opt_fix_signature_mismatch_label">偽裝官方簽章</string>
     <string name="opt_fix_signature_mismatch_desc">迴避已修補的LINE中，下載字型或生物辨識連動等功能失敗的問題。</string>
     <string name="opt_fix_downgrade_crash_label">修正降版後的閃退</string>

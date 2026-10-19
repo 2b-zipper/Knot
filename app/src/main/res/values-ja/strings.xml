@@ -214,9 +214,7 @@
     <string name="ringtone_editor_saving">保存中…</string>
     <!-- System options -->
     <string name="opt_spoof_version_unsend_only_label">送信取り消しの時間制限を延長</string>
-    <string name="opt_spoof_version_unsend_only_desc">送信取り消し時のみバージョンを15.12.2に偽装し、1時間の時間制限を24時間に戻します。</string>
-    <string name="opt_spoof_version_label">アプリバージョンの偽装 (常時)</string>
-    <string name="opt_spoof_version_desc">常にアプリバージョンを15.12.2に偽装します。なにか特別な目的がない限り使用しないでください。</string>
+    <string name="opt_spoof_version_unsend_only_desc">送信取り消し時のみ、取り消し期限が24時間だった最後のバージョンである15.16.2に偽装し、1時間の時間制限を24時間に戻します。</string>
     <string name="opt_fix_signature_mismatch_label">公式署名を偽装</string>
     <string name="opt_fix_signature_mismatch_desc">パッチ済みのLINEで、フォントのダウンロードや生体認証の連携などに失敗する問題を回避します。</string>
     <string name="opt_fix_downgrade_crash_label">ダウングレード後のクラッシュを修正</string>
