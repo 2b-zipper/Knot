@@ -88,12 +88,10 @@
     <string name="opt_prevent_mark_as_read_desc">可從聊天分頁右上角的「+」選單開關避免已讀功能。開啟後會一併顯示「傳送後標示已讀」與「表情貼回應後標示已讀」選項。</string>
     <string name="opt_record_read_history_label">記錄已讀記錄</string>
     <string name="opt_record_read_history_desc">記錄誰在何時已讀了訊息。可從聊天畫面上方的書本圖示查看。</string>
-
     <string name="opt_permanent_hide_chat_label">永久隱藏聊天室</string>
     <string name="opt_permanent_hide_chat_desc">收到新訊息時也不會重新顯示已隱藏的聊天室。開啟後，聊天分頁右上角的「+」選單會加入開關，可暫時顯示或隱藏已隱藏的聊天室。顯示期間，可從長按選單點選「解除隱藏」。</string>
     <string name="label_show_hidden_chats">顯示隱藏的聊天室</string>
     <string name="unhide_chat_confirm_message">確定要在聊天列表中解除隱藏此聊天室嗎？</string>
-
     <string name="opt_prevent_unsend_message_label">停用訊息收回</string>
     <string name="opt_prevent_unsend_message_desc">即使對方收回訊息，訊息仍會保留在你的裝置上。被收回的訊息會顯示圖示，點擊即可查看收回時間。</string>
     <string name="opt_show_profile_timestamps_label">在個人檔案中顯示詳細資訊</string>
