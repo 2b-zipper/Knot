@@ -109,8 +109,6 @@
     <string name="opt_long_video_desc">動画送信時の5分の時間制限を解除し、長い動画を送信できるようにします。</string>
     <string name="opt_enable_mute_message_label">ミュートメッセージを有効化</string>
     <string name="opt_enable_mute_message_desc">LINEラボから削除されたミュートメッセージ機能を有効化します。</string>
-    <string name="opt_enable_message_edit_label">メッセージ編集を有効化</string>
-    <string name="opt_enable_message_edit_desc">LINEラボから削除されたメッセージ編集機能を有効化します。</string>
     <string name="opt_use_default_camera_label">標準カメラを使用</string>
     <string name="opt_use_default_camera_desc">LINE内蔵カメラの代わりに端末の標準カメラアプリを使用します。</string>
     <string name="opt_mute_camera_shutter_label">LINE内蔵カメラを無音化</string>
