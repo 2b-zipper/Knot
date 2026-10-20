@@ -127,8 +127,6 @@
     <string name="opt_long_video_desc">Removes the 5-minute limit on video uploads so you can send longer videos.</string>
     <string name="opt_enable_mute_message_label">Enable mute messages</string>
     <string name="opt_enable_mute_message_desc">Re-enables the mute message feature that was removed from LINE Labs.</string>
-    <string name="opt_enable_message_edit_label">Enable message editing</string>
-    <string name="opt_enable_message_edit_desc">Re-enables the message edit feature that was removed from LINE Labs.</string>
     <string name="opt_use_default_camera_label">Use the system camera</string>
     <string name="opt_use_default_camera_desc">Uses your device\'s default camera app instead of the camera built into LINE.</string>
     <string name="opt_mute_camera_shutter_label">Mute the in-app camera</string>
