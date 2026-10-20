@@ -518,16 +518,6 @@ public class Version26131 {
     v.muteMessage.silentFlagWriterClass = "pe8.e1";
     v.muteMessage.methodWriteSilentFlag = "a";
 
-    v.editMessage.labFeatureClass = "p58.d";
-    v.editMessage.methodIsFeatureEnabled = "c";
-    v.editMessage.editMessageFeatureClass = "p58.k";
-    v.editMessage.chatGateClass = "k71.c";
-    v.editMessage.methodIsFeatureAvailable = "a";
-    v.editMessage.methodIsLabEnabled = "c";
-    v.editMessage.methodIsAgreed = "f";
-    v.editMessage.agreementClass = "a31.c";
-    v.editMessage.methodIsAgreementDone = "C";
-
     v.iab.inAppBrowserActivityClass = "com.linecorp.line.iab.browser.impl.InAppBrowserActivity";
 
     v.homeTab.tabListProviderClass = "i48.e";

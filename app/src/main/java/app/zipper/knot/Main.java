@@ -173,7 +173,6 @@ public class Main extends XposedModule {
       applyHook(new HiddenChatRowHook(), lpparam);
     }
     if (options.enableMuteMessage.enabled) applyHook(new MuteMessageHook(), lpparam);
-    if (options.enableMessageEdit.enabled) applyHook(new EditMessageHook(), lpparam);
     if (options.useDefaultCamera.enabled) applyHook(new UseDefaultCameraHook(), lpparam);
     if (options.muteCameraShutter.enabled) applyHook(new CameraShutterMuteHook(), lpparam);
     if (options.showProfileTimestamps.enabled) applyHook(new ProfileTimestampsHook(), lpparam);
