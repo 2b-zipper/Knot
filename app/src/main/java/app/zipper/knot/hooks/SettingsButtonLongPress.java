@@ -210,7 +210,9 @@ public class SettingsButtonLongPress implements BaseHook {
           findMethod(
               Reflect.findClass(cfg.compose.onGloballyPositionedClass, lpparam.classLoader),
               cfg.compose.methodOnGloballyPositioned,
-              params -> params.length == 2 && params[1] == combinedClickable.getReturnType());
+              params ->
+                  params.length == 2
+                      && Reflect.paramIndex(params, combinedClickable.getReturnType()) >= 0);
     } catch (Throwable t) {
       Knot.log("Knot: SettingsButtonLongPress could not resolve the layout coordinate API: " + t);
       onGloballyPositioned = null;
@@ -297,7 +299,12 @@ public class SettingsButtonLongPress implements BaseHook {
     Method factory = onGloballyPositioned;
     if (factory == null) return modifier;
     try {
-      return factory.invoke(null, positionCallback(factory.getParameterTypes()[0]), modifier);
+      // 26.16.0 takes the modifier first, earlier versions the callback
+      int modifierArg = Reflect.paramIndex(factory, factory.getReturnType());
+      Object[] args = new Object[2];
+      args[modifierArg] = modifier;
+      args[1 - modifierArg] = positionCallback(factory.getParameterTypes()[1 - modifierArg]);
+      return factory.invoke(null, args);
     } catch (Throwable t) {
       Knot.log("Knot: SettingsButtonLongPress could not track the settings icon bounds: " + t);
       return modifier;
