@@ -135,7 +135,7 @@ public class SearchByMemberHook implements BaseHook {
 
   private void handleHeaderCreated(Object helper, LineVersion.Config config) {
     try {
-      View headerView = (View) Reflect.getObjectField(helper, "a");
+      View headerView = (View) Reflect.getObjectField(helper, config.chat.searchHeaderViewField);
       if (headerView == null) return;
 
       Activity activity = unwrapActivity(headerView.getContext());
@@ -236,7 +236,9 @@ public class SearchByMemberHook implements BaseHook {
     try {
       Class<?> sbCls = Reflect.findClass(config.chat.searchBoxViewClass, classLoader);
       Knot.module
-          .hook(Reflect.findMethodExact(sbCls, "setEditingLayout", boolean.class))
+          .hook(
+              Reflect.findMethodExact(
+                  sbCls, config.chat.searchBoxSetEditingLayoutMethod, boolean.class))
           .intercept(
               chain -> {
                 Object result = chain.proceed();
@@ -599,7 +601,8 @@ public class SearchByMemberHook implements BaseHook {
                 + "()");
         return;
       }
-      String currentText = (String) Reflect.callMethod(sbView, "getSearchText");
+      String currentText =
+          (String) Reflect.callMethod(sbView, lineVersionConfig.chat.searchBoxGetTextMethod);
       if (currentText == null) currentText = "";
 
       boolean filterActive = chatId != null && chatMemberFilter.containsKey(chatId);
@@ -626,7 +629,7 @@ public class SearchByMemberHook implements BaseHook {
       Class<?> eventClass = Reflect.findClass(searchKeywordEventClass, appClassLoader);
       Object event = Reflect.newInstance(eventClass, keyword);
       requestForcedKeywordRefresh(keyword);
-      Reflect.callMethod(eventBus, "b", event);
+      Reflect.callMethod(eventBus, lineVersionConfig.chat.searchEventBusPostMethod, event);
       return true;
     } catch (Throwable t) {
       forcedKeywordRefreshes.remove(keyword != null ? keyword : "");
@@ -818,10 +821,10 @@ public class SearchByMemberHook implements BaseHook {
   private String resolveChatId(Activity activity, LineVersion.Config config) {
     try {
       android.os.Bundle extras = activity.getIntent().getExtras();
-      if (extras != null) {
-        android.os.Parcelable req = extras.getParcelable("chat-history-request");
+      if (extras != null && config != null) {
+        android.os.Parcelable req = extras.getParcelable(config.chatJump.requestExtraKey);
         if (req != null) {
-          Object id = Reflect.callMethod(req, "getChatId");
+          Object id = Reflect.callMethod(req, config.chatJump.requestChatIdMethod);
           if (id instanceof String && !((String) id).isEmpty()) return (String) id;
         }
       }

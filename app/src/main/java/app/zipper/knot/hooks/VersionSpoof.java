@@ -28,7 +28,6 @@ public class VersionSpoof implements BaseHook {
           Arrays.asList(
               cfg.unsend.methodUnsendThrift,
               cfg.unsend.methodUnsendThriftSilent,
-              cfg.unsend.methodUnsendAnnouncement,
               cfg.thrift.methodDestroyMessage,
               cfg.thrift.methodDestroyMessages));
     }

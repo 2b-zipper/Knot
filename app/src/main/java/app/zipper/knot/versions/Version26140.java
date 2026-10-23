@@ -18,6 +18,7 @@ public class Version26140 {
     v.main.methodSetHeaderLabel = "k";
     v.main.methodSetHeaderButtonVisibility = "s";
     v.main.methodGetHeaderButtonView = "h";
+    v.main.methodSetButtonImageDrawable = "setButtonImageViewDrawable";
     v.main.methodSetHeaderOnClickListener = "r";
     v.main.methodRefreshNavHeader = "a";
     v.main.methodHeaderSetTitle = "setTitle";
@@ -110,7 +111,6 @@ public class Version26140 {
     v.unsend.methodGetSimpleUserAgentWithContext = "l";
     v.unsend.methodUnsendThrift = "unsendMessage";
     v.unsend.methodUnsendThriftSilent = "silentlyUnsendMessage";
-    v.unsend.methodUnsendAnnouncement = "unsendChatRoomAnnouncement";
     v.unsend.operationTypeField = "c";
     v.unsend.operationParam1Field = "g";
     v.unsend.operationParam2Field = "h";
@@ -162,6 +162,7 @@ public class Version26140 {
     v.home.home26ServiceTypePrefixes = "HomeServiceList,GlobalHomeServiceSection";
     v.home.home26LoadingMoreDataClass = "lb2.g$a";
     v.home.home26ModuleBodyField = "e";
+    v.home.home26ModuleTypeMethod = "getType";
 
     v.chat.headerController = "ag1.t1";
     v.chat.headerHelper = "jp.naver.line.android.common.view.header.b";
@@ -322,6 +323,7 @@ public class Version26140 {
     v.notificationFix.legyStreamingStateClass = "com.linecorp.legy.streaming.h$a";
     v.notificationFix.legyStreamingLifecycleClass = "com.linecorp.legy.streaming.h$d";
     v.notificationFix.legyStreamingLifecycleMethod = "g1";
+    v.notificationFix.legyStreamingManagerField = "a";
     v.notificationFix.legyLifecycleOwnerClass = "androidx.lifecycle.u0";
     v.notificationFix.legyLifecycleEventClass = "androidx.lifecycle.f0$a";
     v.notificationFix.legyBackgroundStateField = "BACKGROUND";
@@ -384,6 +386,7 @@ public class Version26140 {
 
     v.kotlin.unitClass = "kotlin.Unit";
     v.kotlin.fieldUnitInstance = "INSTANCE";
+    v.kotlin.continuationClass = "kotlin.coroutines.Continuation";
 
     v.agentIInChat.toggleComposableClass = "zi1.i";
 
@@ -400,6 +403,7 @@ public class Version26140 {
     v.profile.h13baClass = "wi3.b";
     v.profile.fieldH3 = "ac";
     v.profile.g50aClass = "o70.a";
+    v.profile.serviceLocatorMethod = "a";
     v.profile.methodGetProfile = "getProfile";
     v.profile.fieldMid = "b";
 
@@ -409,6 +413,8 @@ public class Version26140 {
 
     v.media.videoDurationCheckClass = "wa1.b";
     v.media.videoDurationCheckMethod = "c";
+    v.media.videoDurationCheckWithSizeMethod = "a";
+    v.media.videoDurationCheckWithoutSizeMethod = "b";
     v.media.mediaPickerParamsClass = "com.linecorp.line.media.picker.b$i";
     v.media.fieldMediaPickerMaxVideoDuration = "y";
     v.media.droppedMediaPreprocessorClass = "hy0.b";
@@ -427,6 +433,8 @@ public class Version26140 {
     v.chat.searchHeaderShowMethod = "a";
     v.chat.searchHeaderControllerField = "l";
     v.chat.searchHeaderEventBusField = "c";
+    v.chat.searchHeaderViewField = "a";
+    v.chat.searchEventBusPostMethod = "b";
     v.chat.searchControllerSearchBoxMethod = "n0";
     v.chat.searchPresenterClass = "bt1.t";
     v.chat.searchKeywordTypeClass = "l51.c";
@@ -437,6 +445,8 @@ public class Version26140 {
     v.chat.searchBoxViewClass = "jp.naver.line.android.customview.SearchBoxView";
     v.chat.searchBoxEditTextField = "b";
     v.chat.searchBoxIconField = "d";
+    v.chat.searchBoxSetEditingLayoutMethod = "setEditingLayout";
+    v.chat.searchBoxGetTextMethod = "getSearchText";
     v.chat.searchKeywordEventClass = "ws1.b";
     v.chat.searchKeywordEventKeywordField = "a";
     v.chat.searchPresenterKeywordChangedMethod = "onSearchInChatKeywordChangedEventReceived";
@@ -448,6 +458,9 @@ public class Version26140 {
     v.chat.searchResultTitleBindMethod = "H0";
     v.chat.searchResultTitleBindingField = "x";
     v.chat.searchResultTitleTextViewField = "b";
+    v.chat.searchResultHeaderItemClass = "i51.b$e";
+    v.chat.searchResultHeaderTitleField = "a";
+    v.chat.searchResultHeaderCountField = "b";
     v.chat.searchFtsInChatQueryClass = "g82.p";
     v.chat.searchFtsQueryField = "a";
     v.chat.searchFtsChatIdField = "b";
@@ -460,6 +473,7 @@ public class Version26140 {
     v.chatJump.launchActivityClass =
         "jp.naver.line.android.activity.chathistory.ChatHistoryActivityLaunchActivity";
     v.chatJump.requestExtraKey = "chatHistoryRequest";
+    v.chatJump.requestChatIdMethod = "getChatId";
 
     v.chatTimestamp.displayTimeInterface = "m91.f";
     v.chatTimestamp.methodCreatedMillis = "a";

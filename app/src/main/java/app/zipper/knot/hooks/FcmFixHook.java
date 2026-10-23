@@ -12,9 +12,7 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
@@ -56,44 +54,6 @@ public class FcmFixHook implements BaseHook {
     if (VERBOSE_LOGGING) {
       Knot.log("Knot: " + message);
     }
-  }
-
-  private static Object findSurroundingObject(Object innerObject, String outerClassName) {
-    if (innerObject == null) {
-      return null;
-    }
-
-    try {
-      return Reflect.getSurroundingThis(innerObject);
-    } catch (Throwable ignored) {
-    }
-
-    try {
-      return Reflect.getObjectField(innerObject, "this$0");
-    } catch (Throwable ignored) {
-    }
-
-    try {
-      for (Field field : innerObject.getClass().getDeclaredFields()) {
-        if (Modifier.isStatic(field.getModifiers())) {
-          continue;
-        }
-        Class<?> fieldType = field.getType();
-        if (fieldType == null || !outerClassName.equals(fieldType.getName())) {
-          continue;
-        }
-        field.setAccessible(true);
-        return field.get(innerObject);
-      }
-    } catch (Throwable ignored) {
-    }
-
-    try {
-      return Reflect.getObjectField(innerObject, "a");
-    } catch (Throwable ignored) {
-    }
-
-    return null;
   }
 
   @SuppressWarnings("deprecation")
@@ -171,8 +131,11 @@ public class FcmFixHook implements BaseHook {
 
   private static Object resolveLegyStreamingManager(
       Object observer, LineVersion.Config.NotificationFix fixCfg) {
-    String outerClassName = fixCfg.legyStreamingLifecycleClass.split("\\$")[0];
-    return findSurroundingObject(observer, outerClassName);
+    try {
+      return Reflect.getObjectField(observer, fixCfg.legyStreamingManagerField);
+    } catch (Throwable t) {
+      return null;
+    }
   }
 
   private static void suppressLegyBackgroundDisconnect(

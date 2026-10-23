@@ -218,11 +218,14 @@ public class SearchResultCountHook implements BaseHook {
     try {
       List<Object> args = chain.getArgs();
       if (args.size() < 3 || args.get(0) == null) return;
+      Object item = args.get(0);
+      ClassLoader cl = item.getClass().getClassLoader();
+      if (!Reflect.findClass(config.chat.searchResultHeaderItemClass, cl).isInstance(item)) return;
 
-      int count = Reflect.getIntField(args.get(0), "b");
+      int count = Reflect.getIntField(item, config.chat.searchResultHeaderCountField);
       if (!shouldShowExactHeaderCount(count)) return;
 
-      Object title = Reflect.getObjectField(args.get(0), "a");
+      Object title = Reflect.getObjectField(item, config.chat.searchResultHeaderTitleField);
       if (!(title instanceof String)) return;
 
       Object binding =

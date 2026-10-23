@@ -213,7 +213,7 @@ public class HeaderButtonInjector implements BaseHook {
       }
 
       if (headerButton == null) return;
-      Reflect.callMethod(headerButton, "setButtonImageViewDrawable", icon);
+      Reflect.callMethod(headerButton, config.main.methodSetButtonImageDrawable, icon);
 
       Reflect.callMethod(
           headerHelper,

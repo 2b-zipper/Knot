@@ -46,8 +46,16 @@ public class LongVideoHook implements BaseHook {
                   Map.class,
                   boolean.class))
           .intercept(bypassHook);
-      Knot.module.hook(Reflect.findMethodExact(checkClass, "a", Uri.class)).intercept(bypassHook);
-      Knot.module.hook(Reflect.findMethodExact(checkClass, "b", Uri.class)).intercept(bypassHook);
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  checkClass, v.media.videoDurationCheckWithSizeMethod, Uri.class))
+          .intercept(bypassHook);
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  checkClass, v.media.videoDurationCheckWithoutSizeMethod, Uri.class))
+          .intercept(bypassHook);
     } catch (Throwable ignored) {
     }
   }

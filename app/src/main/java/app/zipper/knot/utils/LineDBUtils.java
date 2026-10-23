@@ -317,7 +317,10 @@ public class LineDBUtils {
 
         if (h3 != null) {
           java.lang.reflect.Method aMethod =
-              g50f.getMethod("a", Context.class, cl.loadClass(cfg.profile.g50aClass));
+              g50f.getMethod(
+                  cfg.profile.serviceLocatorMethod,
+                  Context.class,
+                  cl.loadClass(cfg.profile.g50aClass));
           Object profileManager = aMethod.invoke(null, context, h3);
 
           if (profileManager != null) {

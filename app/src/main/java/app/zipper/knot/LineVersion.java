@@ -74,6 +74,7 @@ public class LineVersion {
     public static class Kotlin {
       public String unitClass = "";
       public String fieldUnitInstance = "";
+      public String continuationClass = "";
     }
 
     public static class Compose {
@@ -189,11 +190,14 @@ public class LineVersion {
       public String requestClass = "";
       public String launchActivityClass = "";
       public String requestExtraKey = "";
+      public String requestChatIdMethod = "";
     }
 
     public static class Media {
       public String videoDurationCheckClass = "";
       public String videoDurationCheckMethod = "";
+      public String videoDurationCheckWithSizeMethod = "";
+      public String videoDurationCheckWithoutSizeMethod = "";
       public String mediaPickerParamsClass = "";
       public String fieldMediaPickerMaxVideoDuration = "";
       public String droppedMediaPreprocessorClass = "";
@@ -213,6 +217,7 @@ public class LineVersion {
       public String h13baClass = "";
       public String fieldH3 = "";
       public String g50aClass = "";
+      public String serviceLocatorMethod = "";
       public String methodGetProfile = "getProfile";
       public String fieldMid = "";
     }
@@ -246,6 +251,7 @@ public class LineVersion {
       public String methodSetHeaderLabel = "";
       public String methodSetHeaderButtonVisibility = "";
       public String methodGetHeaderButtonView = "";
+      public String methodSetButtonImageDrawable = "";
       public String methodSetHeaderOnClickListener = "";
       public String methodRefreshNavHeader = "";
       public String methodHeaderSetTitle = "";
@@ -359,7 +365,6 @@ public class LineVersion {
       public String methodGetSimpleUserAgentWithContext = "";
       public String methodUnsendThrift = "";
       public String methodUnsendThriftSilent = "";
-      public String methodUnsendAnnouncement = "";
       public String operationTypeField = "";
       public String operationParam1Field = "";
       public String operationParam2Field = "";
@@ -426,6 +431,7 @@ public class LineVersion {
       public String home26ServiceTypePrefixes = "";
       public String home26LoadingMoreDataClass = "";
       public String home26ModuleBodyField = "";
+      public String home26ModuleTypeMethod = "";
     }
 
     public static class Chat {
@@ -437,6 +443,8 @@ public class LineVersion {
       public String searchHeaderShowMethod = "";
       public String searchHeaderControllerField = "";
       public String searchHeaderEventBusField = "";
+      public String searchHeaderViewField = "";
+      public String searchEventBusPostMethod = "";
       public String searchControllerSearchBoxMethod = "";
       public String searchPresenterClass = "";
       public String searchKeywordTypeClass = "";
@@ -447,6 +455,8 @@ public class LineVersion {
       public String searchBoxViewClass = "";
       public String searchBoxEditTextField = "";
       public String searchBoxIconField = "";
+      public String searchBoxSetEditingLayoutMethod = "";
+      public String searchBoxGetTextMethod = "";
       public String searchKeywordEventClass = "";
       public String searchKeywordEventKeywordField = "";
       public String searchPresenterKeywordChangedMethod = "";
@@ -458,6 +468,9 @@ public class LineVersion {
       public String searchResultTitleBindMethod = "";
       public String searchResultTitleBindingField = "";
       public String searchResultTitleTextViewField = "";
+      public String searchResultHeaderItemClass = "";
+      public String searchResultHeaderTitleField = "";
+      public String searchResultHeaderCountField = "";
       public String searchFtsInChatQueryClass = "";
       public String searchFtsQueryField = "";
       public String searchFtsChatIdField = "";
@@ -633,6 +646,7 @@ public class LineVersion {
       public String legyStreamingStateClass = "";
       public String legyStreamingLifecycleClass = "";
       public String legyStreamingLifecycleMethod = "";
+      public String legyStreamingManagerField = "";
       public String legyLifecycleOwnerClass = "";
       public String legyLifecycleEventClass = "";
       public String legyBackgroundStateField = "";

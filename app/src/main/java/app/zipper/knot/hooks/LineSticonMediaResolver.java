@@ -257,7 +257,7 @@ final class LineSticonMediaResolver {
     ClassLoader loader = lookup.repository.getClass().getClassLoader();
     LineVersion.Config.Notification config = lookup.config;
     Class<?> requestClass = Reflect.findClass(config.sticonCoroutineRequestClass, loader);
-    Class<?> continuationClass = Reflect.findClass("kotlin.coroutines.Continuation", loader);
+    Class<?> continuationClass = Reflect.findClass(lookup.continuationClassName, loader);
     // Reuse LINE's suspend lambda: it downloads, decodes, and fills the native cache.
     // Native runBlocking also cancels its coroutine when the worker is interrupted.
     Object request =
@@ -306,7 +306,7 @@ final class LineSticonMediaResolver {
 
       Class<?> keyClass = Reflect.findClass(config.sticonImageKeyClass, loader);
       Object key = createImageKey(loader, config, spec, keyClass);
-      return key == null ? null : new Lookup(repository, key, config);
+      return key == null ? null : new Lookup(repository, key, version);
     } catch (Throwable t) {
       Knot.log("Knot: sticon lookup failed: " + t.getClass().getSimpleName());
       return null;
@@ -452,11 +452,13 @@ final class LineSticonMediaResolver {
     final Object repository;
     final Object key;
     final LineVersion.Config.Notification config;
+    final String continuationClassName;
 
-    Lookup(Object repository, Object key, LineVersion.Config.Notification config) {
+    Lookup(Object repository, Object key, LineVersion.Config version) {
       this.repository = repository;
       this.key = key;
-      this.config = config;
+      this.config = version.notification;
+      this.continuationClassName = version.kotlin.continuationClass;
     }
   }
 

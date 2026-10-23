@@ -13,6 +13,7 @@ import android.widget.TextView;
 import app.zipper.knot.BuildConfig;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
+import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
@@ -46,8 +47,9 @@ public class ReleaseNotesPopup implements BaseHook {
 
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
-    Class<?> activityCls =
-        lpparam.classLoader.loadClass("jp.naver.line.android.activity.main.MainActivity");
+    LineVersion.Config cfg = LineVersion.get();
+    if (cfg == null) return;
+    Class<?> activityCls = lpparam.classLoader.loadClass(cfg.main.mainActivity);
 
     Knot.module
         .hook(Reflect.findMethodExact(activityCls, "onResume"))

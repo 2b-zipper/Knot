@@ -118,7 +118,10 @@ public class RemoveHomeContents implements BaseHook {
                         w != null
                             ? Reflect.getObjectField(w, cfg.home.home26ModuleBodyField)
                             : null;
-                    String type = body != null ? (String) Reflect.callMethod(body, "getType") : "";
+                    String type =
+                        body != null
+                            ? (String) Reflect.callMethod(body, cfg.home.home26ModuleTypeMethod)
+                            : "";
                     boolean remove =
                         (feedOff && hasAnyPrefix(type, feedPrefixes))
                             || (svcOff && hasAnyPrefix(type, svcPrefixes));
