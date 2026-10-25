@@ -46,6 +46,9 @@
     <string name="manager_restart_required">LINEの再起動が必要です</string>
     <string name="opt_restart_label">LINEを再起動</string>
     <string name="opt_restart_desc">Knotを読み込み直すためにLINEを再起動します。</string>
+    <string name="opt_reset_mappings_label">Reset mappings</string>
+    <string name="opt_reset_mappings_desc">Finds LINE\'s obfuscated names again on the next launch.</string>
+    <string name="opt_reset_mappings_confirm">Delete the mapping cache?</string>
     <string name="restart_title">再起動の確認</string>
     <string name="restart_message">設定を反映させるにはLINEの再起動が必要です。今すぐ再起動しますか？</string>
     <string name="restart_now_confirm">LINEを再起動しますか？</string>
@@ -54,6 +57,8 @@
     <string name="release_notes_open">GitHubで見る</string>
     <string name="warn_storage_unset">⚠ Knot: 保存先が未設定です。タップして設定してください。</string>
     <string name="unsupported_version_msg">このバージョンのLINEはサポートされていません。</string>
+    <string name="broken_features_title">Some features will not work</string>
+    <string name="broken_features_msg">Knot could not find where to hook these features in LINE %1$s, so they will not work:</string>
     <!-- Backup / restore -->
     <string name="backup_success">バックアップが完了しました。</string>
     <string name="backup_error">バックアップに失敗しました。</string>
