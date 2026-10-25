@@ -462,8 +462,8 @@ public class FcmFixHook implements BaseHook {
                   fixCfg.legyStreamingLifecycleClass,
                   cl,
                   fixCfg.legyStreamingLifecycleMethod,
-                  Reflect.findClass(fixCfg.legyLifecycleOwnerClass, cl),
-                  Reflect.findClass(fixCfg.legyLifecycleEventClass, cl)))
+                  Reflect.findClass(versionConfig.androidx.lifecycleOwnerClass, cl),
+                  Reflect.findClass(versionConfig.androidx.lifecycleEventClass, cl)))
           .intercept(
               chain -> {
                 if (!isEnabled(config)) return chain.proceed();

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import androidx.annotation.NonNull;
 import app.zipper.knot.hooks.*;
 import app.zipper.knot.ui.DebugMenu;
@@ -15,6 +16,7 @@ import io.github.libxposed.api.XposedModule;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Main extends XposedModule {
 
@@ -117,9 +119,7 @@ public class Main extends XposedModule {
     ModuleResources.attach(context);
     DebugMenu.install();
 
-    LineVersion.Config cfg = LineVersion.detectWithContext(context);
-    if (cfg == null) cfg = LineVersion.detect(lpparam.classLoader);
-    if (cfg == null) {
+    if (LineVersion.load(context, lpparam.classLoader) == null) {
       handleUnsupportedVersion(lpparam);
     } else {
       initializeModule(context, lpparam);
@@ -135,10 +135,14 @@ public class Main extends XposedModule {
 
     Knot.log("Knot: Initializing Knot hooks...");
 
+    // Reached only by user action, so installed after the first frame
+    List<Supplier<BaseHook>> later = new ArrayList<>();
+
     applyHook(new SettingsUIInjector(), lpparam);
     applyHook(new SettingsButtonLongPress(), lpparam);
     applyHook(new ShowConfigWarning(), lpparam);
     applyHook(new ReleaseNotesPopup(), lpparam);
+    applyHook(new BrokenFeatureWarning(), lpparam);
     applyHook(new HomeSettingsTooltip(), lpparam);
 
     // Always installed; self-gates at runtime to avoid the cold-start settings-load race
@@ -155,14 +159,12 @@ public class Main extends XposedModule {
       applyHook(new OpenInExternalBrowserHook(), lpparam);
     }
     if (options.highQualityPhoto.enabled) applyHook(new ImageQuality(), lpparam);
-    if (options.longVideo.enabled) applyHook(new LongVideoHook(), lpparam);
-    if (options.searchByMember.enabled) applyHook(new SearchByMemberHook(), lpparam);
-    if (options.keywordAssistInSearchBar.enabled) {
-      applyHook(new KeywordAssistInSearchBarHook(), lpparam);
-    }
+    if (options.longVideo.enabled) later.add(LongVideoHook::new);
+    if (options.searchByMember.enabled) later.add(SearchByMemberHook::new);
+    if (options.keywordAssistInSearchBar.enabled) later.add(KeywordAssistInSearchBarHook::new);
     if (options.searchMin1Char.enabled) {
-      applyHook(new SearchMin1CharHook(), lpparam);
-      applyHook(new SearchResultCountHook(), lpparam);
+      later.add(SearchMin1CharHook::new);
+      later.add(SearchResultCountHook::new);
     }
     if (options.showSecondsInChatTime.enabled) applyHook(new ChatTimestampSeconds(), lpparam);
     if (options.selectAllInEditMode.enabled) applyHook(new ChatEditSelectAllHook(), lpparam);
@@ -175,7 +177,7 @@ public class Main extends XposedModule {
     if (options.enableMuteMessage.enabled) applyHook(new MuteMessageHook(), lpparam);
     if (options.useDefaultCamera.enabled) applyHook(new UseDefaultCameraHook(), lpparam);
     if (options.muteCameraShutter.enabled) applyHook(new CameraShutterMuteHook(), lpparam);
-    if (options.showProfileTimestamps.enabled) applyHook(new ProfileTimestampsHook(), lpparam);
+    if (options.showProfileTimestamps.enabled) later.add(ProfileTimestampsHook::new);
 
     if (options.removeAds.enabled) applyHook(new RemoveAds(), lpparam);
     if (options.removeHomeRecommendations.enabled || options.removeHomeServices.enabled) {
@@ -228,6 +230,15 @@ public class Main extends XposedModule {
     if (options.spoofVersionUnsendOnly.enabled) applyHook(new VersionSpoof(), lpparam);
     if (options.fixSignatureMismatch.enabled) applyHook(new SignatureSpoofHook(), lpparam);
     if (options.fixDowngradeCrash.enabled) applyHook(new RoomDowngradeHook(), lpparam);
+
+    if (later.isEmpty()) return;
+    Looper.getMainLooper()
+        .getQueue()
+        .addIdleHandler(
+            () -> {
+              for (Supplier<BaseHook> hook : later) applyHook(hook.get(), lpparam);
+              return false;
+            });
   }
 
   // Most hooks catch their own failures and only log them, so the log lines are the real outcome
@@ -247,11 +258,7 @@ public class Main extends XposedModule {
   }
 
   private void handleUnsupportedVersion(LoadParam lpparam) {
-    final String msg =
-        ModuleResources.get(R.string.unsupported_version_msg)
-            + " (Supported: "
-            + LineVersion.getSupportedVersions()
-            + ")";
+    final String msg = ModuleResources.get(R.string.unsupported_version_msg);
 
     try {
       Method onCreate =

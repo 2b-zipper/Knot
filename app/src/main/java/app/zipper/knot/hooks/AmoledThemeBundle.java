@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ final class AmoledThemeBundle {
   private static final String CACHE_SUBDIR = "knot_amoled";
   private static final String IMAGES_SUBDIR = "images";
   private static final String IMAGES_PREFIX = IMAGES_SUBDIR + "/";
+  private static final String STAMP_FILE = "stamp";
 
   private static final String SEMANTIC_SECTION = "theme.semantic";
   private static final String SEMANTIC_SUFFIX = ".background.color";
@@ -52,6 +54,7 @@ final class AmoledThemeBundle {
   private static File cachedThemeJson;
   private static File cachedThemeFile;
   private static final Map<String, File> cachedImages = new HashMap<>();
+  private static String stamp = "";
 
   private AmoledThemeBundle() {}
 
@@ -60,6 +63,10 @@ final class AmoledThemeBundle {
     if (ctx == null) throw new IOException("SettingsStore has no context");
     ApplicationInfo info = ModuleResources.applicationInfo(ctx);
     if (info == null) throw new IOException("module package not resolvable");
+
+    File apkFile = new File(info.sourceDir);
+    stamp = apkFile.length() + "/" + apkFile.lastModified();
+    if (loadExtracted(new File(ctx.getCacheDir(), CACHE_SUBDIR))) return;
 
     try (ZipFile apk = new ZipFile(info.sourceDir)) {
       ZipEntry entry = apk.getEntry(ASSET_BUNDLE);
@@ -87,11 +94,7 @@ final class AmoledThemeBundle {
       throw new IOException(THEME_JSON + " missing from bundled themefile");
     }
     imageNames = Collections.unmodifiableSet(new HashSet<>(imageBlobs.keySet()));
-
-    JSONObject root = new JSONObject(new String(themeJsonBytes, StandardCharsets.UTF_8));
-    JSONObject manifest = root.optJSONObject("manifest");
-    if (manifest != null) themeRevision = manifest.optInt("revision", -1);
-    semanticColors = parseSemantic(root);
+    parseTheme();
 
     log(
         "loaded: rev="
@@ -100,6 +103,45 @@ final class AmoledThemeBundle {
             + imageBlobs.size()
             + " bundleBytes="
             + themeBundleBytes.length);
+  }
+
+  // Reuses what an earlier launch of the same module build extracted
+  private static boolean loadExtracted(File base) {
+    try {
+      File marker = new File(base, STAMP_FILE);
+      File imagesDir = new File(base, IMAGES_SUBDIR);
+      String[] names = imagesDir.list();
+      if (!marker.isFile() || names == null) return false;
+      String expected = stamp + "/" + names.length;
+      if (!expected.equals(
+          new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8))) {
+        return false;
+      }
+      File json = new File(base, THEME_JSON);
+      themeJsonBytes = Files.readAllBytes(json.toPath());
+      parseTheme();
+      File themeFile = new File(base, THEME_FILE_PREFIX + Math.max(themeRevision, 0));
+      if (!themeFile.isFile()) return false;
+      synchronized (AmoledThemeBundle.class) {
+        for (String name : names) cachedImages.put(name, new File(imagesDir, name));
+        cachedThemeJson = json;
+        cachedThemeFile = themeFile;
+        imageNames = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(names)));
+        themeJsonBytes = null;
+        extracted = true;
+      }
+      log("reused: rev=" + themeRevision + " images=" + names.length);
+      return true;
+    } catch (Throwable t) {
+      return false;
+    }
+  }
+
+  private static void parseTheme() throws JSONException {
+    JSONObject root = new JSONObject(new String(themeJsonBytes, StandardCharsets.UTF_8));
+    JSONObject manifest = root.optJSONObject("manifest");
+    if (manifest != null) themeRevision = manifest.optInt("revision", -1);
+    semanticColors = parseSemantic(root);
   }
 
   static Map<String, Integer> semanticColors() {
@@ -136,6 +178,7 @@ final class AmoledThemeBundle {
       File imagesDir = new File(base, IMAGES_SUBDIR);
       base.mkdirs();
       imagesDir.mkdirs();
+      new File(base, STAMP_FILE).delete();
 
       cachedThemeJson = writeBytes(new File(base, THEME_JSON), themeJsonBytes);
       cachedThemeFile =
@@ -144,6 +187,11 @@ final class AmoledThemeBundle {
       for (Map.Entry<String, byte[]> e : imageBlobs.entrySet()) {
         cachedImages.put(e.getKey(), writeBytes(new File(imagesDir, e.getKey()), e.getValue()));
       }
+      File[] stale = imagesDir.listFiles();
+      if (stale != null) for (File f : stale) if (!imageBlobs.containsKey(f.getName())) f.delete();
+      writeBytes(
+          new File(base, STAMP_FILE),
+          (stamp + "/" + cachedImages.size()).getBytes(StandardCharsets.UTF_8));
 
       themeBundleBytes = null;
       themeJsonBytes = null;

@@ -41,7 +41,7 @@ public class NotificationMediaSourceHook implements BaseHook {
             });
 
     try {
-      hookThumbnailSource(mediaConfig, lpparam, messageClass);
+      hookThumbnailSource(version, lpparam, messageClass);
     } catch (Throwable t) {
       Knot.log("Knot: notification thumbnail source hook setup failed", t);
     }
@@ -210,20 +210,20 @@ public class NotificationMediaSourceHook implements BaseHook {
   }
 
   private static void hookThumbnailSource(
-      LineVersion.Config.Notification config, LoadParam lpparam, Class<?> messageClass)
-      throws Throwable {
-    if (!hasText(config.messageProcessorClass)
+      LineVersion.Config version, LoadParam lpparam, Class<?> messageClass) throws Throwable {
+    LineVersion.Config.Notification config = version.notification;
+    if (!hasText(version.message.processorClass)
         || !hasText(config.messageProcessorMethod)
         || !hasText(config.messageProcessorContentTypeClass)
-        || !hasText(config.messageProcessorMetadataClass)
+        || !hasText(version.message.processorMetadataClass)
         || !hasText(config.messageProcessorAuxClass)
-        || !hasText(config.messageProcessorContinuationClass)) {
+        || !hasText(version.kotlin.continuationImplClass)) {
       return;
     }
 
     ClassLoader loader = lpparam.classLoader;
-    Class<?> processorClass = Reflect.findClass(config.messageProcessorClass, loader);
-    Class<?> metadataClass = Reflect.findClass(config.messageProcessorMetadataClass, loader);
+    Class<?> processorClass = Reflect.findClass(version.message.processorClass, loader);
+    Class<?> metadataClass = Reflect.findClass(version.message.processorMetadataClass, loader);
     Object[] params = {
       messageClass,
       Reflect.findClass(config.messageProcessorContentTypeClass, loader),
@@ -231,7 +231,7 @@ public class NotificationMediaSourceHook implements BaseHook {
       String.class,
       Reflect.findClass(config.messageProcessorAuxClass, loader),
       Long.class,
-      Reflect.findClass(config.messageProcessorContinuationClass, loader)
+      Reflect.findClass(version.kotlin.continuationImplClass, loader)
     };
     Method method;
     int offset;

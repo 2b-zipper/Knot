@@ -629,7 +629,7 @@ public class SearchByMemberHook implements BaseHook {
       Class<?> eventClass = Reflect.findClass(searchKeywordEventClass, appClassLoader);
       Object event = Reflect.newInstance(eventClass, keyword);
       requestForcedKeywordRefresh(keyword);
-      Reflect.callMethod(eventBus, lineVersionConfig.chat.searchEventBusPostMethod, event);
+      Reflect.callMethod(eventBus, lineVersionConfig.eventBus.methodPost, event);
       return true;
     } catch (Throwable t) {
       forcedKeywordRefreshes.remove(keyword != null ? keyword : "");
@@ -836,8 +836,9 @@ public class SearchByMemberHook implements BaseHook {
     }
     if (config != null) {
       try {
-        Object field = Reflect.getObjectField(activity, config.chat.chatIdField);
-        if (field != null) return (String) Reflect.callMethod(field, config.chat.methodGetChatId);
+        Object field = Reflect.getObjectField(activity, config.chatActivity.chatIdField);
+        if (field != null)
+          return (String) Reflect.callMethod(field, config.chatActivity.methodGetChatId);
       } catch (Throwable ignored) {
       }
     }

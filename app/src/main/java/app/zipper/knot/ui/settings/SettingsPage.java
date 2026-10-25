@@ -20,6 +20,7 @@ import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
 import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.HomeTabTypeHook;
+import app.zipper.knot.mapping.Mappings;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
 import java.io.File;
@@ -199,6 +200,13 @@ public final class SettingsPage {
         .add();
 
     row()
+        .title(ModuleResources.get(R.string.opt_reset_mappings_label))
+        .description(ModuleResources.get(R.string.opt_reset_mappings_desc))
+        .noArrow()
+        .onClick(v -> confirmMappingReset())
+        .add();
+
+    row()
         .title(ModuleResources.get(R.string.opt_about_label))
         .description(ModuleResources.get(R.string.opt_about_desc))
         .onClick(v -> dialog.openAbout(ctx))
@@ -226,6 +234,23 @@ public final class SettingsPage {
                   SettingsStore.load(Main.options);
                   ModuleResources.invalidate();
                   dialog.onConfigChanged();
+                })
+            .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
+            .show(),
+        dialogCtx);
+  }
+
+  private void confirmMappingReset() {
+    Context dialogCtx = dialog.dialogContext();
+    LineTheme.applyDialogColors(
+        new AlertDialog.Builder(dialogCtx, LineTheme.dialogTheme(dialogCtx))
+            .setTitle(ModuleResources.get(R.string.opt_reset_mappings_label))
+            .setMessage(ModuleResources.get(R.string.opt_reset_mappings_confirm))
+            .setPositiveButton(
+                ModuleResources.get(R.string.settings_reset_ok),
+                (d, w) -> {
+                  Mappings.reset(ctx);
+                  dialog.promptRestart();
                 })
             .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
             .show(),

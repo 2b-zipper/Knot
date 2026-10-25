@@ -23,6 +23,7 @@ import app.zipper.knot.LineVersion;
 import app.zipper.knot.Main;
 import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.mapping.Mappings;
 import app.zipper.knot.ui.settings.KnotSettingsDialog;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
@@ -221,8 +222,12 @@ public final class DebugMenu {
             ? info.getLongVersionCode()
             : info.versionCode;
     String version = info.versionName + " (" + code + ")";
-    if (LineVersion.get() != null) return version;
-    return version + ", unsupported (supported: " + LineVersion.getSupportedVersions() + ")";
+    LineVersion.Config config = LineVersion.get();
+    if (config == null) return version + ", mappings unavailable";
+    List<String> unresolved = Mappings.unresolved(config, info.versionName);
+    return unresolved.isEmpty()
+        ? version
+        : version + ", " + unresolved.size() + " unresolved: " + String.join(", ", unresolved);
   }
 
   private static String framework() {

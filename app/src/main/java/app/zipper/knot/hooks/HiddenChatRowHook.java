@@ -27,7 +27,7 @@ public class HiddenChatRowHook implements BaseHook {
     LineVersion.Config.PermanentHideChat cfg = version.permanentHideChat;
 
     hookChatTabRows(cl, cfg);
-    hookChatListRows(cl, cfg);
+    hookChatListRows(cl, cfg, version.androidx);
   }
 
   private static void hookRowData(Class<?> dataCls) {
@@ -138,7 +138,10 @@ public class HiddenChatRowHook implements BaseHook {
     }
   }
 
-  private static void hookChatListRows(ClassLoader cl, LineVersion.Config.PermanentHideChat cfg) {
+  private static void hookChatListRows(
+      ClassLoader cl,
+      LineVersion.Config.PermanentHideChat cfg,
+      LineVersion.Config.Androidx androidx) {
     if (cfg.chatListRowBinderClass.isEmpty()) return;
     try {
       Class<?> itemCls =
@@ -146,7 +149,7 @@ public class HiddenChatRowHook implements BaseHook {
               .getDeclaredField(cfg.chatListHideItemField)
               .getType();
       hookRowData(Reflect.findMethodExact(itemCls, cfg.methodChatListItemInfo).getReturnType());
-      Class<?> holderCls = Reflect.findClass(cfg.viewHolderClass, cl);
+      Class<?> holderCls = Reflect.findClass(androidx.viewHolderClass, cl);
       for (Method m :
           Reflect.findMethodsByName(cfg.chatListRowBinderClass, cl, cfg.methodChatListRowBind)) {
         int itemIndex = Reflect.paramIndex(m, itemCls);
@@ -157,7 +160,7 @@ public class HiddenChatRowHook implements BaseHook {
             .intercept(
                 chain -> {
                   Object result = chain.proceed();
-                  dimChatListRow(cfg, chain.getArg(itemIndex), chain.getArg(holderIndex));
+                  dimChatListRow(cfg, androidx, chain.getArg(itemIndex), chain.getArg(holderIndex));
                   return result;
                 });
         return;
@@ -170,9 +173,12 @@ public class HiddenChatRowHook implements BaseHook {
 
   // The item animator fades the row view itself, so the children carry the alpha
   private static void dimChatListRow(
-      LineVersion.Config.PermanentHideChat cfg, Object item, Object holder) {
+      LineVersion.Config.PermanentHideChat cfg,
+      LineVersion.Config.Androidx androidx,
+      Object item,
+      Object holder) {
     try {
-      ViewGroup row = (ViewGroup) Reflect.getObjectField(holder, cfg.viewHolderViewField);
+      ViewGroup row = (ViewGroup) Reflect.getObjectField(holder, androidx.viewHolderViewField);
       String chatId =
           (String)
               Reflect.getObjectField(

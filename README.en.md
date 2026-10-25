@@ -16,7 +16,8 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 
 > ⚠️ This module is developed by individuals for educational purposes and is not affiliated with LY Corporation in any way. Using this module may violate LINE's Terms of Use, and the developers accept no responsibility for any disadvantage or damage resulting from its use, including account restrictions, suspension, or data loss. Use it at your own risk.
 
-**Supported LINE versions**: 26.13.0, 26.13.1, 26.14.0, 26.15.0, 26.15.1, 26.16.0
+**Tested LINE versions**: 26.13.0, 26.13.1, 26.14.0, 26.15.0, 26.15.1, 26.16.0
+(Other versions may also work, though some features might not.)
 
 **Supported languages**: 日本語, English, 繁體中文
 
@@ -84,7 +85,7 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 5. Open NPatch, then grant it storage access and set the directory it will use.
 6. Download and install the latest Knot from the release list on NPatch's home screen.
 7. Tap the `Start Patch` button and choose a patching method.
-   > `Download and Patch from Cloud Proxy` is recommended. If you download LINE yourself from APKMirror or a similar site, make sure you download and patch a version that Knot supports.
+   > `Download and Patch from Cloud Proxy` is recommended. If you download LINE yourself from APKMirror or a similar site, we recommend downloading and patching a version Knot has been tested on.
 8. Select a LINE version or APK, then tap the `Start Patch` button at the bottom right to start patching.
 9. When patching is done, tap the `Install` button at the bottom right to install it.
    > If Shizuku is installed, it is installed automatically.

@@ -21,7 +21,7 @@ public class PermanentHideChatHook implements BaseHook {
       Pattern.compile("\\bis_archived\\s*=\\s*0\\b", Pattern.CASE_INSENSITIVE);
 
   private static ClassLoader classLoader;
-  private static LineVersion.Config.PermanentHideChat config;
+  private static LineVersion.Config config;
 
   private static final ThreadLocal<Boolean> openingChat = ThreadLocal.withInitial(() -> false);
 
@@ -34,10 +34,10 @@ public class PermanentHideChatHook implements BaseHook {
     ClassLoader cl = lpparam.classLoader;
     LineVersion.Config.PermanentHideChat cfg = version.permanentHideChat;
     classLoader = cl;
-    config = cfg;
+    config = version;
 
     hookResurface(cl, cfg);
-    hookArchiveUpdate(cl, cfg);
+    hookArchiveUpdate(cl, cfg, version.message.dataManagerClass);
     hookChatOpen(cl, cfg);
     hookOpenChatResurface(cl, cfg);
     hookOpenChatUnarchive(cl, cfg);
@@ -81,11 +81,11 @@ public class PermanentHideChatHook implements BaseHook {
   }
 
   // Menu unhides and the hidden list sync with the server; automatic unhides (sending, BGM) don't
-  private static void hookArchiveUpdate(ClassLoader cl, LineVersion.Config.PermanentHideChat cfg) {
-    if (cfg.messageDataManagerClass.isEmpty()) return;
+  private static void hookArchiveUpdate(
+      ClassLoader cl, LineVersion.Config.PermanentHideChat cfg, String dataManagerClass) {
+    if (dataManagerClass.isEmpty()) return;
     try {
-      for (Method m :
-          Reflect.findMethodsByName(cfg.messageDataManagerClass, cl, cfg.methodUpdateArchived)) {
+      for (Method m : Reflect.findMethodsByName(dataManagerClass, cl, cfg.methodUpdateArchived)) {
         // 26.13.0 takes the continuation first, later versions the chat id
         int chatIdIndex = Reflect.paramIndex(m, String.class);
         int archivedIndex = Reflect.paramIndex(m, boolean.class);
@@ -288,28 +288,29 @@ public class PermanentHideChatHook implements BaseHook {
 
   // Same events LINE posts after hiding a chat
   public static void refreshChatList() {
-    LineVersion.Config.PermanentHideChat cfg = config;
+    LineVersion.Config version = config;
     Context ctx = Knot.currentApplication();
-    if (cfg == null || ctx == null || cfg.eventBusClass.isEmpty()) return;
+    if (version == null || ctx == null || version.eventBus.busClass.isEmpty()) return;
+    LineVersion.Config.PermanentHideChat cfg = version.permanentHideChat;
     try {
       ClassLoader cl = classLoader;
       Object provider =
           Reflect.getStaticObjectField(
-              Reflect.findClass(cfg.eventBusClass, cl), cfg.eventBusProviderField);
+              Reflect.findClass(version.eventBus.busClass, cl), version.eventBus.providerField);
       Object eventBus =
           Reflect.callStaticMethod(
-              Reflect.findClass(cfg.serviceLocatorClass, cl),
-              cfg.serviceLocatorMethod,
+              Reflect.findClass(version.services.locatorClass, cl),
+              version.services.methodLocate,
               ctx,
               provider);
       Reflect.callMethod(
           eventBus,
-          cfg.methodEventBusPost,
+          version.eventBus.methodPost,
           Reflect.getStaticObjectField(
               Reflect.findClass(cfg.updateViewEventClass, cl), cfg.updateViewEventChatList));
       Reflect.callMethod(
           eventBus,
-          cfg.methodEventBusPost,
+          version.eventBus.methodPost,
           Reflect.getStaticObjectField(
               Reflect.findClass(cfg.chatTabBadgeEventClass, cl), cfg.chatTabBadgeEventField));
     } catch (Throwable t) {

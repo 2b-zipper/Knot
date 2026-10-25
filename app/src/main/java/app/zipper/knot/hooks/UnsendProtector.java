@@ -62,6 +62,7 @@ public class UnsendProtector implements BaseHook {
   private static final int BADGE_MARGIN_DP = 6;
   private static final int BADGE_COLOR = 0x80000000;
   private static final Map<String, String> unsendEvents = new ConcurrentHashMap<>();
+  private static volatile boolean historyLoaded;
   private static final Map<String, WeakReference<TextView>> timestampViews =
       new ConcurrentHashMap<>();
   private static final Map<Class<?>, List<Field>> listFieldsByClass = new ConcurrentHashMap<>();
@@ -85,12 +86,12 @@ public class UnsendProtector implements BaseHook {
 
   // Messages kept while the option was on stay in the chat after it is turned off
   private static boolean shouldMark() {
-    return isEnabled() || !unsendEvents.isEmpty();
+    return isEnabled() || !events().isEmpty();
   }
 
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
-    initializeUnsendCache();
+    new Thread(UnsendProtector::loadHistory, "Knot-UnsendHistory").start();
 
     LineVersion.Config cfg = LineVersion.get();
 
@@ -310,7 +311,7 @@ public class UnsendProtector implements BaseHook {
   }
 
   private static void onUnsendDetected(String msgId, String source) {
-    if (!unsendEvents.containsKey(msgId)) {
+    if (!events().containsKey(msgId)) {
       Knot.log("Knot: Blocked unsend (" + source + "), id=" + msgId);
       persistUnsendEvent(msgId, getFormattedTime());
     }
@@ -328,7 +329,14 @@ public class UnsendProtector implements BaseHook {
     updateImageBadges(row, (List<?>) row.getTag(CHILD_IDS_TAG));
   }
 
-  private static void initializeUnsendCache() {
+  // Loaded in the background at startup; the first reader waits for it
+  private static Map<String, String> events() {
+    if (!historyLoaded) loadHistory();
+    return unsendEvents;
+  }
+
+  private static synchronized void loadHistory() {
+    if (historyLoaded) return;
     try {
       JSONObject json = SettingsStore.loadUnsendHistory();
       Iterator<String> keys = json.keys();
@@ -339,10 +347,11 @@ public class UnsendProtector implements BaseHook {
     } catch (Exception e) {
       Knot.log("Knot: Unsend history load error: " + e);
     }
+    historyLoaded = true;
   }
 
   private static synchronized void persistUnsendEvent(String msgId, String timestamp) {
-    unsendEvents.put(msgId, timestamp);
+    events().put(msgId, timestamp);
     try {
       JSONObject json = new JSONObject();
       for (Map.Entry<String, String> entry : unsendEvents.entrySet())
@@ -469,7 +478,7 @@ public class UnsendProtector implements BaseHook {
       cleanupStaleTimestampViews();
     }
     // Multiple images are marked on each image instead of the timestamp
-    if (childIds.isEmpty() && rowId != null && unsendEvents.containsKey(rowId)) {
+    if (childIds.isEmpty() && rowId != null && events().containsKey(rowId)) {
       applyUnsendIndicator(tsView, root.getContext(), rowId);
     }
   }
@@ -602,7 +611,7 @@ public class UnsendProtector implements BaseHook {
 
   private static void setBadge(FrameLayout frame, Object id) {
     View badge = (View) frame.getTag(BADGE_TAG);
-    if (!(id instanceof String) || !unsendEvents.containsKey(id)) {
+    if (!(id instanceof String) || !events().containsKey(id)) {
       if (badge != null) badge.setVisibility(View.GONE);
       return;
     }
@@ -642,7 +651,7 @@ public class UnsendProtector implements BaseHook {
   }
 
   private static void showUnsendTime(Context context, String msgId) {
-    String time = unsendEvents.get(msgId);
+    String time = events().get(msgId);
     if (time == null) return;
     Context appContext = context.getApplicationContext();
     if (currentToast != null) currentToast.cancel();

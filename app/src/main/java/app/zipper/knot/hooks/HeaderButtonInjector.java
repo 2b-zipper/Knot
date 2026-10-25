@@ -27,12 +27,13 @@ public class HeaderButtonInjector implements BaseHook {
   @Override
   public void hook(KnotConfig options, LoadParam lpparam) throws Throwable {
     LineVersion.Config config = LineVersion.get();
-    if (config == null || config.chat.headerController.isEmpty()) return;
+    if (config == null || config.chatHeader.headerController.isEmpty()) return;
 
     try {
       Class<?> headerControllerClass =
-          Reflect.findClass(config.chat.headerController, lpparam.classLoader);
-      Class<?> headerHelperClass = Reflect.findClass(config.chat.headerHelper, lpparam.classLoader);
+          Reflect.findClass(config.chatHeader.headerController, lpparam.classLoader);
+      Class<?> headerHelperClass =
+          Reflect.findClass(config.chatHeader.headerHelper, lpparam.classLoader);
       Class<?> headerButtonTypeEnum =
           Reflect.findClass(config.main.headerButtonTypeClass, lpparam.classLoader);
       headerInterfaceAClass = Reflect.findClass(config.main.headerInterfaceA, lpparam.classLoader);
@@ -45,13 +46,13 @@ public class HeaderButtonInjector implements BaseHook {
       ctorParams.add(config.chatHeader.chatHistoryActivity);
       ctorParams.add(Window.class);
       ctorParams.add(View.class);
-      ctorParams.add(config.chatHeader.fieldChatConfigChatId);
-      ctorParams.add(config.chatHeader.fieldChatConfigIsMuted);
-      ctorParams.add(config.chatHeader.fieldChatConfigType);
+      ctorParams.add(config.chatHeader.controllerParam4Class);
+      ctorParams.add(config.chatHeader.controllerParam5Class);
+      ctorParams.add(config.chatHeader.controllerParam6Class);
       ctorParams.add(headerHelperClass);
-      ctorParams.add(config.chatHeader.fieldAppInfoVersion);
-      ctorParams.add(config.chatHeader.fieldAppInfoPkg);
-      ctorParams.add(config.chatHeader.fieldAppInfoId);
+      ctorParams.add(config.chatHeader.controllerParam8Class);
+      ctorParams.add(config.chatHeader.controllerParam9Class);
+      ctorParams.add(config.chatHeader.controllerParam10Class);
 
       Knot.module
           .hook(Reflect.findConstructorExact(headerControllerClass, ctorParams.toArray()))
@@ -259,9 +260,11 @@ public class HeaderButtonInjector implements BaseHook {
                 }
 
                 if (chatId == null || chatId.isEmpty()) {
-                  Object request = Reflect.getObjectField(activity, config.chat.chatIdField);
+                  Object request =
+                      Reflect.getObjectField(activity, config.chatActivity.chatIdField);
                   if (request != null) {
-                    chatId = (String) Reflect.callMethod(request, config.chat.methodGetChatId);
+                    chatId =
+                        (String) Reflect.callMethod(request, config.chatActivity.methodGetChatId);
                   }
                 }
 

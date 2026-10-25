@@ -43,8 +43,7 @@ public class PlusMenuHook implements BaseHook {
     try {
       pCls = Reflect.findClass(cfg.plusMenu.plusMenuComponentClass, lpparam.classLoader);
       composerCls = Reflect.findClass(cfg.compose.composerClass, lpparam.classLoader);
-      composerImplCls =
-          Reflect.findClass(cfg.plusMenu.plusMenuComposerImplClass, lpparam.classLoader);
+      composerImplCls = Reflect.findClass(cfg.compose.composerImplClass, lpparam.classLoader);
       callbackCls = Reflect.findClass(cfg.plusMenu.plusMenuCallbackClass, lpparam.classLoader);
     } catch (Throwable t) {
       return;
@@ -81,7 +80,7 @@ public class PlusMenuHook implements BaseHook {
             });
 
     Knot.module
-        .hook(Reflect.findMethodExact(composerImplCls, cfg.plusMenu.methodExecuteAction))
+        .hook(Reflect.findMethodExact(composerImplCls, cfg.compose.methodEndRestartGroup))
         .intercept(
             chain -> {
               Object result = chain.proceed();

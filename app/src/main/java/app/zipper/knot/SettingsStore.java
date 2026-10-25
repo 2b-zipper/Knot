@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +50,7 @@ public class SettingsStore {
   private static volatile Context appContext = null;
   private static volatile Uri cachedTreeUri = null;
   private static final Map<String, Uri> cachedDocUris = new ConcurrentHashMap<>();
+  private static volatile boolean docsListed = false;
   private static volatile boolean isModuleLoaded = false;
   private static volatile JSONObject cachedSettingsJson = null;
 
@@ -57,6 +59,7 @@ public class SettingsStore {
     ensurePointerPath(activity);
     cachedTreeUri = null;
     cachedDocUris.clear();
+    docsListed = false;
     ensureTreeUri();
   }
 
@@ -100,6 +103,7 @@ public class SettingsStore {
       }
       cachedTreeUri = Uri.parse(uriString);
       cachedDocUris.clear();
+      docsListed = false;
     } catch (Throwable e) {
       Knot.log("Knot: SettingsStore.setSettingsDir failed", e);
     }
@@ -138,7 +142,7 @@ public class SettingsStore {
 
   public static String getString(String key, String defaultValue) {
     try {
-      JSONObject json = readJson(SETTINGS_FILE);
+      JSONObject json = getSettingsJson();
       if (json.has(key)) return json.getString(key);
     } catch (Throwable ignored) {
     }
@@ -168,19 +172,81 @@ public class SettingsStore {
     }
     cachedTreeUri = null;
     cachedDocUris.clear();
+    docsListed = false;
+    if (appContext != null) mirrorFile().delete();
   }
 
   private static JSONObject getSettingsJson() throws Throwable {
     if (cachedSettingsJson != null) return cachedSettingsJson;
     synchronized (SettingsStore.class) {
       if (cachedSettingsJson != null) return cachedSettingsJson;
-      byte[] data = readDeflated(SETTINGS_FILE);
-      if (data == null) {
-        return new JSONObject();
+      JSONObject mirrored = readMirror();
+      if (mirrored != null) {
+        cachedSettingsJson = mirrored;
+        new Thread(SettingsStore::refreshMirror, "Knot-SettingsMirror").start();
+        return mirrored;
       }
-      String text = new String(data, StandardCharsets.UTF_8).trim();
-      cachedSettingsJson = text.isEmpty() ? new JSONObject() : new JSONObject(text);
-      return cachedSettingsJson;
+      JSONObject shared = readShared();
+      if (shared == null) return new JSONObject();
+      cachedSettingsJson = shared;
+      writeMirror(shared);
+      return shared;
+    }
+  }
+
+  private static JSONObject readShared() throws Throwable {
+    byte[] data = readDeflated(SETTINGS_FILE);
+    if (data == null) return null;
+    String text = new String(data, StandardCharsets.UTF_8).trim();
+    return text.isEmpty() ? new JSONObject() : new JSONObject(text);
+  }
+
+  // Read at startup instead of the shared folder over IPC, then refreshed from it in the background
+  private static File mirrorFile() {
+    return new File(new File(appContext.getFilesDir(), "knot"), "settings.json");
+  }
+
+  private static JSONObject readMirror() {
+    Uri tree = ensureTreeUri();
+    if (tree == null || appContext == null) return null;
+    try {
+      File file = mirrorFile();
+      if (!file.isFile()) return null;
+      JSONObject root =
+          new JSONObject(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));
+      return tree.toString().equals(root.optString("tree")) ? root.getJSONObject("settings") : null;
+    } catch (Throwable t) {
+      return null;
+    }
+  }
+
+  private static void writeMirror(JSONObject settings) {
+    Uri tree = ensureTreeUri();
+    if (tree == null || appContext == null) return;
+    try {
+      JSONObject root = new JSONObject();
+      root.put("tree", tree.toString());
+      root.put("settings", settings);
+      File file = mirrorFile();
+      file.getParentFile().mkdirs();
+      File tmp = new File(file.getPath() + ".tmp");
+      Files.write(tmp.toPath(), root.toString().getBytes(StandardCharsets.UTF_8));
+      if (!tmp.renameTo(file)) tmp.delete();
+    } catch (Throwable t) {
+      Knot.log("Knot: settings mirror not saved: " + t);
+    }
+  }
+
+  private static void refreshMirror() {
+    synchronized (SettingsStore.class) {
+      try {
+        JSONObject shared = readShared();
+        if (shared == null || shared.toString().equals(String.valueOf(cachedSettingsJson))) return;
+        cachedSettingsJson = shared;
+        writeMirror(shared);
+      } catch (Throwable t) {
+        Knot.log("Knot: settings mirror refresh failed: " + t);
+      }
     }
   }
 
@@ -191,6 +257,7 @@ public class SettingsStore {
         json.put(key, value);
         writeJson(SETTINGS_FILE, json);
         cachedSettingsJson = json;
+        writeMirror(json);
       }
     } catch (Throwable e) {
       Knot.log("Knot: SettingsStore.save failed", e);
@@ -455,39 +522,45 @@ public class SettingsStore {
     Uri treeUri = ensureTreeUri();
     if (treeUri == null || appContext == null) return null;
 
+    // A write lists again, so a file another LINE process created is not made twice
+    listDocs(treeUri, createIfMissing);
+    cached = cachedDocUris.get(fileName);
+    if (cached != null || !createIfMissing) return cached;
+
     ContentResolver resolver = appContext.getContentResolver();
     String treeDocId = DocumentsContract.getTreeDocumentId(treeUri);
-    Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, treeDocId);
-
-    try (Cursor cursor =
-        resolver.query(
-            childrenUri,
-            new String[] {
-              DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-              DocumentsContract.Document.COLUMN_DISPLAY_NAME
-            },
-            null,
-            null,
-            null)) {
-      if (cursor != null) {
-        while (cursor.moveToNext()) {
-          if (fileName.equals(cursor.getString(1))) {
-            Uri uri = DocumentsContract.buildDocumentUriUsingTree(treeUri, cursor.getString(0));
-            cachedDocUris.put(fileName, uri);
-            return uri;
-          }
-        }
-      }
-    }
-
-    if (!createIfMissing) return null;
-
     Uri parentDocUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, treeDocId);
     Uri newUri =
         DocumentsContract.createDocument(
             resolver, parentDocUri, "application/octet-stream", fileName);
     if (newUri != null) cachedDocUris.put(fileName, newUri);
     return newUri;
+  }
+
+  private static synchronized void listDocs(Uri treeUri, boolean again) {
+    if (docsListed && !again) return;
+    String treeDocId = DocumentsContract.getTreeDocumentId(treeUri);
+    Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, treeDocId);
+    try (Cursor cursor =
+        appContext
+            .getContentResolver()
+            .query(
+                childrenUri,
+                new String[] {
+                  DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                  DocumentsContract.Document.COLUMN_DISPLAY_NAME
+                },
+                null,
+                null,
+                null)) {
+      if (cursor == null) return;
+      while (cursor.moveToNext()) {
+        cachedDocUris.put(
+            cursor.getString(1),
+            DocumentsContract.buildDocumentUriUsingTree(treeUri, cursor.getString(0)));
+      }
+      docsListed = true;
+    }
   }
 
   private static JSONObject readJson(String fileName) throws Throwable {

@@ -304,11 +304,11 @@ public class LineDBUtils {
       if (context == null) return null;
 
       LineVersion.Config cfg = LineVersion.get();
-      if (cfg == null || cfg.profile.g50fClass.isEmpty()) return null;
+      if (cfg == null || cfg.services.locatorClass.isEmpty()) return null;
 
       try {
         ClassLoader cl = context.getClassLoader();
-        Class<?> g50f = cl.loadClass(cfg.profile.g50fClass);
+        Class<?> locator = cl.loadClass(cfg.services.locatorClass);
         Class<?> h13ba = cl.loadClass(cfg.profile.h13baClass);
 
         java.lang.reflect.Field h3Field = h13ba.getDeclaredField(cfg.profile.fieldH3);
@@ -317,10 +317,8 @@ public class LineDBUtils {
 
         if (h3 != null) {
           java.lang.reflect.Method aMethod =
-              g50f.getMethod(
-                  cfg.profile.serviceLocatorMethod,
-                  Context.class,
-                  cl.loadClass(cfg.profile.g50aClass));
+              locator.getMethod(
+                  cfg.services.methodLocate, Context.class, cl.loadClass(cfg.services.keyClass));
           Object profileManager = aMethod.invoke(null, context, h3);
 
           if (profileManager != null) {

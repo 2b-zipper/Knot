@@ -52,6 +52,9 @@
     <string name="manager_restart_required">LINE needs to be restarted</string>
     <string name="opt_restart_label">Restart LINE</string>
     <string name="opt_restart_desc">Restarts LINE so that Knot is loaded again.</string>
+    <string name="opt_reset_mappings_label">Reset mappings</string>
+    <string name="opt_reset_mappings_desc">Finds LINE\'s obfuscated names again on the next launch.</string>
+    <string name="opt_reset_mappings_confirm">Delete the mapping cache?</string>
     <string name="restart_title">Restart required</string>
     <string name="restart_message">LINE has to restart before these settings take effect. Restart now?</string>
     <string name="restart_now_confirm">Restart LINE now?</string>
@@ -61,6 +64,8 @@
     <string name="warn_storage_unset">⚠ Knot: no storage location is set. Tap here to choose one.</string>
     <string name="unsupported_version_title" translatable="false">Knot: Unsupported Version</string>
     <string name="unsupported_version_msg">This version of LINE is not supported.</string>
+    <string name="broken_features_title">Some features will not work</string>
+    <string name="broken_features_msg">Knot could not find where to hook these features in LINE %1$s, so they will not work:</string>
 
     <!-- Backup / restore -->
     <string name="backup_success">Backup completed.</string>

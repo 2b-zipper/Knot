@@ -41,8 +41,8 @@ public class ChatEditSelectAllHook implements BaseHook {
     LineVersion.Config version = LineVersion.get();
     if (version == null) return;
     cfg = version.chatEditSelectAll;
-    if (cfg.selectionProviderClass.isEmpty()) return;
-    providerClass = Reflect.findClass(cfg.selectionProviderClass, lpparam.classLoader);
+    if (version.message.selectionProviderClass.isEmpty()) return;
+    providerClass = Reflect.findClass(version.message.selectionProviderClass, lpparam.classLoader);
 
     Knot.module
         .hook(

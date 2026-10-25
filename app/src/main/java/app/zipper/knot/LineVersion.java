@@ -1,12 +1,20 @@
 package app.zipper.knot;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.content.Context;
+import app.zipper.knot.mapping.Mappings;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 public class LineVersion {
+
+  // Absent from LINE before this version, so older versions don't count it as unresolved
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface Since {
+    String value();
+  }
 
   public static class Config {
     public String linePkg = "jp.naver.line.android";
@@ -49,21 +57,60 @@ public class LineVersion {
     public Compose compose = new Compose();
     public Home26NavIcon home26NavIcon = new Home26NavIcon();
     public Kotlin kotlin = new Kotlin();
+    public Androidx androidx = new Androidx();
     public Room room = new Room();
+    public EventBus eventBus = new EventBus();
+    public Services services = new Services();
+    public ChatActivity chatActivity = new ChatActivity();
+    public Message message = new Message();
     public KeywordAssist keywordAssist = new KeywordAssist();
     public PermanentHideChat permanentHideChat = new PermanentHideChat();
 
     public static class KeywordAssist {
+      @Since("26.15.0")
       public String toggleViewClass = "";
-      public String methodGetChecked = "";
-      public String methodSetChecked = "";
-      public String methodGetOnCheckedChange = "";
-      public String resSearchBarBg = "";
-      public String resSearchBarInput = "";
-      public String resSearchBarCancel = "";
-      public String resSearchBarIcon = "";
-      public String resOnColor = "";
-      public String resTitle = "";
+
+      public String methodGetChecked = "getChecked";
+      public String methodSetChecked = "setChecked";
+      public String methodGetOnCheckedChange = "getOnCheckedChange";
+      public String resSearchBarBg = "search_bar_bg";
+      public String resSearchBarInput = "searchbar_input_text";
+      public String resSearchBarCancel = "searchbar_cancel_button";
+      public String resSearchBarIcon = "v2_common_search_icon";
+      public String resOnColor = "primaryFill";
+      public String resTitle = "search_keywordassist_title_keywordassist";
+    }
+
+    public static class Androidx {
+      public String lifecycleEventClass = "";
+      public String lifecycleOwnerClass = "";
+      public String viewHolderClass = "";
+      public String viewHolderViewField = "";
+    }
+
+    public static class EventBus {
+      public String busClass = "";
+      public String providerField = "";
+      public String methodPost = "";
+    }
+
+    public static class Services {
+      public String keyClass = "";
+      public String locatorClass = "";
+      public String methodLocate = "";
+    }
+
+    public static class ChatActivity {
+      public String chatIdField = "";
+      public String methodGetChatId = "";
+    }
+
+    public static class Message {
+      public String processorClass = "";
+      public String processorMetadataClass = "";
+      public String dataManagerClass = "";
+      public String selectionStateClass = "";
+      public String selectionProviderClass = "";
     }
 
     public static class Room {
@@ -74,11 +121,18 @@ public class LineVersion {
     public static class Kotlin {
       public String unitClass = "";
       public String fieldUnitInstance = "";
-      public String continuationClass = "";
+      public String continuationClass = "kotlin.coroutines.Continuation";
+      public String continuationImplClass = "";
+      public String stateFlowImplClass = "";
+      public String function0Class = "";
+      public String function1Class = "";
+      public String function2Class = "";
     }
 
     public static class Compose {
       public String composerClass = "";
+      public String composerImplClass = "";
+      public String methodEndRestartGroup = "";
       public String clickableClass = "";
       public String methodClickable = "";
       public String methodCombinedClickable = "";
@@ -100,7 +154,7 @@ public class LineVersion {
       public String nightModeConfiguratorClass = "";
       public String methodApplyNightMode = "";
       public String fieldSystemDarkMode = "";
-      public String inputPassActivityClass = "";
+      public String inputPassActivityClass = "com.linecorp.line.passlock.InputPassActivity";
       public String darkThemeManagerClass = "";
       public String methodIsDarkTheme = "";
       public String methodThemeMode = "";
@@ -124,7 +178,8 @@ public class LineVersion {
       public String captureChoiceClass = "";
       public String captureChooserClass = "";
       public String methodShowCaptureChooser = "";
-      public String schemeServiceActivity = "";
+      public String schemeServiceActivity =
+          "jp.naver.line.android.activity.schemeservice.LineSchemeServiceActivity";
     }
 
     public static class CallTone {
@@ -144,8 +199,6 @@ public class LineVersion {
       public String sendModeClass = "";
       public String methodSendMode = "";
       public String sendModeEnumClass = "";
-      public String silentFlagWriterClass = "";
-      public String methodWriteSilentFlag = "";
     }
 
     public static class ChatTimestamp {
@@ -154,8 +207,6 @@ public class LineVersion {
     }
 
     public static class ChatEditSelectAll {
-      public String selectionProviderClass = "";
-      public String selectionStateClass = "";
       public String methodGetSelectionState = "";
       public String methodGetItem = "";
       public String methodGetCount = "getCount";
@@ -183,14 +234,16 @@ public class LineVersion {
     }
 
     public static class Iab {
-      public String inAppBrowserActivityClass = "";
+      public String inAppBrowserActivityClass =
+          "com.linecorp.line.iab.browser.impl.InAppBrowserActivity";
     }
 
     public static class ChatJump {
-      public String requestClass = "";
-      public String launchActivityClass = "";
-      public String requestExtraKey = "";
-      public String requestChatIdMethod = "";
+      public String requestClass = "com.linecorp.line.chat.request.ChatHistoryRequest";
+      public String launchActivityClass =
+          "jp.naver.line.android.activity.chathistory.ChatHistoryActivityLaunchActivity";
+      public String requestExtraKey = "chatHistoryRequest";
+      public String requestChatIdMethod = "getChatId";
     }
 
     public static class Media {
@@ -208,24 +261,22 @@ public class LineVersion {
       public String selectionValidatorClass = "";
       public String selectionValidatorMethod = "";
       public String selectionValidatorParamClass = "";
-      public String videoProfileTrimmerActivityClass = "";
+      public String videoProfileTrimmerActivityClass =
+          "jp.naver.line.android.activity.setting.videoprofile.trim.VideoProfileTrimmerActivity";
       public String fieldVideoProfileTrimmerLimit = "";
     }
 
     public static class Profile {
-      public String g50fClass = "";
       public String h13baClass = "";
       public String fieldH3 = "";
-      public String g50aClass = "";
-      public String serviceLocatorMethod = "";
       public String methodGetProfile = "getProfile";
       public String fieldMid = "";
     }
 
     public static class ProfileTimestamps {
-      public String activityClass = "";
-      public String midExtraKey = "";
-      public String resHeaderButtonContainer = "";
+      public String activityClass = "com.linecorp.line.userprofile.impl.UserProfileActivity";
+      public String midExtraKey = "USER_PROFILE_MID";
+      public String resHeaderButtonContainer = "user_profile_header_button_binding";
       public String optionalButtonWidthDimen = "userprofile_optional_button_width";
       public String optionalButtonSpacingDimen = "userprofile_optional_button_spacing";
     }
@@ -239,11 +290,11 @@ public class LineVersion {
     }
 
     public static class Main {
-      public String mainActivity = "";
-      public String baseMainTabFragment = "";
-      public String headerButton = "";
+      public String mainActivity = "jp.naver.line.android.activity.main.MainActivity";
+      public String baseMainTabFragment = "jp.naver.line.android.activity.main.BaseMainTabFragment";
+      public String headerButton = "jp.naver.line.android.common.view.header.HeaderButton";
       public String headerButtonTypeClass = "";
-      public String slotFarLeft = "";
+      public String slotFarLeft = "FAR_LEFT";
       public String headerInterfaceA = "";
       public String fieldHeaderHelper = "";
       public String fieldChatActivity = "";
@@ -251,16 +302,17 @@ public class LineVersion {
       public String methodSetHeaderLabel = "";
       public String methodSetHeaderButtonVisibility = "";
       public String methodGetHeaderButtonView = "";
-      public String methodSetButtonImageDrawable = "";
+      public String methodSetButtonImageDrawable = "setButtonImageViewDrawable";
       public String methodSetHeaderOnClickListener = "";
       public String methodRefreshNavHeader = "";
-      public String methodHeaderSetTitle = "";
+      public String methodHeaderSetTitle = "setTitle";
       public String methodHeaderSetButtonVisibility = "";
       public String methodHeaderSetButtonListener = "";
     }
 
     public static class Settings {
-      public String mainSettingsFragmentClass = "";
+      public String mainSettingsFragmentClass =
+          "com.linecorp.line.settings.main.LineUserMainSettingsFragment";
       public String settingsAdapterClass = "";
       public String settingsItemClass = "";
       public String settingsBaseAdapterClass = "";
@@ -286,11 +338,11 @@ public class LineVersion {
       public String fieldCommonHandler = "";
       public String methodSetDescription = "";
       public String methodProxyGetItemType = "";
-      public String methodSetTitleText = "";
-      public String methodSetChecked = "";
-      public String methodSetItemType = "";
-      public String methodSetSyncStatus = "";
-      public String methodSetDividerVisible = "";
+      public String methodSetTitleText = "setTitleText";
+      public String methodSetChecked = "setChecked";
+      public String methodSetItemType = "setItemType";
+      public String methodSetSyncStatus = "setSyncStatus";
+      public String methodSetDividerVisible = "setDividerVisible";
 
       public String textItemViewClass =
           "com.linecorp.line.settings.base.itemview.LineUserSettingTextItemView";
@@ -305,20 +357,17 @@ public class LineVersion {
 
     public static class PlusMenu {
       public String plusMenuComponentClass = "";
-      public String plusMenuComposerImplClass = "";
       public String plusMenuCallbackClass = "";
-      public String plusMenuOnClickItemClass = "";
 
       public String methodAddMenuItem = "";
       public String methodCreateMenu = "";
-      public String methodExecuteAction = "";
 
-      public String editChatDrawable = "";
+      public String editChatDrawable = "chat_tab_ui_header_plusmenu_edit_chat";
       public String targetPkg = "jp.naver.line.android";
     }
 
     public static class ChatListMoreMenu {
-      public String popupListViewClass = "";
+      public String popupListViewClass = "jp.naver.line.android.common.view.listview.PopupListView";
       public String fieldListView = "";
       public String popupListAdapterClass = "";
       public String fieldPopupItems = "";
@@ -334,7 +383,8 @@ public class LineVersion {
       public String methodResolveReadTarget = "";
       public String operationNotifiedReadName = "NOTIFIED_READ_MESSAGE";
       public String longPressReadClass = "";
-      public String reactClientClass = "";
+      public String reactClientClass =
+          "jp.naver.line.android.thrift.client.impl.TalkServiceClientImpl";
       public String methodReact = "";
       public String reactRequestMessageIdField = "";
       public String reactSuccessResultClass = "";
@@ -348,12 +398,12 @@ public class LineVersion {
       public String methodReadBuffer = "";
       public String methodBind = "";
       public String methodOperationTypeValueOf = "";
-      public int methodBindIndex = 0;
+      public int methodBindIndex = 1;
       public String methodGetItemView = "";
       public String methodGetCommonData = "";
       public String carouselAdapterClass = "";
-      public String methodCarouselBindViewHolder = "";
-      public int operationTypeDummy = 0;
+      public String methodCarouselBindViewHolder = "onBindViewHolder";
+      public int operationTypeDummy = 40;
 
       public String chatServiceConfigClass = "";
       public String methodUnsendLimit = "";
@@ -363,8 +413,8 @@ public class LineVersion {
       public String methodGetSimpleUserAgent = "";
       public String methodGetFullUserAgentWithContext = "";
       public String methodGetSimpleUserAgentWithContext = "";
-      public String methodUnsendThrift = "";
-      public String methodUnsendThriftSilent = "";
+      public String methodUnsendThrift = "unsendMessage";
+      public String methodUnsendThriftSilent = "silentlyUnsendMessage";
       public String operationTypeField = "";
       public String operationParam1Field = "";
       public String operationParam2Field = "";
@@ -389,8 +439,8 @@ public class LineVersion {
     }
 
     public static class Thrift {
-      public String talkServiceClientImplClass = "";
-      public String talkServiceClientInterface = "";
+      public String talkServiceClientImplClass =
+          "jp.naver.line.android.thrift.client.impl.LegacyTalkServiceClientImpl";
       public String v1 = "";
       public String protocolClass = "";
       public String messageClass = "";
@@ -402,7 +452,8 @@ public class LineVersion {
     }
 
     public static class Tabs {
-      public String bottomNavigationBarTextViewClass = "";
+      public String bottomNavigationBarTextViewClass =
+          "jp.naver.line.android.activity.main.bottomnavigationbar.BottomNavigationBarTextView";
       public String resNews = "bnb_news";
       public String resMini = "bnb_mini";
       public String resContainer = "main_tab_container";
@@ -414,52 +465,50 @@ public class LineVersion {
     }
 
     public static class Ads {
-      public String ladAdView = "";
-      public String ladAdViewV2 = "";
-      public String smartChannel = "";
-      public String classAdSdkBase = "";
-      public String classAdMolinBase = "";
+      public String ladAdView = "com.linecorp.line.ladsdk.ui.common.view.lifecycle.LadAdView";
+      public String ladAdViewV2 = "com.linecorp.line.ladsdk.ui.v2.common.lifecycle.LyadAdView";
+      public String smartChannel =
+          "com.linecorp.line.admolin.smartch.v2.view.SmartChannelViewLayout";
+      public String classAdSdkBase = "com.linecorp.line.ladsdk";
+      public String classAdMolinBase = "com.linecorp.line.admolin";
     }
 
     public static class Home {
-      public String resRecommendation = "";
-      public String resServiceCarouselId = "";
-      public String resServiceTitleId = "";
-      public String resNoServicesId = "";
+      public String resRecommendation = "home_tab_contents_recommendation_placement";
+      public String resServiceCarouselId = "home_tab_service_carousel";
+      public String resServiceTitleId = "home_tab_service_title";
+      public String resNoServicesId = "home_tab_no_services_title";
 
-      public String home26FeedTypePrefixes = "";
-      public String home26ServiceTypePrefixes = "";
+      public String home26FeedTypePrefixes =
+          "HomeFeed,HomeContentsRecommendation,GlobalHomePage,GlobalHomeDefault,AdModel,HomePerformanceAd";
+      public String home26ServiceTypePrefixes = "HomeServiceList,GlobalHomeServiceSection";
       public String home26LoadingMoreDataClass = "";
       public String home26ModuleBodyField = "";
-      public String home26ModuleTypeMethod = "";
+      public String home26ModuleTypeMethod = "getType";
     }
 
     public static class Chat {
-      public String headerController = "";
-      public String headerHelper = "";
-      public String chatIdField = "";
-      public String methodGetChatId = "";
       public String searchHeaderHelperClass = "";
       public String searchHeaderShowMethod = "";
       public String searchHeaderControllerField = "";
       public String searchHeaderEventBusField = "";
       public String searchHeaderViewField = "";
-      public String searchEventBusPostMethod = "";
       public String searchControllerSearchBoxMethod = "";
       public String searchPresenterClass = "";
       public String searchKeywordTypeClass = "";
       public String searchKeywordTypeMethod = "";
       public String searchResultClass = "";
-      public String searchResultCtorArgs = "";
+      public String searchResultCtorArgs = "chatId,keyword,idList,count";
       public String searchResultWrapperClass = "";
-      public String searchBoxViewClass = "";
+      public String searchBoxViewClass = "jp.naver.line.android.customview.SearchBoxView";
       public String searchBoxEditTextField = "";
       public String searchBoxIconField = "";
-      public String searchBoxSetEditingLayoutMethod = "";
-      public String searchBoxGetTextMethod = "";
+      public String searchBoxSetEditingLayoutMethod = "setEditingLayout";
+      public String searchBoxGetTextMethod = "getSearchText";
       public String searchKeywordEventClass = "";
       public String searchKeywordEventKeywordField = "";
-      public String searchPresenterKeywordChangedMethod = "";
+      public String searchPresenterKeywordChangedMethod =
+          "onSearchInChatKeywordChangedEventReceived";
       public String searchPresenterKeywordSubjectField = "";
       public String searchKeywordSubjectValueMethod = "";
       public String searchResultWrapperResultOptionalField = "";
@@ -481,23 +530,25 @@ public class LineVersion {
     }
 
     public static class ChatHeader {
-      public String chatHistoryActivity = "";
-      public String fieldChatConfigChatId = "";
-      public String fieldChatConfigIsMuted = "";
-      public String fieldChatConfigType = "";
-      public String fieldAppInfoVersion = "";
-      public String fieldAppInfoPkg = "";
-      public String fieldAppInfoId = "";
+      public String chatHistoryActivity =
+          "jp.naver.line.android.activity.chathistory.ChatHistoryActivity";
+      public String controllerParam4Class = "";
+      public String controllerParam5Class = "";
+      public String controllerParam6Class = "";
+      public String controllerParam8Class = "";
+      public String controllerParam9Class = "";
+      public String controllerParam10Class = "";
+      public String headerController = "";
+      public String headerHelper = "";
     }
 
     public static class Font {
       public String fontConfigClass = "";
       public String fontManagerClass = "";
       public String fontCallbackClass = "";
-      public String fontInjectedClass = "";
-      public String methodGetFontConfig = "a";
-      public String methodGetFontSettings = "e";
-      public String methodOnFontChanged = "b";
+      public String methodGetFontConfig = "";
+      public String methodGetFontSettings = "";
+      public String methodOnFontChanged = "";
       public String fontRequestExecutorClass = "";
       public String fontCallbackWithHandlerClass = "";
     }
@@ -520,15 +571,16 @@ public class LineVersion {
       public int layoutSettingsMain = 0;
       public int idHeader = 0;
       public int idTimestamp = 0;
-      public String resSettingsHeaderBtn = "";
-      public String resSettingsBtn = "";
-      public String resTooltipBackground = "";
-      public String resTooltipArrowUp = "";
+      public String resSettingsHeaderBtn = "settings_header_button";
+      public String resSettingsBtn = "settings_button";
+      public String resTooltipBackground = "home_tooltip_background";
+      public String resTooltipArrowUp = "home_tooltip_arrow_up";
     }
 
     public static class Notification {
-      public String chatHistoryRequestClass = "";
-      public String chatHistoryActivityLaunchActivityClass = "";
+      public String chatHistoryRequestClass = "com.linecorp.line.chat.request.ChatHistoryRequest";
+      public String chatHistoryActivityLaunchActivityClass =
+          "jp.naver.line.android.activity.chathistory.ChatHistoryActivityLaunchActivity";
       public String messageIdExtra = "line.message.id";
       public String messageNotificationTag = "NOTIFICATION_TAG_MESSAGE";
       public String chatNotificationTag = "jp.naver.line.android.notification.tag.chat";
@@ -550,19 +602,16 @@ public class LineVersion {
       public String messageMetadataField = "";
       public String messageMetadataKeyClass = "";
       public String messageMetadataStringMethod = "";
-      public String messageObsPopField = "";
+      public String messageObsPopField = "OBS_POP";
       public String messageVisualBuilderClass = "";
       public String messageVisualEncryptionMethod = "";
       public String messageThumbnailRequestClass = "";
       public String messageObsEncryptionDataClass = "";
-      public String messageSquareUtilsClass = "";
+      public String messageSquareUtilsClass = "com.linecorp.square.chat.SquareChatUtils";
       public String messageSquareCheckMethod = "";
-      public String messageProcessorClass = "";
       public String messageProcessorMethod = "";
       public String messageProcessorContentTypeClass = "";
-      public String messageProcessorMetadataClass = "";
       public String messageProcessorAuxClass = "";
-      public String messageProcessorContinuationClass = "";
       public String messageContentCacheClass = "";
       public String messageContentCacheInitializeMethod = "";
       public String messageContentCacheKeyClass = "";
@@ -580,12 +629,10 @@ public class LineVersion {
       public String stickerMainCacheFileMethod = "";
       public String stickerRequestFactoryClass = "";
       public String stickerRequestFactoryField = "";
-      public String stickerServiceLocatorClass = "";
-      public String stickerServiceLocatorMethod = "";
       public String stickerResourceClass = "";
       public String stickerSecretClass = "";
       public String stickerOptionClass = "";
-      public String stickerStaticOptionField = "";
+      public String stickerStaticOptionField = "STATIC";
       public String stickerMainRequestMethod = "";
       public String stickerRemoteFetcherClass = "";
       public String stickerRemoteCompleteMethod = "";
@@ -615,13 +662,14 @@ public class LineVersion {
     }
 
     public static class NotificationFix {
-      public String lineFcmServiceClass = "";
+      public String lineFcmServiceClass =
+          "jp.naver.line.android.service.fcm.LineFirebaseMessagingService";
       public String lineFcmDispatchMethod = "";
       public String lineFcmOwnershipMethod = "";
       public String lineFcmTokenMethod = "";
       public String lineFcmServiceBaseClass = "";
       public String firebaseRemoteMessageClass = "";
-      public String firebaseReceiverClass = "";
+      public String firebaseReceiverClass = "com.google.firebase.iid.FirebaseInstanceIdReceiver";
       public String firebaseReceiverMethod = "";
       public String firebaseReceiverEnvelopeClass = "";
       public String firebaseReceiverIntentField = "";
@@ -632,13 +680,14 @@ public class LineVersion {
       public String firebaseDispatcherQueueField = "";
       public String firebaseBindDeliveryClass = "";
       public String firebaseBindDeliveryMethod = "";
-      public String firebaseMessagingServiceClass = "";
+      public String firebaseMessagingServiceClass =
+          "com.google.firebase.messaging.FirebaseMessagingService";
       public String firebaseMessagingHandleMethod = "";
       public String firebaseWakefulStartClass = "";
       public String firebaseWakefulStartMethod = "";
       public String firebaseCompletedTaskClass = "";
       public String firebaseCompletedTaskMethod = "";
-      public String firebaseMessagingClass = "";
+      public String firebaseMessagingClass = "com.google.firebase.messaging.FirebaseMessaging";
       public String firebaseMessagingGetTokenMethod = "";
       public String firebaseMessagingTokenFreshMethod = "";
       public String firebaseAppClass = "";
@@ -647,9 +696,7 @@ public class LineVersion {
       public String legyStreamingLifecycleClass = "";
       public String legyStreamingLifecycleMethod = "";
       public String legyStreamingManagerField = "";
-      public String legyLifecycleOwnerClass = "";
-      public String legyLifecycleEventClass = "";
-      public String legyBackgroundStateField = "";
+      public String legyBackgroundStateField = "BACKGROUND";
       public String legyDisconnectRunnableClass = "";
       public String legyStateField = "";
       public String legyTimeoutField = "";
@@ -658,7 +705,7 @@ public class LineVersion {
       public String legyRunnableField = "";
       public String fisCertDigestClass = "";
       public String fisCertDigestMethod = "";
-      public String fisCertSha1 = "";
+      public String fisCertSha1 = "89396DC419292473972813922867E6973D6F5C50";
       public String gmsSignatureCheckClass = "";
       public String gmsSignatureCheckMethod = "";
       public String gmsAvailabilityClass = "";
@@ -666,7 +713,7 @@ public class LineVersion {
     }
 
     public static class ForegroundKeepAlive {
-      public String serviceClass = "";
+      public String serviceClass = "androidx.work.impl.foreground.SystemForegroundService";
     }
 
     public static class TalkTabHeader {
@@ -686,16 +733,17 @@ public class LineVersion {
       public String homeRefreshMethod = "";
       public String homeRootViewField = "";
       public String homeTabTypeField = "";
-      public String homeTabName = "";
-      public String homeTabV2Name = "";
-      public String chatTabName = "";
-      public String newsTabName = "";
+      public String homeTabName = "HOME";
+      public String homeTabV2Name = "HOME_V2";
+      public String chatTabName = "CHAT";
+      public String newsTabName = "NEWS";
       public int homeAiContainerId = 0;
       public int homeGuidelineId = 0;
-      public int homeGuidelineEndDp = 0;
-      public String homeGuidelineClass = "";
+      public int homeGuidelineEndDp = 55;
+      public String homeGuidelineClass = "androidx.constraintlayout.widget.Guideline";
 
-      public String miniTabHeaderClass = "";
+      public String miniTabHeaderClass =
+          "com.linecorp.line.wallet.impl.v3.view.WalletV3GrandDesignHeaderView";
       public String miniTabAgentMethod = "";
 
       public String commerceHeaderClass = "";
@@ -703,7 +751,10 @@ public class LineVersion {
 
       public String imageViewerAiButtonClass = "";
 
+      @Since("26.15.0")
       public String chatImageAiButtonClass = "";
+
+      @Since("26.15.0")
       public String chatImageAiButtonMethod = "";
     }
 
@@ -723,27 +774,21 @@ public class LineVersion {
       public String methodUpdateSquareChat = "";
       public String squareChatIdField = "";
       public String squareChatColumnClass = "";
-      public String squareArchivedColumn = "";
+      public String squareArchivedColumn = "ARCHIVED_TYPE";
       public String methodGetSquareChat = "";
       public String squareChatArchiveTypeField = "";
       public String methodSetSquareArchiveType = "";
       public String squareArchiveTypeClass = "";
-      public String squareArchivedType = "";
-      public String squareNotArchivedType = "";
+      public String squareArchivedType = "ARCHIVED";
+      public String squareNotArchivedType = "NON_ARCHIVED";
       public String chatOpenLoaderClass = "";
       public String methodChatOpenLoad = "";
-      public String chatDataClass = "";
+      public String chatDataClass = "jp.naver.line.android.model.ChatData";
       public String methodChatDataArchived = "";
-      public String eventBusClass = "";
-      public String eventBusProviderField = "";
-      public String serviceLocatorClass = "";
-      public String serviceLocatorMethod = "";
-      public String methodEventBusPost = "";
       public String updateViewEventClass = "";
-      public String updateViewEventChatList = "";
+      public String updateViewEventChatList = "CHAT_LIST";
       public String chatTabBadgeEventClass = "";
       public String chatTabBadgeEventField = "";
-      public String messageDataManagerClass = "";
       public String methodUpdateArchived = "";
       public String unhideLabelRes = "hidden_restore";
       public String hideLabelRes = "chatlist_label_hide";
@@ -781,7 +826,7 @@ public class LineVersion {
       public String chatListHideConfirmClass = "";
       public String methodConfirmHide = "";
       public String chatTabRowClass = "";
-      public String methodChatTabRowKey = "";
+      public String methodChatTabRowKey = "getKey";
       public String chatTabRowDataClass = "";
       public String chatTabItemClass = "";
       public String methodChatTabItem = "";
@@ -791,20 +836,7 @@ public class LineVersion {
       public String methodAlphaModifier = "";
       public String chatListRowBinderClass = "";
       public String methodChatListRowBind = "";
-      public String viewHolderClass = "";
-      public String viewHolderViewField = "";
     }
-  }
-
-  private static final Map<String, Config> VERSION_TABLE = new HashMap<>();
-
-  static {
-    VERSION_TABLE.put("26.13.0", app.zipper.knot.versions.Version26130.create());
-    VERSION_TABLE.put("26.13.1", app.zipper.knot.versions.Version26131.create());
-    VERSION_TABLE.put("26.14.0", app.zipper.knot.versions.Version26140.create());
-    VERSION_TABLE.put("26.15.0", app.zipper.knot.versions.Version26150.create());
-    VERSION_TABLE.put("26.15.1", app.zipper.knot.versions.Version26151.create());
-    VERSION_TABLE.put("26.16.0", app.zipper.knot.versions.Version26160.create());
   }
 
   private static volatile Config cachedConfig = null;
@@ -813,12 +845,12 @@ public class LineVersion {
     return cachedConfig;
   }
 
-  public static Config get(ClassLoader cl) {
-    if (cachedConfig != null) return cachedConfig;
-    return detect(cl);
+  public static Config load(Context context, ClassLoader cl) {
+    if (cachedConfig == null) cachedConfig = Mappings.load(context, cl);
+    return cachedConfig;
   }
 
-  public static String getVersionName(android.content.Context context) {
+  public static String getVersionName(Context context) {
     if (context == null) return null;
     try {
       return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
@@ -826,40 +858,5 @@ public class LineVersion {
       Knot.log("Knot: getVersionName failed: " + t.getMessage());
       return null;
     }
-  }
-
-  public static Config detect(ClassLoader cl) {
-    if (cachedConfig != null) return cachedConfig;
-    return matchVersion(getVersionName(Knot.currentApplication()));
-  }
-
-  public static Config detectWithContext(android.content.Context context) {
-    if (cachedConfig != null) return cachedConfig;
-    return matchVersion(getVersionName(context));
-  }
-
-  private static Config matchVersion(String verName) {
-    if (verName == null) return null;
-    Knot.log("Knot: Detected LINE version: " + verName);
-    for (Map.Entry<String, Config> entry : VERSION_TABLE.entrySet()) {
-      if (verName.startsWith(entry.getKey())) {
-        cachedConfig = entry.getValue();
-        return cachedConfig;
-      }
-    }
-    Knot.log("Knot: Unsupported LINE version: " + verName);
-    return null;
-  }
-
-  public static String getSupportedVersions() {
-    List<String> keys = new ArrayList<>(VERSION_TABLE.keySet());
-    keys.sort(Comparator.comparingInt(LineVersion::versionScore));
-    return String.join(", ", keys);
-  }
-
-  private static int versionScore(String v) {
-    int score = 0;
-    for (String part : v.split("\\.")) score = score * 1000 + Integer.parseInt(part);
-    return score;
   }
 }

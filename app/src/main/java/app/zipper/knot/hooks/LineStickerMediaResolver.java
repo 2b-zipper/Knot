@@ -73,8 +73,8 @@ final class LineStickerMediaResolver {
     Object provider = Reflect.getStaticObjectField(factoryClass, config.stickerRequestFactoryField);
     Object factory =
         Reflect.callStaticMethod(
-            Reflect.findClass(config.stickerServiceLocatorClass, loader),
-            config.stickerServiceLocatorMethod,
+            Reflect.findClass(version.services.locatorClass, loader),
+            version.services.methodLocate,
             context,
             provider);
     Class<?> secretClass = Reflect.findClass(config.stickerSecretClass, loader);
