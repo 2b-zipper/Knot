@@ -485,6 +485,11 @@ public class LineVersion {
       public String home26LoadingMoreDataClass = "";
       public String home26ModuleBodyField = "";
       public String home26ModuleTypeMethod = "getType";
+      public String home26ActivityCardClass = "";
+      public String home26HybridCardClass = "";
+      public String home26FixedServiceCardClass = "";
+      public String home26RecentServiceCardClass = "";
+      public String home26CalendarCardClass = "";
     }
 
     public static class Chat {

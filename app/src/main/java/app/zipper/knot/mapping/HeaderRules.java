@@ -113,6 +113,15 @@ final class HeaderRules {
                             MethodMatcher.create()
                                 .name(c.home.home26ModuleTypeMethod)
                                 .returnType("java.lang.String"))));
+    c.home.home26ActivityCardClass = f.classUsing("HomeActivityCard(contentList=");
+    c.home.home26HybridCardClass = f.classUsing("GcsHomeActivityHybridContentCard(contentList=");
+    c.home.home26FixedServiceCardClass = f.classUsing("FixedService(id=");
+    // GLOBALHOME has cards with the same toString
+    String cardBase = f.superOf(c.home.home26FixedServiceCardClass);
+    c.home.home26RecentServiceCardClass =
+        f.classUsing(ClassMatcher.create().superClass(cardBase), "RecentlyUsedService(id=");
+    c.home.home26CalendarCardClass =
+        f.classUsing(ClassMatcher.create().superClass(cardBase), "Calendar(id=");
 
     c.home26NavIcon.agentDrawableId = f.id("drawable", "home26_navi_top_agent");
     c.home26NavIcon.settingsDrawableId = f.id("drawable", "navi_top_setting");

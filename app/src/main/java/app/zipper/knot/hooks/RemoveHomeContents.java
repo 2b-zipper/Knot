@@ -84,6 +84,7 @@ public class RemoveHomeContents implements BaseHook {
             });
 
     hookHome26ModuleFiltering(config, lpparam);
+    hookHome26ServiceCards(config, lpparam);
   }
 
   private static void hookHome26ModuleFiltering(KnotConfig config, LoadParam lpparam) {
@@ -192,6 +193,59 @@ public class RemoveHomeContents implements BaseHook {
       if (value.startsWith(p)) return true;
     }
     return false;
+  }
+
+  private static void hookHome26ServiceCards(KnotConfig config, LoadParam lpparam) {
+    LineVersion.Config cfg = LineVersion.get();
+    if (cfg == null
+        || cfg.home.home26FixedServiceCardClass.isEmpty()
+        || cfg.home.home26RecentServiceCardClass.isEmpty()
+        || cfg.home.home26CalendarCardClass.isEmpty()) return;
+    try {
+      ClassLoader cl = lpparam.classLoader;
+      Class<?> fixed = Reflect.findClass(cfg.home.home26FixedServiceCardClass, cl);
+      Class<?> recent = Reflect.findClass(cfg.home.home26RecentServiceCardClass, cl);
+      Class<?> calendar = Reflect.findClass(cfg.home.home26CalendarCardClass, cl);
+      // The server sends the carousel as either one
+      for (String holder :
+          new String[] {cfg.home.home26ActivityCardClass, cfg.home.home26HybridCardClass}) {
+        if (holder.isEmpty()) continue;
+        for (Constructor<?> ctor : Reflect.findClass(holder, cl).getDeclaredConstructors()) {
+          Class<?>[] params = ctor.getParameterTypes();
+          if (params.length == 0 || params[0] != ArrayList.class) continue;
+          Knot.module
+              .hook(ctor)
+              .intercept(
+                  chain -> {
+                    Object[] args = chain.getArgs().toArray();
+                    if (!(args[0] instanceof List)
+                        || !SettingsStore.get(
+                            config.removeHomeServices.key, config.removeHomeServices.enabled)) {
+                      return chain.proceed();
+                    }
+                    args[0] = withoutServices((List<?>) args[0], fixed, recent, calendar);
+                    return chain.proceed(args);
+                  });
+        }
+        Knot.log("Knot: RemoveHomeContents HOME26 service cards hooked: " + holder);
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveHomeContents HOME26 service cards hook failed", t);
+    }
+  }
+
+  private static ArrayList<Object> withoutServices(
+      List<?> cards, Class<?> fixed, Class<?> recent, Class<?> calendar) {
+    ArrayList<Object> kept = new ArrayList<>();
+    boolean onlyCalendar = true;
+    for (Object card : cards) {
+      if (fixed.isInstance(card) || recent.isInstance(card)) continue;
+      kept.add(card);
+      onlyCalendar &= calendar.isInstance(card);
+    }
+    // The row keeps its height when no card draws, and calendar draws only with events
+    if (kept.size() < cards.size() && onlyCalendar) kept.clear();
+    return kept;
   }
 
   private static void hideView(View target) {
