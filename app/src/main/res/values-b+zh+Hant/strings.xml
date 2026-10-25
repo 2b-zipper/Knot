@@ -46,6 +46,9 @@
     <string name="manager_restart_required">需要重新啟動LINE</string>
     <string name="opt_restart_label">重新啟動LINE</string>
     <string name="opt_restart_desc">重新啟動LINE以重新載入Knot。</string>
+    <string name="opt_reset_mappings_label">Reset mappings</string>
+    <string name="opt_reset_mappings_desc">Finds LINE\'s obfuscated names again on the next launch.</string>
+    <string name="opt_reset_mappings_confirm">Delete the mapping cache?</string>
     <string name="restart_title">確認重新啟動</string>
     <string name="restart_message">設定必須重新啟動LINE才會生效。要立即重新啟動嗎？</string>
     <string name="restart_now_confirm">要立即重新啟動LINE嗎？</string>
@@ -54,6 +57,8 @@
     <string name="release_notes_open">在GitHub上檢視</string>
     <string name="warn_storage_unset">⚠ Knot：尚未設定儲存位置。請點擊此處進行設定。</string>
     <string name="unsupported_version_msg">不支援此版本的LINE。</string>
+    <string name="broken_features_title">Some features will not work</string>
+    <string name="broken_features_msg">Knot could not find where to hook these features in LINE %1$s, so they will not work:</string>
     <!-- Backup / restore -->
     <string name="backup_success">備份完成。</string>
     <string name="backup_error">備份失敗。</string>
