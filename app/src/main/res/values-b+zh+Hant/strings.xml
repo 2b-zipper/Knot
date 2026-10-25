@@ -59,6 +59,9 @@
     <string name="unsupported_version_msg">不支援此版本的LINE。</string>
     <string name="broken_features_title">部分功能將無法運作</string>
     <string name="broken_features_msg">在LINE %1$s 中找不到下列功能的Hook位置，因此將無法運作：</string>
+    <string name="patcher_warning_title">未使用Fork版的NPatch修補</string>
+    <string name="patcher_warning_msg">此LINE是以 %1$s 修補的。非Root環境下的Knot是為Fork版的NPatch（NPatch for Knot）所設計，因此部分功能可能無法正常運作。請依照[README中的安裝步驟](%2$s)重新修補LINE。</string>
+    <string name="patcher_warning_readme_url" formatted="false">https://github.com/2b-zipper/Knot/blob/main/README.zh-Hant.md#%E9%9D%9Eroot%E7%92%B0%E5%A2%83</string>
     <!-- Backup / restore -->
     <string name="backup_success">備份完成。</string>
     <string name="backup_error">備份失敗。</string>
