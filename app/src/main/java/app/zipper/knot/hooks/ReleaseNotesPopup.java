@@ -140,7 +140,7 @@ public class ReleaseNotesPopup implements BaseHook {
     }
   }
 
-  private static CharSequence render(Activity host, String markdown) {
+  static CharSequence render(Activity host, String markdown) {
     String text =
         markdown
             .replace("\r\n", "\n")

@@ -143,6 +143,7 @@ public class Main extends XposedModule {
     applyHook(new ShowConfigWarning(), lpparam);
     applyHook(new ReleaseNotesPopup(), lpparam);
     applyHook(new BrokenFeatureWarning(), lpparam);
+    applyHook(new UnsupportedPatcherWarning(), lpparam);
     applyHook(new HomeSettingsTooltip(), lpparam);
 
     // Always installed; self-gates at runtime to avoid the cold-start settings-load race

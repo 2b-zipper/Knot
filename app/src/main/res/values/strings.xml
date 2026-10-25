@@ -66,6 +66,9 @@
     <string name="unsupported_version_msg">This version of LINE is not supported.</string>
     <string name="broken_features_title">Some features will not work</string>
     <string name="broken_features_msg">Knot could not find where to hook these features in LINE %1$s, so they will not work:</string>
+    <string name="patcher_warning_title">Not patched with the forked NPatch</string>
+    <string name="patcher_warning_msg">This LINE was patched with %1$s. Without root, Knot is built for the forked version of NPatch (NPatch for Knot), so some features may not work correctly. Patch LINE again by following the [installation steps in the README](%2$s).</string>
+    <string name="patcher_warning_readme_url" formatted="false">https://github.com/2b-zipper/Knot/blob/main/README.en.md#non-rooted-devices</string>
 
     <!-- Backup / restore -->
     <string name="backup_success">Backup completed.</string>

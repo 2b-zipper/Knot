@@ -115,6 +115,7 @@ public class BrokenFeatureWarning implements BaseHook {
         HomeSettingsTooltip.class,
         ShowConfigWarning.class,
         ReleaseNotesPopup.class,
+        UnsupportedPatcherWarning.class,
         KnotSettingsDialog.class,
         SettingsPage.class,
         SettingsViews.class,
