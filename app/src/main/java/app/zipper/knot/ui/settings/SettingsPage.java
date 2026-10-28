@@ -512,8 +512,10 @@ public final class SettingsPage {
                 labels,
                 Math.max(values.indexOf(current), 0),
                 (d, which) -> {
-                  saveItem(item.key, values.get(which));
+                  String selected = values.get(which);
                   d.dismiss();
+                  if (selected.equals(current)) return;
+                  saveItem(item.key, selected);
                   dialog.onConfigChanged();
                 })
             .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)

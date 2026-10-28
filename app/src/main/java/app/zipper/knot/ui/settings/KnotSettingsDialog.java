@@ -20,11 +20,14 @@ import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.PermanentHideChatHook;
 import app.zipper.knot.hooks.SettingsUIInjector;
+import app.zipper.knot.ui.DebugMenu;
 import app.zipper.knot.utils.ContributorProfiles;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +49,7 @@ public final class KnotSettingsDialog {
   private View aboutView;
   private KnotConfig.Category currentCategory;
   private boolean aboutActive;
-  private boolean restartPending;
+  private String baselineSnapshot;
 
   public static void show(Context ctx) {
     KnotSettingsDialog current = active;
@@ -83,6 +86,7 @@ public final class KnotSettingsDialog {
 
   private KnotSettingsDialog(Activity host) {
     this.host = host;
+    this.baselineSnapshot = captureRestartSnapshot();
     this.dialog =
         new Dialog(host, android.R.style.Theme_DeviceDefault_NoActionBar) {
           @Override
@@ -114,7 +118,7 @@ public final class KnotSettingsDialog {
   void close() {
     if (!dialog.isShowing()) return;
 
-    if (restartPending) {
+    if (isRestartNeeded()) {
       promptPendingRestart();
       return;
     }
@@ -133,7 +137,7 @@ public final class KnotSettingsDialog {
         R.string.restart_message,
         R.string.restart_later,
         (d, w) -> {
-          restartPending = false;
+          baselineSnapshot = captureRestartSnapshot();
           close();
         });
   }
@@ -180,13 +184,48 @@ public final class KnotSettingsDialog {
 
   void onItemToggled() {
     for (Runnable r : stateRefreshers) r.run();
-    restartPending = true;
+    DebugMenu.refreshRegistration();
     searchPage = null;
   }
 
   void onConfigChanged() {
-    restartPending = true;
+    DebugMenu.refreshRegistration();
     reloadItems();
+  }
+
+  private boolean isRestartNeeded() {
+    return !captureRestartSnapshot().equals(baselineSnapshot);
+  }
+
+  private static String captureRestartSnapshot() {
+    StringBuilder sb = new StringBuilder();
+    String dirUri = SettingsStore.getSettingsDirUri();
+    sb.append("dir=").append(dirUri != null ? dirUri : "").append(';');
+
+    for (KnotConfig.Item item : Main.options.items) {
+      if (isImmediateItem(item.key)) continue;
+      boolean enabled = SettingsStore.get(item.key, item.enabled);
+      String val = effectiveValue(item);
+      sb.append(item.key).append('=').append(enabled).append(':').append(val);
+      if ("custom_font_path".equals(item.key) || "custom_ringtone_path".equals(item.key)) {
+        File f = val.isEmpty() ? null : new File(val);
+        sb.append('@').append(f != null && f.isFile() ? f.lastModified() : 0L);
+      }
+      sb.append(';');
+    }
+    return sb.toString();
+  }
+
+  // Installed unconditionally at startup and evaluated dynamically on each event
+  private static boolean isImmediateItem(String key) {
+    return "prevent_unsend_message".equals(key) || "debug_menu".equals(key);
+  }
+
+  private static String effectiveValue(KnotConfig.Item item) {
+    if ("fcm_fix_mode".equals(item.key)) {
+      return SettingsStore.getString(item.key, FcmFixHook.MODE_LEGY);
+    }
+    return SettingsStore.getString(item.key, item.value != null ? item.value : "");
   }
 
   // Knot's own views are rebuilt on demand, so a language switch needs no LINE restart

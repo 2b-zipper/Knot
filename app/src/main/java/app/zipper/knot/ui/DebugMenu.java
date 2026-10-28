@@ -41,6 +41,8 @@ public final class DebugMenu {
 
   private static WeakReference<Activity> foreground = new WeakReference<>(null);
   private static WeakReference<AlertDialog> shown = new WeakReference<>(null);
+  private static volatile SensorManager sensorManager;
+  private static volatile Sensor accelerometerSensor;
 
   private DebugMenu() {}
 
@@ -50,6 +52,17 @@ public final class DebugMenu {
     new Handler(Looper.getMainLooper()).postAtFrontOfQueue(DebugMenu::register);
   }
 
+  public static void refreshRegistration() {
+    SensorManager sm = sensorManager;
+    Sensor accel = accelerometerSensor;
+    if (sm == null || accel == null) return;
+    sm.unregisterListener(detector);
+    if (Main.options.debugMenu.enabled && foreground.get() != null) {
+      detector.reset();
+      sm.registerListener(detector, accel, SensorManager.SENSOR_DELAY_UI);
+    }
+  }
+
   private static void register() {
     Application app = Knot.currentApplication();
     if (app == null) return;
@@ -57,6 +70,8 @@ public final class DebugMenu {
     Sensor accelerometer =
         sensors == null ? null : sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     if (accelerometer == null) return;
+    sensorManager = sensors;
+    accelerometerSensor = accelerometer;
     app.registerActivityLifecycleCallbacks(new Lifecycle(sensors, accelerometer));
   }
 
