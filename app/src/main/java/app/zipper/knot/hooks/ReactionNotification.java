@@ -337,7 +337,10 @@ public class ReactionNotification implements BaseHook {
 
     PendingIntent pi =
         PendingIntent.getActivity(
-            context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            context,
+            notifId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     Notification.Builder builder =
         (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
