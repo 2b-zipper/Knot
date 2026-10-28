@@ -228,6 +228,28 @@ public class LineDBUtils {
     return null;
   }
 
+  public static long resolveMessageCreatedTime(String serverId) {
+    if (serverId == null) return 0L;
+    try {
+      Context context = Knot.currentApplication();
+      if (context == null) return 0L;
+      File dbFile = context.getDatabasePath("naver_line");
+      if (dbFile.exists()) {
+        try (SQLiteDatabase db =
+                SQLiteDatabase.openDatabase(
+                    dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor =
+                db.rawQuery(
+                    "SELECT created_time FROM chat_history WHERE server_id = ? LIMIT 1",
+                    new String[] {serverId})) {
+          if (cursor.moveToFirst()) return cursor.getLong(0);
+        }
+      }
+    } catch (Throwable ignored) {
+    }
+    return 0L;
+  }
+
   public static long resolveLocalMessageId(String serverId) {
     if (serverId == null) return -1L;
     try {

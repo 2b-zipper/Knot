@@ -11,6 +11,7 @@ import android.widget.TextView;
 import app.zipper.knot.Knot;
 import app.zipper.knot.R;
 import app.zipper.knot.hooks.EditHistoryHook;
+import app.zipper.knot.utils.LineDBUtils;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
 import org.json.JSONArray;
@@ -45,7 +46,7 @@ public class EditHistoryViewer {
       } else {
         for (int i = 0; i < versions.length(); i++) {
           JSONObject version = versions.optJSONObject(i);
-          if (version != null) container.addView(buildVersionRow(activity, version, i));
+          if (version != null) container.addView(buildVersionRow(activity, msgId, version, i));
         }
       }
 
@@ -86,8 +87,13 @@ public class EditHistoryViewer {
     return empty;
   }
 
-  private static LinearLayout buildVersionRow(Context ctx, JSONObject version, int index) {
+  private static LinearLayout buildVersionRow(
+      Context ctx, String msgId, JSONObject version, int index) {
     String timestamp = version.optString("ts", "");
+    if (index == 0 && timestamp.isEmpty()) {
+      long createdTime = LineDBUtils.resolveMessageCreatedTime(msgId);
+      if (createdTime > 0) timestamp = EditHistoryHook.formatTime(createdTime);
+    }
     String label =
         index == 0
             ? ModuleResources.get(R.string.edit_history_original)

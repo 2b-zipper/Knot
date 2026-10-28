@@ -33,6 +33,7 @@ public class EditHistoryHook implements BaseHook {
   private static final String ICON_DRAWABLE = "clock_edit";
   private static final int ICON_ID = 0x64000010;
   private static final String APPCOMPAT_IMAGE_VIEW = "androidx.appcompat.widget.AppCompatImageView";
+  private static final String TIME_FMT = "yyyy/MM/dd HH:mm:ss";
 
   private static final Map<String, JSONArray> cache = new ConcurrentHashMap<>();
   private static final Object persistLock = new Object();
@@ -87,12 +88,13 @@ public class EditHistoryHook implements BaseHook {
           versions = new JSONArray();
           String oldText = LineDBUtils.resolveMessageContent(msgId);
           if (oldText != null && !oldText.isEmpty() && !oldText.equals(newText)) {
-            versions.put(version(oldText, ""));
+            long createdTime = LineDBUtils.resolveMessageCreatedTime(msgId);
+            versions.put(version(oldText, createdTime > 0 ? formatTime(createdTime) : ""));
           }
         } else if (newText.equals(lastText(versions))) {
           return;
         }
-        versions.put(version(newText, now()));
+        versions.put(version(newText, formatTime(System.currentTimeMillis())));
         cache.put(msgId, versions);
         persist();
       } catch (Throwable ignored) {
@@ -301,8 +303,8 @@ public class EditHistoryHook implements BaseHook {
     return last == null ? null : last.optString("t", null);
   }
 
-  private static String now() {
-    return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(new Date());
+  public static String formatTime(long epochMs) {
+    return new SimpleDateFormat(TIME_FMT, Locale.getDefault()).format(new Date(epochMs));
   }
 
   private static Object kotlinUnit(ClassLoader cl) {
