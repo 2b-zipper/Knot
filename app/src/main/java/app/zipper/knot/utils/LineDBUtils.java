@@ -17,6 +17,8 @@ import java.util.Set;
 
 public class LineDBUtils {
 
+  private static volatile String cachedMyMid;
+
   public static String resolveMemberName(String mid) {
     if (mid == null) return null;
     try {
@@ -103,21 +105,23 @@ public class LineDBUtils {
       if (context == null) return null;
       File dbFile = context.getDatabasePath("naver_line");
       if (dbFile.exists()) {
-        SQLiteDatabase db =
+        try (SQLiteDatabase db =
             SQLiteDatabase.openDatabase(
-                dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
-        Cursor cursor =
-            db.rawQuery(
-                "SELECT chat_name FROM chat WHERE chat_id = ? LIMIT 1", new String[] {chatId});
-        if (cursor.moveToFirst()) {
-          String name = cursor.getString(0);
-          cursor.close();
-          db.close();
-          return name;
+                dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY)) {
+          return resolveChatName(db, chatId);
         }
-        cursor.close();
-        db.close();
       }
+    } catch (Throwable ignored) {
+    }
+    return null;
+  }
+
+  private static String resolveChatName(SQLiteDatabase db, String chatId) {
+    if (db == null || chatId == null) return null;
+    try (Cursor cursor =
+        db.rawQuery(
+            "SELECT chat_name FROM chat WHERE chat_id = ? LIMIT 1", new String[] {chatId})) {
+      if (cursor.moveToFirst()) return cursor.getString(0);
     } catch (Throwable ignored) {
     }
     return null;
@@ -299,6 +303,7 @@ public class LineDBUtils {
   }
 
   public static String getMyMid() {
+    if (cachedMyMid != null) return cachedMyMid;
     try {
       Context context = Knot.currentApplication();
       if (context == null) return null;
@@ -332,7 +337,10 @@ public class LineDBUtils {
                   profile.getClass().getDeclaredField(cfg.profile.fieldMid);
               midField.setAccessible(true);
               String mid = (String) midField.get(profile);
-              if (mid != null && mid.startsWith("u")) return mid;
+              if (mid != null && mid.startsWith("u")) {
+                cachedMyMid = mid;
+                return mid;
+              }
             }
           }
         }
@@ -504,10 +512,6 @@ public class LineDBUtils {
           SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
 
       try {
-        String currentChatName = resolveChatName(targetChatId);
-        SimpleDateFormat dateFormat =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-
         String sql =
             "SELECT server_id, content, parameter, from_mid, created_time "
                 + "FROM chat_history WHERE chat_id = ? "
@@ -523,6 +527,10 @@ public class LineDBUtils {
 
         Cursor cursor = db.rawQuery(sql, args);
         try {
+          String currentChatName = null;
+          String senderName = null;
+          SimpleDateFormat dateFormat = null;
+
           while (cursor.moveToNext()) {
             String mId = cursor.getString(0);
             String rawContent = cursor.getString(1);
@@ -533,8 +541,15 @@ public class LineDBUtils {
             if (fromMid == null) fromMid = myMid;
             if (!fromMid.equals(myMid)) continue;
 
+            if (dateFormat == null) {
+              dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+              String resolvedChatName = resolveChatName(db, targetChatId);
+              currentChatName = resolvedChatName != null ? resolvedChatName : "Unknown";
+              String resolvedSenderName = resolveMemberName(myMid);
+              senderName = resolvedSenderName != null ? resolvedSenderName : "Unknown";
+            }
+
             String resolvedText = resolveMessageText(rawContent, rawParam);
-            String senderName = resolveMemberName(fromMid);
             String formattedTime = dateFormat.format(new Date(timeLong));
 
             results.add(
@@ -542,9 +557,9 @@ public class LineDBUtils {
                     mId,
                     resolvedText != null ? resolvedText : "",
                     fromMid,
-                    senderName != null ? senderName : "Unknown",
+                    senderName,
                     targetChatId,
-                    currentChatName != null ? currentChatName : "Unknown",
+                    currentChatName,
                     formattedTime));
           }
         } finally {

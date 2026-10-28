@@ -53,11 +53,13 @@ public class ReadReceiptHandler implements BaseHook {
                   || !cfg.readReceipt.operationNotifiedReadName.equals(type.toString())) {
                 return result;
               }
-              recordReadEvent(
-                  (String) Reflect.getObjectField(op, cfg.unsend.operationParam1Field),
-                  (String) Reflect.getObjectField(op, cfg.unsend.operationParam2Field),
-                  (String) Reflect.getObjectField(op, cfg.unsend.operationParam3Field),
-                  Reflect.getLongField(op, cfg.unsend.operationCreatedTimeField));
+              String chatId = (String) Reflect.getObjectField(op, cfg.unsend.operationParam1Field);
+              String readerMid =
+                  (String) Reflect.getObjectField(op, cfg.unsend.operationParam2Field);
+              String lastMsgIdStr =
+                  (String) Reflect.getObjectField(op, cfg.unsend.operationParam3Field);
+              long readTime = Reflect.getLongField(op, cfg.unsend.operationCreatedTimeField);
+              recordReadEvent(chatId, readerMid, lastMsgIdStr, readTime);
             } catch (Throwable ignored) {
             }
             return result;
@@ -286,26 +288,26 @@ public class ReadReceiptHandler implements BaseHook {
     String myMid = LineDBUtils.getMyMid();
     if (myMid == null || readerMid.equals(myMid)) return;
 
-    try {
-      JSONObject history = SettingsStore.loadReadHistory();
-      JSONObject chat = ensureChat(history, chatId);
+    synchronized (SettingsStore.class) {
+      try {
+        JSONObject history = SettingsStore.loadReadHistory();
+        JSONObject chat = ensureChat(history, chatId);
 
-      long prevHwm = getReaderHwm(chat, readerMid);
-      if (lastMsgId <= prevHwm) return;
+        long prevHwm = getReaderHwm(chat, readerMid);
+        if (lastMsgId <= prevHwm) return;
 
-      String readerName = LineDBUtils.resolveMemberName(readerMid);
-      String timeStr =
-          new SimpleDateFormat(TIME_FMT, Locale.getDefault()).format(new Date(readTime));
+        long lowerBound = prevHwm > 0 ? prevHwm : lastMsgId - 1;
+        List<LineDBUtils.MessageRecord> records =
+            LineDBUtils.fetchMyMessagesUpTo(chatId, lowerBound, lastMsgId, myMid);
 
-      long lowerBound = prevHwm > 0 ? prevHwm : lastMsgId - 1;
-      List<LineDBUtils.MessageRecord> records =
-          LineDBUtils.fetchMyMessagesUpTo(chatId, lowerBound, lastMsgId, myMid);
-
-      ensureMessageEntries(chat, records);
-      markReaderOnMessagesUpTo(chat, readerMid, readerName, timeStr, lastMsgId);
-      setReaderHwm(chat, readerMid, lastMsgId);
-      SettingsStore.saveReadHistory(history);
-    } catch (Throwable ignored) {
+        ensureMessageEntries(chat, records);
+        boolean marked = markReaderOnMessagesUpTo(chat, readerMid, readTime, lastMsgId);
+        setReaderHwm(chat, readerMid, lastMsgId);
+        if (prevHwm == 0 || !records.isEmpty() || marked) {
+          SettingsStore.saveReadHistory(history);
+        }
+      } catch (Throwable ignored) {
+      }
     }
   }
 
@@ -350,33 +352,41 @@ public class ReadReceiptHandler implements BaseHook {
     }
   }
 
-  private void markReaderOnMessagesUpTo(
-      JSONObject chat, String readerMid, String readerName, String timeStr, long lastMsgId)
-      throws Exception {
+  private boolean markReaderOnMessagesUpTo(
+      JSONObject chat, String readerMid, long readTime, long lastMsgId) throws Exception {
     JSONObject messages = chat.optJSONObject("m");
-    if (messages == null) return;
+    if (messages == null) return false;
+
+    boolean marked = false;
+    String readerName = null;
+    String timeStr = null;
 
     Iterator<String> it = messages.keys();
     while (it.hasNext()) {
       String key = it.next();
       if (parseLong(key, Long.MAX_VALUE) > lastMsgId) continue;
       JSONObject msg = messages.optJSONObject(key);
-      if (msg != null) markReader(msg, readerMid, readerName, timeStr);
-    }
-  }
+      if (msg == null) continue;
 
-  private void markReader(JSONObject msg, String readerMid, String readerName, String timeStr)
-      throws Exception {
-    JSONObject readers = msg.optJSONObject("r");
-    if (readers == null) {
-      readers = new JSONObject();
-      msg.put("r", readers);
+      JSONObject readers = msg.optJSONObject("r");
+      if (readers == null) {
+        readers = new JSONObject();
+        msg.put("r", readers);
+      }
+      if (readers.has(readerMid)) continue;
+
+      if (timeStr == null) {
+        String resolved = LineDBUtils.resolveMemberName(readerMid);
+        readerName = resolved != null ? resolved : UNKNOWN_READER_NAME;
+        timeStr = new SimpleDateFormat(TIME_FMT, Locale.getDefault()).format(new Date(readTime));
+      }
+      JSONObject info = new JSONObject();
+      info.put("n", readerName);
+      info.put("t", timeStr);
+      readers.put(readerMid, info);
+      marked = true;
     }
-    if (readers.has(readerMid)) return;
-    JSONObject info = new JSONObject();
-    info.put("n", readerName != null ? readerName : UNKNOWN_READER_NAME);
-    info.put("t", timeStr);
-    readers.put(readerMid, info);
+    return marked;
   }
 
   private static long parseLong(String s, long fallback) {

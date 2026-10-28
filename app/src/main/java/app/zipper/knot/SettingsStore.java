@@ -53,6 +53,7 @@ public class SettingsStore {
   private static volatile boolean docsListed = false;
   private static volatile boolean isModuleLoaded = false;
   private static volatile JSONObject cachedSettingsJson = null;
+  private static volatile JSONObject cachedReadHistory = null;
 
   public static void init(android.app.Activity activity) {
     appContext = activity.getApplicationContext();
@@ -106,6 +107,7 @@ public class SettingsStore {
         cachedDocUris.clear();
         docsListed = false;
         cachedSettingsJson = null;
+        cachedReadHistory = null;
         if (appContext != null) mirrorFile().delete();
       }
     } catch (Throwable e) {
@@ -181,6 +183,7 @@ public class SettingsStore {
       cachedDocUris.clear();
       docsListed = false;
       cachedSettingsJson = null;
+      cachedReadHistory = null;
       if (appContext != null) mirrorFile().delete();
     }
   }
@@ -336,17 +339,27 @@ public class SettingsStore {
   }
 
   public static JSONObject loadReadHistory() {
-    try {
-      return readReadHistory();
-    } catch (Throwable e) {
-      return new JSONObject();
+    if (cachedReadHistory != null) return cachedReadHistory;
+    synchronized (SettingsStore.class) {
+      if (cachedReadHistory != null) return cachedReadHistory;
+      try {
+        JSONObject loaded = readReadHistory();
+        if (appContext != null && ensureTreeUri() != null) cachedReadHistory = loaded;
+        return loaded;
+      } catch (Throwable e) {
+        return new JSONObject();
+      }
     }
   }
 
   public static void saveReadHistory(JSONObject json) {
-    try {
-      writeReadHistory(json);
-    } catch (Throwable ignored) {
+    synchronized (SettingsStore.class) {
+      cachedReadHistory = json;
+      try {
+        writeReadHistory(json);
+      } catch (Throwable ignored) {
+        cachedReadHistory = null;
+      }
     }
   }
 

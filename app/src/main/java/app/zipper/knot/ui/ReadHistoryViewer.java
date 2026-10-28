@@ -22,8 +22,12 @@ public class ReadHistoryViewer {
   public static void show(Activity activity, String targetChatId) {
     try {
       LineTheme.invalidate();
-      JSONObject historyJson = SettingsStore.loadReadHistory();
-      JSONObject chats = historyJson.optJSONObject("c");
+      JSONObject chats;
+      synchronized (SettingsStore.class) {
+        JSONObject historyJson = SettingsStore.loadReadHistory();
+        JSONObject rawChats = historyJson.optJSONObject("c");
+        chats = rawChats != null ? new JSONObject(rawChats.toString()) : null;
+      }
 
       String chatName = LineDBUtils.resolveChatName(targetChatId);
 
@@ -263,14 +267,16 @@ public class ReadHistoryViewer {
   }
 
   private static void clearChatHistory(String chatId) {
-    try {
-      JSONObject historyJson = SettingsStore.loadReadHistory();
-      JSONObject chats = historyJson.optJSONObject("c");
-      if (chats != null && chats.has(chatId)) {
-        chats.remove(chatId);
-        SettingsStore.saveReadHistory(historyJson);
+    synchronized (SettingsStore.class) {
+      try {
+        JSONObject historyJson = SettingsStore.loadReadHistory();
+        JSONObject chats = historyJson.optJSONObject("c");
+        if (chats != null && chats.has(chatId)) {
+          chats.remove(chatId);
+          SettingsStore.saveReadHistory(historyJson);
+        }
+      } catch (Exception e) {
       }
-    } catch (Exception e) {
     }
   }
 }
