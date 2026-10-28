@@ -98,12 +98,16 @@ public class SettingsStore {
     ensurePointerPath(appContext);
     if (pointerPath == null) return;
     try {
-      try (FileWriter w = new FileWriter(pointerPath)) {
-        w.write(uriString);
+      synchronized (SettingsStore.class) {
+        try (FileWriter w = new FileWriter(pointerPath)) {
+          w.write(uriString);
+        }
+        cachedTreeUri = Uri.parse(uriString);
+        cachedDocUris.clear();
+        docsListed = false;
+        cachedSettingsJson = null;
+        if (appContext != null) mirrorFile().delete();
       }
-      cachedTreeUri = Uri.parse(uriString);
-      cachedDocUris.clear();
-      docsListed = false;
     } catch (Throwable e) {
       Knot.log("Knot: SettingsStore.setSettingsDir failed", e);
     }
@@ -114,6 +118,8 @@ public class SettingsStore {
     try {
       JSONObject json = getSettingsJson();
       for (KnotConfig.Item item : config.items) {
+        item.enabled = item.defaultEnabled;
+        item.value = "";
         if (!json.has(item.key)) continue;
         Object val = json.get(item.key);
         if (val instanceof Boolean) item.enabled = (Boolean) val;
@@ -158,22 +164,25 @@ public class SettingsStore {
   }
 
   public static void reset() {
-    try {
-      writeJson(SETTINGS_FILE, new JSONObject());
-    } catch (Throwable ignored) {
-    }
-    try {
-      ensurePointerPath(appContext);
-      if (pointerPath != null) {
-        File f = new File(pointerPath);
-        if (f.exists()) f.delete();
+    synchronized (SettingsStore.class) {
+      try {
+        writeJson(SETTINGS_FILE, new JSONObject());
+      } catch (Throwable ignored) {
       }
-    } catch (Throwable ignored) {
+      try {
+        ensurePointerPath(appContext);
+        if (pointerPath != null) {
+          File f = new File(pointerPath);
+          if (f.exists()) f.delete();
+        }
+      } catch (Throwable ignored) {
+      }
+      cachedTreeUri = null;
+      cachedDocUris.clear();
+      docsListed = false;
+      cachedSettingsJson = null;
+      if (appContext != null) mirrorFile().delete();
     }
-    cachedTreeUri = null;
-    cachedDocUris.clear();
-    docsListed = false;
-    if (appContext != null) mirrorFile().delete();
   }
 
   private static JSONObject getSettingsJson() throws Throwable {

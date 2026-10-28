@@ -16,6 +16,8 @@ import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
+import app.zipper.knot.SettingsStore;
+import app.zipper.knot.utils.ModuleResources;
 
 public class ShowConfigWarning implements BaseHook {
 
@@ -39,7 +41,7 @@ public class ShowConfigWarning implements BaseHook {
               ViewGroup layoutRoot = host.findViewById(android.R.id.content);
               if (layoutRoot == null) return result;
 
-              if (app.zipper.knot.SettingsStore.isConfigured()) {
+              if (SettingsStore.isConfigured()) {
                 dismissBanner(layoutRoot);
               } else {
                 if (layoutRoot.findViewWithTag(WARNING_BANNER_TAG) == null) {
@@ -74,7 +76,9 @@ public class ShowConfigWarning implements BaseHook {
                             | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
               } catch (Throwable ignored) {
               }
-              app.zipper.knot.SettingsStore.setSettingsDir(treeUri.toString());
+              SettingsStore.setSettingsDir(treeUri.toString());
+              SettingsStore.load(config);
+              ModuleResources.invalidate();
 
               host.runOnUiThread(
                   () -> {
@@ -86,10 +90,8 @@ public class ShowConfigWarning implements BaseHook {
   }
 
   private static void loadSettings(KnotConfig config, Activity host) {
-    app.zipper.knot.SettingsStore.init(host);
-    for (KnotConfig.Item item : config.items) {
-      item.enabled = app.zipper.knot.SettingsStore.get(item.key, item.enabled);
-    }
+    SettingsStore.init(host);
+    SettingsStore.load(config);
   }
 
   private static void dismissBanner(ViewGroup root) {
@@ -100,7 +102,7 @@ public class ShowConfigWarning implements BaseHook {
   private View constructWarningBanner(Activity host) {
     TextView label = new TextView(host);
     label.setTag(WARNING_BANNER_TAG);
-    label.setText(app.zipper.knot.utils.ModuleResources.get(R.string.warn_storage_unset));
+    label.setText(ModuleResources.get(R.string.warn_storage_unset));
     label.setTextColor(Color.WHITE);
     label.setTextSize(12);
     label.setTypeface(null, Typeface.BOLD);

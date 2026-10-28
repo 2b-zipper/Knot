@@ -30,6 +30,7 @@ public class KnotConfig {
     public final String key;
     public final int labelRes;
     public final int descriptionRes;
+    public final boolean defaultEnabled;
     public boolean enabled;
     public String value = "";
     public final Category category;
@@ -40,6 +41,7 @@ public class KnotConfig {
       this.key = key;
       this.labelRes = labelRes;
       this.descriptionRes = descRes;
+      this.defaultEnabled = def;
       this.enabled = def;
       this.category = cat;
       this.sectionRes = sectionRes;
