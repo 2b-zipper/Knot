@@ -478,6 +478,10 @@ public class LineVersion {
           "com.linecorp.line.admolin.smartch.v2.view.SmartChannelViewLayout";
       public String classAdSdkBase = "com.linecorp.line.ladsdk";
       public String classAdMolinBase = "com.linecorp.line.admolin";
+      public String homeTabConfigClass = "";
+      public String homeTabAdEnabledMethod = "";
+      public String chatTabConfigClass = "";
+      public String chatTabAdEnabledMethod = "";
     }
 
     public static class Home {

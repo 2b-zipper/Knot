@@ -16,7 +16,11 @@ final class HeaderRules {
   private static final String HEADER = "jp.naver.line.android.common.view.header.Header";
 
   static final Mappings.Section[] SECTIONS = {
-    HeaderRules::chatHeader, HeaderRules::talkTab, HeaderRules::home, HeaderRules::agentI
+    HeaderRules::chatHeader,
+    HeaderRules::talkTab,
+    HeaderRules::home,
+    HeaderRules::ads,
+    HeaderRules::agentI
   };
 
   private HeaderRules() {}
@@ -157,6 +161,18 @@ final class HeaderRules {
         f.method(
             c.homeTab.tabListProviderClass,
             MethodMatcher.create().addUsingField(FieldMatcher.create().name("LIMITED_NETWORK")));
+  }
+
+  // HomeTabConfiguration and ChatTabConfiguration each have their own isAdRcEnabled
+  private static void ads(Finder f, LineVersion.Config c) {
+    c.ads.homeTabConfigClass = f.classUsing(", isAdRcEnabled=", ", isMinorRegionHomeTab=");
+    c.ads.homeTabAdEnabledMethod =
+        f.getter(
+            c.ads.homeTabConfigClass, f.propertyField(c.ads.homeTabConfigClass, "isAdRcEnabled"));
+    c.ads.chatTabConfigClass = f.classUsing(", isAdRcEnabled=", ", isSmartChLogSamplingPicked=");
+    c.ads.chatTabAdEnabledMethod =
+        f.getter(
+            c.ads.chatTabConfigClass, f.propertyField(c.ads.chatTabConfigClass, "isAdRcEnabled"));
   }
 
   private static void agentI(Finder f, LineVersion.Config c) {

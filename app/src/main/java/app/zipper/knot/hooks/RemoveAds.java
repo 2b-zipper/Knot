@@ -22,6 +22,8 @@ public class RemoveAds implements BaseHook {
     hookLadAdView(lpparam, cfg.ads.ladAdView);
     hookLadAdView(lpparam, cfg.ads.ladAdViewV2);
     hookSmartChannel(lpparam, cfg);
+    hookAdRcDisabled(lpparam, cfg.ads.homeTabConfigClass, cfg.ads.homeTabAdEnabledMethod);
+    hookAdRcDisabled(lpparam, cfg.ads.chatTabConfigClass, cfg.ads.chatTabAdEnabledMethod);
     hookGenericAddView();
   }
 
@@ -62,6 +64,17 @@ public class RemoveAds implements BaseHook {
                 return chain.proceed();
               });
     } catch (Throwable ignored) {
+    }
+  }
+
+  // Minor-region (e.g. Taiwan) Google ad on home / chat list; off makes LINE skip the slot itself
+  private void hookAdRcDisabled(LoadParam lpparam, String configClass, String enabledMethod) {
+    if (configClass.isEmpty() || enabledMethod.isEmpty()) return;
+    try {
+      Class<?> configCls = lpparam.classLoader.loadClass(configClass);
+      Knot.module.hook(Reflect.findMethodExact(configCls, enabledMethod)).intercept(chain -> false);
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveAds Google ad flag hook failed: " + t);
     }
   }
 
