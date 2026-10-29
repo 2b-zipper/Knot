@@ -37,10 +37,7 @@ final class MessageRules {
             "LAB",
             "PREMIUM");
     c.muteMessage.sendModeClass =
-        f.clsIn(
-            Finder.packageOf(
-                f.classUsing(
-                    "https://liff.line.me/2006543796-SZiDujb8?serviceId=premium_mute_message&version=%d&addon=true")),
+        f.cls(
             ClassMatcher.create()
                 .addMethod(sig(c.muteMessage.sendModeEnumClass))
                 .methodCount(2)
@@ -196,35 +193,40 @@ final class MessageRules {
                 .addUsingField(FieldMatcher.create().name("KEY_SILENTLY_UNSENT")));
   }
 
-  // Operation handlers pass their operation type to the base constructor
+  // Since 26.17.0 R8 moves a handler's operation type out of its constructor into the registry
   private static void operations(Finder f, LineVersion.Config c) {
+    c.unsend.handlerSuccessResultClass = f.classUsing("Success(shouldNotifyListener=");
+    String base = Finder.outer(Finder.outer(c.unsend.handlerSuccessResultClass));
+    String handlers = Finder.packageOf(c.message.processorClass);
+    // NOTIFIED_JOIN_CHAT also buffers TALK_OPERATION reads but holds a dependency
     c.unsend.notifiedReadMessageHandlerClass =
         f.clsIn(
-            Finder.packageOf(c.message.processorClass),
+            handlers,
             ClassMatcher.create()
+                .superClass(base)
+                .fieldCount(0)
                 .addMethod(
                     MethodMatcher.create()
-                        .name("<init>")
-                        .addUsingField(FieldMatcher.create().name("NOTIFIED_READ_MESSAGE"))));
+                        .addUsingField(FieldMatcher.create().name("TALK_OPERATION"))));
     String readHandler = c.unsend.notifiedReadMessageHandlerClass;
-    String handlers = Finder.packageOf(readHandler);
     c.unsend.notifiedSendReactionHandlerClass =
         Finder.outer(
             f.classAnnotatedIn(
                 handlers, "jp.naver.line.android.talkop.processor.impl.NOTIFIED_SEND_REACTION"));
-    c.unsend.destroyMessageHandlerClass =
+    // NOTIFIED_DESTROY_MESSAGE is the default argument; DESTROY_MESSAGE subclasses it
+    c.unsend.unsendDestroyHandlerClass =
         f.clsIn(
             handlers,
             ClassMatcher.create()
-                .superClass(ClassMatcher.create().superClass(f.superOf(readHandler)))
+                .superClass(base)
                 .addMethod(
                     MethodMatcher.create()
                         .name("<init>")
-                        .addUsingField(FieldMatcher.create().name("DESTROY_MESSAGE"))));
-    c.unsend.unsendDestroyHandlerClass = f.superOf(c.unsend.destroyMessageHandlerClass);
+                        .addUsingField(FieldMatcher.create().name("NOTIFIED_DESTROY_MESSAGE"))));
+    c.unsend.destroyMessageHandlerClass =
+        f.clsIn(handlers, ClassMatcher.create().superClass(c.unsend.unsendDestroyHandlerClass));
     c.unsend.methodDestroyHandler =
         f.method(c.unsend.unsendDestroyHandlerClass, MethodMatcher.create().usingEqStrings(""));
-    c.unsend.handlerSuccessResultClass = f.classUsing("Success(shouldNotifyListener=");
 
     c.unsend.methodReadBuffer =
         f.method(

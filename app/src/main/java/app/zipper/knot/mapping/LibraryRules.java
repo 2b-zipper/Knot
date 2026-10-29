@@ -4,6 +4,7 @@ import static app.zipper.knot.mapping.Finder.sig;
 
 import app.zipper.knot.LineVersion;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import org.luckypray.dexkit.query.enums.UsingType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
@@ -161,17 +162,18 @@ final class LibraryRules {
                         null,
                         c.kotlin.function0Class,
                         "int")));
-    // clickable(modifier, source, indication, enabled, role, onClick)
-    c.compose.methodClickable =
-        f.staticMethodOf(
-            c.compose.clickableClass,
-            null,
-            null,
-            null,
-            null,
-            "boolean",
-            null,
-            c.kotlin.function0Class);
+    // clickable(modifier, source, indication, enabled, role, onClick); 26.17.0 adds onClickLabel
+    for (MethodData m :
+        f.declaredMethods(
+            c.compose.clickableClass, MethodMatcher.create().modifiers(Modifier.STATIC))) {
+      List<String> params = m.getParamTypeNames();
+      if (params.size() > 3
+          && params.get(3).equals("boolean")
+          && params.indexOf(c.kotlin.function0Class) == params.size() - 1
+          && !params.contains("int")) {
+        c.compose.methodClickable = m.getName();
+      }
+    }
     // combinedClickable$default(modifier, source, enabled, role, onLongClick, onClick, mask)
     c.compose.methodCombinedClickable =
         f.staticMethodOf(

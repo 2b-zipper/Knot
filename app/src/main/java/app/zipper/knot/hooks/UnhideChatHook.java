@@ -259,9 +259,9 @@ public class UnhideChatHook implements BaseHook {
         return;
       }
       Object builder = Reflect.newInstance(Reflect.findClass(cfg.dialogBuilderClass, cl), activity);
-      Reflect.callMethod(
+      Reflect.setObjectField(
           builder,
-          cfg.methodDialogMessage,
+          cfg.fieldDialogMessage,
           ModuleResources.get(R.string.unhide_chat_confirm_message));
       DialogInterface.OnClickListener onUnhide =
           (dialog, which) -> {
@@ -272,7 +272,7 @@ public class UnhideChatHook implements BaseHook {
             }
           };
       Reflect.callMethod(
-          builder, cfg.methodDialogPositive, lineString(cfg.unhideLabelRes), onUnhide);
+          builder, cfg.methodDialogPositive, lineStringId(cfg.unhideLabelRes), onUnhide);
       Reflect.callMethod(builder, cfg.methodDialogNegative, lineStringId(cfg.cancelLabelRes), null);
       Reflect.callMethod(builder, cfg.methodDialogShow);
     } catch (Throwable t) {

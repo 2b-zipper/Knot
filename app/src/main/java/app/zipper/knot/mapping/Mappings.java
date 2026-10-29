@@ -142,12 +142,18 @@ public final class Mappings {
 
   public static List<String> unresolved(LineVersion.Config config, String lineVersion) {
     Map<String, String> since = ConfigKeys.since();
+    Map<String, String> until = ConfigKeys.until();
     List<String> keys = new ArrayList<>();
     for (Map.Entry<String, Object> e : ConfigKeys.read(config).entrySet()) {
       Object v = e.getValue();
       boolean empty = v == null || "".equals(v) || Integer.valueOf(0).equals(v);
       String added = since.get(e.getKey());
-      if (empty && (added == null || !olderThan(lineVersion, added))) keys.add(e.getKey());
+      String removed = until.get(e.getKey());
+      if (empty
+          && (added == null || !olderThan(lineVersion, added))
+          && (removed == null || olderThan(lineVersion, removed))) {
+        keys.add(e.getKey());
+      }
     }
     return keys;
   }

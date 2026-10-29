@@ -52,7 +52,6 @@ final class CoreRules {
         f.clsIn(
             Finder.packageOf(key),
             ClassMatcher.create()
-                .methodCount(1)
                 .addMethod(
                     sig("java.lang.Object", "android.content.Context", key)
                         .modifiers(Modifier.STATIC)));

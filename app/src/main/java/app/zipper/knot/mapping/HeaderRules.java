@@ -166,31 +166,43 @@ final class HeaderRules {
             "string",
             "chat_agentiinchat_toggle_hideagentiinchat");
 
-    // From 26.15.0 the green dot view model (name kept) holds the repository
-    String repo =
-        f.fieldTypeWhere(
-            "com.linecorp.line.chat.ui.impl.header.ChatHistoryChatMenuGreenDotViewModel",
-            ClassMatcher.create()
-                .modifiers(Modifier.INTERFACE)
-                .addMethod(sig("boolean", "jp.naver.line.android.db.generalkv.dao.a")));
+    // From 26.17.0 every reader goes through one getAiButtonShownAfterMillis function reference
     c.aiIcon.repoClass =
-        f.clsIn(
-            Finder.packageOf(repo),
+        f.cls(
             ClassMatcher.create()
+                .addInterface(c.kotlin.function0Class)
                 .addMethod(
                     MethodMatcher.create()
                         .addUsingField(
-                            FieldMatcher.create().name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS"),
-                            UsingType.Read))
-                .addMethod(
-                    MethodMatcher.create()
-                        .addUsingField(
-                            FieldMatcher.create().name("CHATROOM_IS_EVENT_REMINDER_DIALOG_SHOWN"),
-                            UsingType.Read)));
+                            FieldMatcher.create().name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS"))));
+    if (c.aiIcon.repoClass.isEmpty()) {
+      // From 26.15.0 the green dot view model (name kept) holds the repository
+      String repo =
+          f.fieldTypeWhere(
+              "com.linecorp.line.chat.ui.impl.header.ChatHistoryChatMenuGreenDotViewModel",
+              ClassMatcher.create()
+                  .modifiers(Modifier.INTERFACE)
+                  .addMethod(sig("boolean", "jp.naver.line.android.db.generalkv.dao.a")));
+      c.aiIcon.repoClass =
+          f.clsIn(
+              Finder.packageOf(repo),
+              ClassMatcher.create()
+                  .addMethod(
+                      MethodMatcher.create()
+                          .addUsingField(
+                              FieldMatcher.create().name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS"),
+                              UsingType.Read))
+                  .addMethod(
+                      MethodMatcher.create()
+                          .addUsingField(
+                              FieldMatcher.create().name("CHATROOM_IS_EVENT_REMINDER_DIALOG_SHOWN"),
+                              UsingType.Read)));
+    }
     c.aiIcon.methodGetShownAfterMillis =
         f.method(
             c.aiIcon.repoClass,
-            sig("long")
+            MethodMatcher.create()
+                .paramCount(0)
                 .addUsingField(
                     FieldMatcher.create().name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS")));
 

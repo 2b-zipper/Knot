@@ -147,7 +147,13 @@ final class MediaRules {
             Finder.packageOf(f.classUsing("INVALID_VIDEO")),
             "com.linecorp.line.chat.draganddrop.ChatHistoryDroppedMediaContentPreprocessor$createDroppedMediaSendMessageRequest$2");
     c.media.galleryViewClass = f.classUsing("GalleryViewController.MuteMessageAgreement");
-    c.media.fieldGalleryDurationLimit = f.fieldOf(c.media.galleryViewClass, "long");
+    // long until 26.16.0, int from 26.17.0
+    c.media.fieldGalleryDurationLimit =
+        f.field(
+            c.media.galleryViewClass,
+            FieldMatcher.create()
+                .modifiers(Modifier.STATIC)
+                .anyOf(FieldMatcher.create().type("long"), FieldMatcher.create().type("int")));
     c.media.mediaPickerParamsClass = f.classUsing(", isPopupErrorToastOriginalOption=");
     c.media.fieldMediaPickerMaxVideoDuration =
         f.ctorField(c.media.mediaPickerParamsClass, 73, "long");

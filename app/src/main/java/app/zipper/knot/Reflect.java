@@ -324,9 +324,9 @@ public final class Reflect {
     }
   }
 
-  public static void setStaticLongField(Class<?> clazz, String name, long value) {
+  public static void setStaticObjectField(Class<?> clazz, String name, Object value) {
     try {
-      findField(clazz, name).setLong(null, value);
+      findField(clazz, name).set(null, value);
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }

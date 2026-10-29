@@ -5,7 +5,6 @@ import static app.zipper.knot.mapping.Finder.sig;
 import app.zipper.knot.LineVersion;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.enums.UsingType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
@@ -38,7 +37,7 @@ final class NotificationRules {
                         .paramTypes(
                             "jp.naver.line.android.access.remote.LineAccessServiceForNotification",
                             "java.lang.String"))
-                .addMethod(sig("void", "java.lang.Throwable")));
+                .addMethod(sig("void")));
     c.notification.accessServiceCallbackMethod =
         f.methodOf(c.notification.accessServiceCallbackClass, "void");
   }
@@ -169,21 +168,12 @@ final class NotificationRules {
                 .addInvoke("Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;"));
 
     String builder = f.returnType(manager, c.notification.glideAsFileMethod);
-    // load(Object) only forwards to loadModel, which stores the model
+    // Stores the model: loadModel until 26.16.0, load(Object) itself once R8 inlined it
     c.notification.glideLoadMethod =
         f.method(
             builder,
             sig(builder, "java.lang.Object")
-                .addNoneOf(
-                    MethodMatcher.create()
-                        .addUsingField(
-                            FieldMatcher.create().declaredClass(builder), UsingType.Write))
-                .addInvoke(
-                    MethodMatcher.create()
-                        .declaredClass(builder)
-                        .paramTypes("java.lang.Object")
-                        .addUsingField(
-                            FieldMatcher.create().declaredClass(builder), UsingType.Write)));
+                .addUsingField(FieldMatcher.create().declaredClass(builder), UsingType.Write));
     c.notification.glideSubmitMethod =
         f.method(builder, MethodMatcher.create().usingNumbers(Integer.MIN_VALUE));
   }
@@ -464,9 +454,11 @@ final class NotificationRules {
                 .addField(FieldMatcher.create().name("BACKGROUND")));
     String manager = Finder.outer(c.notificationFix.legyStreamingStateClass);
     c.notificationFix.legyHandlerField = f.fieldOf(manager, "android.os.Handler");
-    c.notificationFix.legyStateField = f.ctorField(manager, 16, c.kotlin.stateFlowImplClass);
+    c.notificationFix.legyStateField = f.fieldOf(manager, c.kotlin.stateFlowImplClass);
     c.notificationFix.legyRunnableField =
-        f.ctorField(manager, 17, ClassMatcher.create().addInterface("java.lang.Runnable"));
+        f.field(
+            manager,
+            FieldMatcher.create().type(ClassMatcher.create().addInterface("java.lang.Runnable")));
     c.notificationFix.legyDisconnectRunnableClass =
         f.fieldType(manager, c.notificationFix.legyRunnableField);
 
@@ -489,15 +481,13 @@ final class NotificationRules {
     for (String field : Finder.writes(f.methodData(observer, onStateChanged), manager)) {
       if (f.fieldType(manager, field).equals("long")) c.notificationFix.legyTimeoutField = field;
     }
+    // Enqueues BackgroundStreamingWorker (inlined from 26.17.0) and clears the pending flag
     MethodData worker =
         f.methodData(
             manager,
             sig("boolean")
-                .addInvoke(
-                    MethodMatcher.create()
-                        .declaredClass(
-                            "com.linecorp.legy.streaming.BackgroundStreamingWorker",
-                            StringMatchType.StartsWith)));
+                .addUsingField(
+                    FieldMatcher.create().declaredClass(manager).type("boolean"), UsingType.Write));
     for (String field : Finder.reads(worker, manager)) {
       if (f.fieldType(manager, field).equals("boolean")) {
         c.notificationFix.legyBackgroundWorkerFlagField = field;

@@ -16,6 +16,13 @@ public class LineVersion {
     String value();
   }
 
+  // Removed from LINE in this version, so newer versions don't count it as unresolved
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface Until {
+    String value();
+  }
+
   public static class Config {
     public String linePkg = "jp.naver.line.android";
 
@@ -485,7 +492,10 @@ public class LineVersion {
       public String home26LoadingMoreDataClass = "";
       public String home26ModuleBodyField = "";
       public String home26ModuleTypeMethod = "getType";
+
+      @Until("26.17.0")
       public String home26ActivityCardClass = "";
+
       public String home26HybridCardClass = "";
       public String home26FixedServiceCardClass = "";
       public String home26RecentServiceCardClass = "";
@@ -816,7 +826,7 @@ public class LineVersion {
       public String stringResourceClass = "";
       public String methodStringResource = "";
       public String dialogBuilderClass = "";
-      public String methodDialogMessage = "";
+      public String fieldDialogMessage = "";
       public String methodDialogPositive = "";
       public String methodDialogNegative = "";
       public String methodDialogShow = "";

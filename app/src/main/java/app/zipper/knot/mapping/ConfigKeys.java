@@ -1,6 +1,7 @@
 package app.zipper.knot.mapping;
 
 import app.zipper.knot.LineVersion;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 final class ConfigKeys {
 
@@ -29,11 +31,20 @@ final class ConfigKeys {
   }
 
   static Map<String, String> since() {
+    return versions(LineVersion.Since.class, LineVersion.Since::value);
+  }
+
+  static Map<String, String> until() {
+    return versions(LineVersion.Until.class, LineVersion.Until::value);
+  }
+
+  private static <A extends Annotation> Map<String, String> versions(
+      Class<A> type, Function<A, String> version) {
     Map<String, String> versions = new HashMap<>();
     for (Field section : sections()) {
       for (Field value : values(section)) {
-        LineVersion.Since since = value.getAnnotation(LineVersion.Since.class);
-        if (since != null) versions.put(section.getName() + "." + value.getName(), since.value());
+        A a = value.getAnnotation(type);
+        if (a != null) versions.put(section.getName() + "." + value.getName(), version.apply(a));
       }
     }
     return versions;

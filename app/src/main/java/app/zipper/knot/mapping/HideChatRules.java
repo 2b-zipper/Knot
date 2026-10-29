@@ -4,8 +4,8 @@ import static app.zipper.knot.mapping.Finder.sig;
 
 import app.zipper.knot.LineVersion;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
@@ -82,41 +82,38 @@ final class HideChatRules {
             "common_dialog_title_bottom_margin");
     String builder = c.permanentHideChat.dialogBuilderClass;
 
-    // create() shows the title before the message
+    // create() shows the title before the message, and the positive button before the negative
     List<String> shown =
         Finder.reads(
             f.methodData(
                 builder,
                 MethodMatcher.create().usingNumbers(f.id("id", "common_dialog_background"))),
             builder);
-    int last = -1;
-    for (MethodData setter : f.declaredMethods(builder, sig("void", "java.lang.String"))) {
-      List<String> field = Finder.writes(setter, builder);
-      int at = field.size() == 1 ? shown.indexOf(field.get(0)) : -1;
-      if (at > last) {
-        last = at;
-        c.permanentHideChat.methodDialogMessage = setter.getName();
-      }
+    Comparator<MethodData> byShown = Comparator.comparingInt(m -> shown.indexOf(textField(f, m)));
+    // From 26.17.0 R8 drops the String setters; only the resource id ones remain
+    List<MethodData> texts = f.declaredMethods(builder, sig("void", "int"));
+    if (!texts.isEmpty()) {
+      c.permanentHideChat.fieldDialogMessage = textField(f, Collections.max(texts, byShown));
     }
-
-    c.permanentHideChat.methodDialogPositive =
-        f.methodOf(
-            builder, "void", "java.lang.String", "android.content.DialogInterface$OnClickListener");
-    List<String> positive =
-        Finder.writes(
-            f.methodData(
-                builder, MethodMatcher.create().name(c.permanentHideChat.methodDialogPositive)),
-            builder);
-    List<String> negative = new ArrayList<>();
-    for (MethodData m :
+    List<MethodData> buttons =
         f.declaredMethods(
-            builder, sig("void", "int", "android.content.DialogInterface$OnClickListener"))) {
-      if (Collections.disjoint(Finder.writes(m, builder), positive)) negative.add(m.getName());
+            builder, sig("void", "int", "android.content.DialogInterface$OnClickListener"));
+    if (buttons.size() == 2) {
+      buttons.sort(byShown);
+      c.permanentHideChat.methodDialogPositive = buttons.get(0).getName();
+      c.permanentHideChat.methodDialogNegative = buttons.get(1).getName();
     }
-    c.permanentHideChat.methodDialogNegative = negative.size() == 1 ? negative.get(0) : "";
 
     c.permanentHideChat.methodDialogShow =
         f.getter(builder, f.field(builder, FieldMatcher.create().type("android.content.Context")));
+  }
+
+  private static String textField(Finder f, MethodData setter) {
+    String builder = setter.getClassName();
+    for (String field : Finder.writes(setter, builder)) {
+      if (f.fieldType(builder, field).equals("java.lang.CharSequence")) return field;
+    }
+    return "";
   }
 
   private static void chatTab(Finder f, LineVersion.Config c) {
@@ -155,13 +152,15 @@ final class HideChatRules {
         f.fieldOf(
             c.permanentHideChat.chatTabBadgeEventClass, c.permanentHideChat.chatTabBadgeEventClass);
 
-    // Modifier.alpha is graphicsLayer(alpha = ...) with the default-argument mask 520187
+    // Modifier.alpha: graphicsLayer(alpha = ...) with default mask 520187, 1044475 from 26.17.0
     MethodData alpha =
         f.methodDataAnywhere(
             MethodMatcher.create()
                 .modifiers(Modifier.STATIC)
                 .paramTypes(null, "float")
-                .usingNumbers(520187));
+                .anyOf(
+                    MethodMatcher.create().usingNumbers(520187),
+                    MethodMatcher.create().usingNumbers(1044475)));
     c.permanentHideChat.alphaModifierClass = Finder.declaring(alpha);
     c.permanentHideChat.methodAlphaModifier = Finder.name(alpha);
 
@@ -205,18 +204,16 @@ final class HideChatRules {
         f.classUsing("ChatSubTabHideConfirmationPopupRequest(mid=");
     String request = c.permanentHideChat.hidePopupRequestClass;
     c.permanentHideChat.hidePopupChatIdField = f.fieldOf(request, "java.lang.String");
+    // Reads the request's chat type; R8 merges it with unrelated lambdas from 26.17.0
     c.permanentHideChat.hidePopupMessageClass =
-        f.clsIn(
-            Finder.packageOf(request),
-            ClassMatcher.create()
-                .addInterface(c.kotlin.function2Class)
-                .addMethod(MethodMatcher.create().name("<init>").paramTypes(request)));
+        f.classUsingId(
+            MethodMatcher.create().addUsingField(FieldMatcher.create().declaredClass(request)),
+            "string",
+            "chatlist_hideconfirmdialog_message");
 
     String popups =
         Finder.packageOf(f.classUsing("ChatSubTabDeleteAndReportConfirmationPopupRequest(item="));
-    MethodData popup =
-        f.creatorIn(
-            popups, f.classUsingIdIn(popups, "string", "chatlist_hideconfirmdialog_message"));
+    MethodData popup = f.creatorIn(popups, c.permanentHideChat.hidePopupMessageClass);
     c.permanentHideChat.hidePopupClass = Finder.declaring(popup);
     c.permanentHideChat.methodHidePopup = Finder.name(popup);
 

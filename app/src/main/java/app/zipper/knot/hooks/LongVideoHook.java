@@ -81,8 +81,9 @@ public class LongVideoHook implements BaseHook {
     if (v.media.galleryViewClass.isEmpty()) return;
     try {
       Class<?> galleryViewClass = Reflect.findClass(v.media.galleryViewClass, cl);
-      Reflect.setStaticLongField(
-          galleryViewClass, v.media.fieldGalleryDurationLimit, (long) Integer.MAX_VALUE);
+      // Field.set widens the Integer for the long field before 26.17.0
+      Reflect.setStaticObjectField(
+          galleryViewClass, v.media.fieldGalleryDurationLimit, Integer.MAX_VALUE);
     } catch (Throwable ignored) {
     }
   }
