@@ -2,6 +2,7 @@ package app.zipper.knot.hooks;
 
 import android.app.Application;
 import android.app.Notification;
+import android.os.Bundle;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LoadParam;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 public class NotificationHook implements BaseHook {
+  private static final String PADDING_EXTRA = "knot.notification_padding";
   private static final Set<Notification.Builder> muteRemoved =
       Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
@@ -54,9 +56,15 @@ public class NotificationHook implements BaseHook {
   private static void padSingleAction(Notification notification) {
     Notification.Action[] actions = notification.actions;
     if (actions == null || actions.length != 1) return;
-    // A null intent renders as a disabled button, and the empty title keeps it invisible
+    Bundle extras = new Bundle();
+    extras.putBoolean(PADDING_EXTRA, true);
+    // A null intent renders as a disabled button, and the empty title keeps it invisible on AOSP
     Notification.Action blank =
-        new Notification.Action.Builder(actions[0].getIcon(), "", null).build();
+        new Notification.Action.Builder(actions[0].getIcon(), "", null).addExtras(extras).build();
     notification.actions = new Notification.Action[] {actions[0], blank};
+  }
+
+  static boolean isPadding(Notification.Action action) {
+    return action != null && action.getExtras().getBoolean(PADDING_EXTRA, false);
   }
 }

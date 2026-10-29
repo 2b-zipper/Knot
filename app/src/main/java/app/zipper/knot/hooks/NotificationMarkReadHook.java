@@ -14,6 +14,8 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NotificationMarkReadHook implements BaseHook {
   private static final String MARKER_EXTRA = "knot.notification_mark_as_read";
@@ -125,16 +127,17 @@ public class NotificationMarkReadHook implements BaseHook {
               .build();
 
       Notification copy = notification.clone();
-      Notification.Action[] current =
-          copy.actions == null ? new Notification.Action[0] : copy.actions;
+      List<Notification.Action> actions = new ArrayList<>();
+      if (copy.actions != null) {
+        for (Notification.Action current : copy.actions) {
+          // Our button already keeps the count above one, and OEM UIs draw the padding's frame
+          if (!NotificationHook.isPadding(current)) actions.add(current);
+        }
+      }
       // Sit just left of reply; without a reply action, append after LINE's buttons
-      int index = replyActionIndex(current);
-      if (index < 0) index = current.length;
-      Notification.Action[] actions = new Notification.Action[current.length + 1];
-      System.arraycopy(current, 0, actions, 0, index);
-      actions[index] = action;
-      System.arraycopy(current, index, actions, index + 1, current.length - index);
-      copy.actions = actions;
+      int index = replyActionIndex(actions);
+      actions.add(index < 0 ? actions.size() : index, action);
+      copy.actions = actions.toArray(new Notification.Action[0]);
       return copy;
     } catch (Throwable t) {
       Knot.log("Knot: notification mark-as-read button failed: " + t);
@@ -143,9 +146,9 @@ public class NotificationMarkReadHook implements BaseHook {
   }
 
   // LINE's reply is the only action with a text input
-  private static int replyActionIndex(Notification.Action[] actions) {
-    for (int i = 0; i < actions.length; i++) {
-      Notification.Action action = actions[i];
+  private static int replyActionIndex(List<Notification.Action> actions) {
+    for (int i = 0; i < actions.size(); i++) {
+      Notification.Action action = actions.get(i);
       if (action == null) continue;
       RemoteInput[] inputs = action.getRemoteInputs();
       if (inputs != null && inputs.length > 0) return i;
