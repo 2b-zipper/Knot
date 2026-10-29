@@ -3,6 +3,7 @@ package app.zipper.knot.hooks;
 import android.app.Application;
 import android.app.Notification;
 import android.os.Bundle;
+import android.provider.Settings;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LoadParam;
@@ -13,6 +14,7 @@ import java.util.WeakHashMap;
 
 public class NotificationHook implements BaseHook {
   private static final String PADDING_EXTRA = "knot.notification_padding";
+  private static final String HUAWEI_HEALTH_LISTENER = "com.huawei.health/";
   private static final Set<Notification.Builder> muteRemoved =
       Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
@@ -55,13 +57,26 @@ public class NotificationHook implements BaseHook {
   // Huawei Health drops LINE notifications that have exactly one action
   private static void padSingleAction(Notification notification) {
     Notification.Action[] actions = notification.actions;
-    if (actions == null || actions.length != 1) return;
+    if (actions == null || actions.length != 1 || !isHuaweiHealthListening()) return;
     Bundle extras = new Bundle();
     extras.putBoolean(PADDING_EXTRA, true);
     // A null intent renders as a disabled button, and the empty title keeps it invisible on AOSP
     Notification.Action blank =
         new Notification.Action.Builder(actions[0].getIcon(), "", null).addExtras(extras).build();
     notification.actions = new Notification.Action[] {actions[0], blank};
+  }
+
+  private static boolean isHuaweiHealthListening() {
+    Application app = Knot.currentApplication();
+    if (app == null) return false;
+    try {
+      String listeners =
+          Settings.Secure.getString(app.getContentResolver(), "enabled_notification_listeners");
+      return listeners != null && listeners.contains(HUAWEI_HEALTH_LISTENER);
+    } catch (Throwable t) {
+      Knot.log("Knot: notification listener check failed: " + t);
+      return false;
+    }
   }
 
   static boolean isPadding(Notification.Action action) {
