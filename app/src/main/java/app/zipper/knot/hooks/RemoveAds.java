@@ -8,6 +8,8 @@ import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Reflect;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,6 +26,8 @@ public class RemoveAds implements BaseHook {
     hookSmartChannel(lpparam, cfg);
     hookAdRcDisabled(lpparam, cfg.ads.homeTabConfigClass, cfg.ads.homeTabAdEnabledMethod);
     hookAdRcDisabled(lpparam, cfg.ads.chatTabConfigClass, cfg.ads.chatTabAdEnabledMethod);
+    hookKeyboardBanner(lpparam, cfg);
+    hookEntryBanner(lpparam, cfg);
     hookGenericAddView();
   }
 
@@ -75,6 +79,34 @@ public class RemoveAds implements BaseHook {
       Knot.module.hook(Reflect.findMethodExact(configCls, enabledMethod)).intercept(chain -> false);
     } catch (Throwable t) {
       Knot.log("Knot: RemoveAds Google ad flag hook failed: " + t);
+    }
+  }
+
+  // Suspend function, so the list is returned without proceeding
+  private void hookKeyboardBanner(LoadParam lpparam, LineVersion.Config cfg) {
+    if (cfg.ads.keyboardBannerRepoClass.isEmpty()) return;
+    try {
+      Class<?> repoCls = lpparam.classLoader.loadClass(cfg.ads.keyboardBannerRepoClass);
+      Knot.module
+          .hook(
+              Reflect.findMethodExact(
+                  repoCls, cfg.ads.keyboardBannerListMethod, cfg.ads.keyboardBannerListParam))
+          .intercept(chain -> new ArrayList<>());
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveAds keyboard banner hook failed: " + t);
+    }
+  }
+
+  // Same as the server enabling no bubble type
+  private void hookEntryBanner(LoadParam lpparam, LineVersion.Config cfg) {
+    if (cfg.ads.entryBannerRepoClass.isEmpty()) return;
+    try {
+      Class<?> repoCls = lpparam.classLoader.loadClass(cfg.ads.entryBannerRepoClass);
+      Knot.module
+          .hook(Reflect.findMethodExact(repoCls, cfg.ads.entryBannerTypesMethod))
+          .intercept(chain -> Collections.emptySet());
+    } catch (Throwable t) {
+      Knot.log("Knot: RemoveAds entry banner hook failed: " + t);
     }
   }
 

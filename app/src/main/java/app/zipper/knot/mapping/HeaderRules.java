@@ -10,6 +10,7 @@ import org.luckypray.dexkit.query.enums.UsingType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
+import org.luckypray.dexkit.result.MethodData;
 
 final class HeaderRules {
 
@@ -174,6 +175,23 @@ final class HeaderRules {
     c.ads.chatTabAdEnabledMethod =
         f.getter(
             c.ads.chatTabConfigClass, f.propertyField(c.ads.chatTabConfigClass, "isAdRcEnabled"));
+
+    c.ads.keyboardBannerRepoClass =
+        f.cls(
+            ClassMatcher.create()
+                .addInterface(
+                    Finder.outer(
+                        f.classUsing(
+                            "com.linecorp.line.shopdata.keyboard.repository.ShopKeyboardBannerRepositoryFactory"))));
+    c.ads.keyboardBannerListMethod = f.methodOf(c.ads.keyboardBannerRepoClass, null, (String) null);
+    c.ads.keyboardBannerListParam =
+        f.paramType(c.ads.keyboardBannerRepoClass, c.ads.keyboardBannerListMethod, 0);
+
+    MethodData entryBannerTypes =
+        f.methodDataAnywhere(
+            sig("java.util.Set").addUsingField(FieldMatcher.create().name("POST_NOTIFICATION")));
+    c.ads.entryBannerRepoClass = Finder.declaring(entryBannerTypes);
+    c.ads.entryBannerTypesMethod = Finder.name(entryBannerTypes);
   }
 
   private static void agentI(Finder f, LineVersion.Config c) {

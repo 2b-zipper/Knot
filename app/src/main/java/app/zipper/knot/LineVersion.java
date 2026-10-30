@@ -482,6 +482,11 @@ public class LineVersion {
       public String homeTabAdEnabledMethod = "";
       public String chatTabConfigClass = "";
       public String chatTabAdEnabledMethod = "";
+      public String keyboardBannerRepoClass = "";
+      public String keyboardBannerListMethod = "";
+      public String keyboardBannerListParam = "";
+      public String entryBannerRepoClass = "";
+      public String entryBannerTypesMethod = "";
     }
 
     public static class Home {
