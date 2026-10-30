@@ -8,6 +8,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.LeadingMarginSpan;
 import android.view.View;
 import android.widget.TextView;
 import app.zipper.knot.BuildConfig;
@@ -18,6 +19,7 @@ import app.zipper.knot.LoadParam;
 import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.ui.settings.SettingsViews;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
 import java.io.ByteArrayOutputStream;
@@ -36,6 +38,9 @@ public class ReleaseNotesPopup implements BaseHook {
       "https://api.github.com/repos/2b-zipper/Knot/releases/tags/";
   private static final String RELEASE_PAGE = "https://github.com/2b-zipper/Knot/releases/tag/";
   private static final int TIMEOUT_MS = 5000;
+  private static final int NESTED_INDENT_DP = 16;
+  private static final String NESTED_BULLET = "◦ ";
+  private static final Pattern NESTED_ITEM = Pattern.compile("(?m)^" + NESTED_BULLET + ".*$");
   // [label](url), <url>, or a bare URL that stops before trailing punctuation as GitHub's does.
   private static final Pattern LINK =
       Pattern.compile(
@@ -146,7 +151,8 @@ public class ReleaseNotesPopup implements BaseHook {
             .replace("\r\n", "\n")
             .replaceAll("(?m)^#{1,6}[ \t]*", "")
             .replaceAll("(?m)^[ \t]*>[ \t]?", "")
-            .replaceAll("(?m)^[ \t]*[*-][ \t]+", "・")
+            .replaceAll("(?m)^[ \t]+[*-][ \t]+", NESTED_BULLET)
+            .replaceAll("(?m)^[*-][ \t]+", "・")
             .replace("**", "")
             .replace("`", "")
             .replaceAll("\n{3,}", "\n\n")
@@ -170,7 +176,19 @@ public class ReleaseNotesPopup implements BaseHook {
       }
       last = m.end();
     }
-    return out.append(text, last, text.length());
+    out.append(text, last, text.length());
+
+    // A span rather than leading spaces, so wrapped lines stay indented too
+    int indent = SettingsViews.dp(host, NESTED_INDENT_DP);
+    Matcher nested = NESTED_ITEM.matcher(out);
+    while (nested.find()) {
+      out.setSpan(
+          new LeadingMarginSpan.Standard(indent),
+          nested.start(),
+          nested.end(),
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    return out;
   }
 
   private static ClickableSpan link(Activity host, String url) {
