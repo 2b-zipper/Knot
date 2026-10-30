@@ -496,6 +496,10 @@ public class LineVersion {
       public String home26LoadingMoreDataClass = "";
       public String home26ModuleBodyField = "";
       public String home26ModuleTypeMethod = "getType";
+      public String homePageWithModulesClass = "";
+      public String homePageIds =
+          "HOME_TAB,HOME_TAB_LIMITED_NETWORK_MODE,HOME26_TAB,GLOBALHOME_TAB";
+      public String homeFlexModuleType = "FLEX";
 
       @Until("26.17.0")
       public String home26ActivityCardClass = "";

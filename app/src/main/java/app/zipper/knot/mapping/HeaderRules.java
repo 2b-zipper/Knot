@@ -117,6 +117,7 @@ final class HeaderRules {
                             MethodMatcher.create()
                                 .name(c.home.home26ModuleTypeMethod)
                                 .returnType("java.lang.String"))));
+    c.home.homePageWithModulesClass = f.classUsing("GcsPageWithModules(pageId=");
     c.home.home26ActivityCardClass = f.classUsing("HomeActivityCard(contentList=");
     c.home.home26HybridCardClass = f.classUsing("GcsHomeActivityHybridContentCard(contentList=");
     c.home.home26FixedServiceCardClass = f.classUsing("FixedService(id=");
