@@ -250,7 +250,7 @@ public final class SettingsPage {
                 ModuleResources.get(R.string.settings_reset_ok),
                 (d, w) -> {
                   Mappings.reset(ctx);
-                  dialog.promptRestart();
+                  dialog.onMappingsReset();
                 })
             .setNegativeButton(ModuleResources.get(R.string.settings_cancel), null)
             .show(),

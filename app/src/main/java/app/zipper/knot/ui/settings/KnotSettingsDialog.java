@@ -50,6 +50,7 @@ public final class KnotSettingsDialog {
   private KnotConfig.Category currentCategory;
   private boolean aboutActive;
   private String baselineSnapshot;
+  private boolean mappingsReset;
 
   public static void show(Context ctx) {
     KnotSettingsDialog current = active;
@@ -137,6 +138,7 @@ public final class KnotSettingsDialog {
         R.string.restart_message,
         R.string.restart_later,
         (d, w) -> {
+          mappingsReset = false;
           baselineSnapshot = captureRestartSnapshot();
           close();
         });
@@ -144,6 +146,11 @@ public final class KnotSettingsDialog {
 
   void promptRestart() {
     showRestartDialog(R.string.restart_now_confirm, R.string.settings_cancel, null);
+  }
+
+  void onMappingsReset() {
+    mappingsReset = true;
+    promptRestart();
   }
 
   private void showRestartDialog(
@@ -194,7 +201,7 @@ public final class KnotSettingsDialog {
   }
 
   private boolean isRestartNeeded() {
-    return !captureRestartSnapshot().equals(baselineSnapshot);
+    return mappingsReset || !captureRestartSnapshot().equals(baselineSnapshot);
   }
 
   private static String captureRestartSnapshot() {
