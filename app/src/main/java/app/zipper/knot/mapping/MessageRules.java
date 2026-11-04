@@ -13,6 +13,7 @@ final class MessageRules {
 
   static final Mappings.Section[] SECTIONS = {
     MessageRules::muteMessage,
+    MessageRules::scrollPreview,
     MessageRules::readReceipt,
     MessageRules::userAgent,
     MessageRules::messageRow,
@@ -46,6 +47,20 @@ final class MessageRules {
         f.method(
             c.muteMessage.sendModeClass,
             MethodMatcher.create().addUsingField(FieldMatcher.create().name("PREMIUM")));
+  }
+
+  private static void scrollPreview(Finder f, LineVersion.Config c) {
+    c.scrollPreview.planEnumClass = f.classUsing("LYP_MEMBER", "LYP_LITE", "LYP_NON_MEMBER");
+    MethodMatcher resolvePlan =
+        MethodMatcher.create()
+            .returnType("java.lang.Enum")
+            .paramCount(1)
+            .addUsingField(
+                FieldMatcher.create().declaredClass(c.scrollPreview.planEnumClass).name("LABS"));
+    c.scrollPreview.availabilityClass =
+        f.cls(ClassMatcher.create().addMethod(resolvePlan).addMethod(sig("boolean")));
+    c.scrollPreview.methodResolvePlan = f.method(c.scrollPreview.availabilityClass, resolvePlan);
+    c.scrollPreview.methodIsAvailable = f.methodOf(c.scrollPreview.availabilityClass, "boolean");
   }
 
   private static void readReceipt(Finder f, LineVersion.Config c) {

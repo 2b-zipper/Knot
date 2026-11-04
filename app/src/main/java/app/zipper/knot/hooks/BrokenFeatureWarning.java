@@ -127,6 +127,7 @@ public class BrokenFeatureWarning implements BaseHook {
         PlusMenuHook.class,
         ChatListMoreMenuHook.class);
     add(f, o.recordReadHistory, HeaderButtonInjector.class);
+    add(f, o.enableScrollPreview, ScrollPreviewHook.class);
     add(f, o.showEditHistory, EditHistoryHook.class);
     add(
         f,

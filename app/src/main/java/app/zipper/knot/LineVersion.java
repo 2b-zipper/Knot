@@ -58,6 +58,7 @@ public class LineVersion {
     public Camera camera = new Camera();
     public CallTone callTone = new CallTone();
     public MuteMessage muteMessage = new MuteMessage();
+    public ScrollPreview scrollPreview = new ScrollPreview();
     public Iab iab = new Iab();
     public HomeTab homeTab = new HomeTab();
     public NightMode nightMode = new NightMode();
@@ -206,6 +207,20 @@ public class LineVersion {
       public String sendModeClass = "";
       public String methodSendMode = "";
       public String sendModeEnumClass = "";
+    }
+
+    public static class ScrollPreview {
+      @Since("26.15.0")
+      public String availabilityClass = "";
+
+      @Since("26.15.0")
+      public String methodIsAvailable = "";
+
+      @Since("26.15.0")
+      public String methodResolvePlan = "";
+
+      @Since("26.15.0")
+      public String planEnumClass = "";
     }
 
     public static class ChatTimestamp {
