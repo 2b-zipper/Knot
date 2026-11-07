@@ -91,12 +91,9 @@ Knot is an Xposed module, currently in development, designed to improve the expe
    > If Shizuku is installed, it is installed automatically.
 
 #### 3. Initial setup and restoring your chat history
-10. Launch LINE and log in.
-    > Skip the screen that asks you to choose a Google account for restoring your chat history.
+10. Launch LINE and log in. On the screen that asks you to choose a Google account for restoring your chat history, choose your account to restore it.
 11. Tap the banner shown on LINE's Home screen to set the directory Knot will use, then long-press the settings button at the top right of Home to open Knot's module settings.
-12. Enable `FCM Fix` under Notifications, then restart LINE.
-13. In LINE's settings, open `Back up and restore chat history`, tap `Restore`, and choose your Google account to restore your chat history.
-14. Enable the features you want in Knot's module settings.
+12. Enable the features you want in Knot's module settings.
     * To open the module settings, long-press the settings button at the top right of the Home tab, or use the entry Knot adds to LINE's settings.
 
 ## Release types
