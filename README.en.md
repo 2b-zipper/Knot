@@ -16,7 +16,7 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 
 > ⚠️ This module is developed by individuals for educational purposes and is not affiliated with LY Corporation in any way. Using this module may violate LINE's Terms of Use, and the developers accept no responsibility for any disadvantage or damage resulting from its use, including account restrictions, suspension, or data loss. Use it at your own risk.
 
-**Tested LINE versions**: 26.13.0, 26.13.1, 26.14.0, 26.15.0, 26.15.1, 26.16.0, 26.17.0
+**Tested LINE versions**: 26.13.0, 26.13.1, 26.14.0, 26.15.0, 26.15.1, 26.16.0, 26.17.0, 26.17.1
 (Other versions may also work, though some features might not.)
 
 **Supported languages**: 日本語, English, 繁體中文
@@ -86,17 +86,14 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 6. Download and install the latest Knot from the release list on NPatch's home screen.
 7. Tap the `Start Patch` button and choose a patching method.
    > `Download and Patch from Cloud Proxy` is recommended. If you download LINE yourself from APKMirror or a similar site, we recommend downloading and patching a version Knot has been tested on.
-8. Select a LINE version or APK, then tap the `Start Patch` button at the bottom right to start patching.
+8. Select a LINE version or APK. On the `New Patch` screen, make sure `Force enable MicroG support` is turned on, then tap the `Start Patch` button at the bottom right to start patching.
 9. When patching is done, tap the `Install` button at the bottom right to install it.
    > If Shizuku is installed, it is installed automatically.
 
 #### 3. Initial setup and restoring your chat history
-10. Launch LINE and log in.
-    > Skip the screen that asks you to choose a Google account for restoring your chat history.
+10. Launch LINE and log in. On the screen that asks you to choose a Google account for restoring your chat history, choose your account to restore it.
 11. Tap the banner shown on LINE's Home screen to set the directory Knot will use, then long-press the settings button at the top right of Home to open Knot's module settings.
-12. Enable `FCM Fix` under Notifications, then restart LINE.
-13. In LINE's settings, open `Back up and restore chat history`, tap `Restore`, and choose your Google account to restore your chat history.
-14. Enable the features you want in Knot's module settings.
+12. Enable the features you want in Knot's module settings.
     * To open the module settings, long-press the settings button at the top right of the Home tab, or use the entry Knot adds to LINE's settings.
 
 ## Release types

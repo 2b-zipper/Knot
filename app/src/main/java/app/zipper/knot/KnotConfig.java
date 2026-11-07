@@ -36,6 +36,7 @@ public class KnotConfig {
     public final Category category;
     public final int sectionRes;
     public String disabledWhenEnabledKey;
+    public String requiredEnabledKey;
 
     Item(String key, int labelRes, int descRes, boolean def, Category cat, int sectionRes) {
       this.key = key;
@@ -45,6 +46,11 @@ public class KnotConfig {
       this.enabled = def;
       this.category = cat;
       this.sectionRes = sectionRes;
+    }
+
+    Item requires(String key) {
+      this.requiredEnabledKey = key;
+      return this;
     }
 
     public String label() {
@@ -122,15 +128,15 @@ public class KnotConfig {
   public final Item useAmoledTheme               = item("use_amoled_theme",                 R.string.opt_use_amoled_theme_label,                 R.string.opt_use_amoled_theme_desc,                 false, Category.DISPLAY,      R.string.sec_theme);
   public final Item forceDarkModeUi              = item("force_dark_mode_ui",               R.string.opt_force_dark_mode_ui_label,               R.string.opt_force_dark_mode_ui_desc,               false, Category.DISPLAY,      R.string.sec_theme, "use_amoled_theme");
   public final Item showThemeOnSubDevice         = item("show_theme_on_sub_device",         R.string.opt_show_theme_on_sub_device_label,         R.string.opt_show_theme_on_sub_device_desc,         false, Category.DISPLAY,      R.string.sec_theme);
-  public final Item reactionNotification         = item("reaction_notification",            R.string.opt_reaction_notification_label,            R.string.opt_reaction_notification_desc,            false, Category.NOTIFICATION, 0);
-  public final Item stackMessageNotifications    = item("stack_message_notifications",      R.string.opt_stack_message_notifications_label,      R.string.opt_stack_message_notifications_desc,      false, Category.NOTIFICATION, 0);
-  public final Item notificationMediaPreview     = item("notification_media_preview",       R.string.opt_notification_media_preview_label,       R.string.opt_notification_media_preview_desc,       false, Category.NOTIFICATION, 0);
-  public final Item removeNotificationMuteButton = item("remove_notification_mute_button",  R.string.opt_remove_notification_mute_button_label,  R.string.opt_remove_notification_mute_button_desc,  false, Category.NOTIFICATION, 0);
-  public final Item notificationMarkAsRead       = item("notification_mark_as_read",        R.string.opt_notification_mark_as_read_label,        R.string.opt_notification_mark_as_read_desc,        false, Category.NOTIFICATION, 0);
-  public final Item experimentalFcmFix           = item("experimental_fcm_fix",             R.string.opt_experimental_fcm_fix_label,             R.string.opt_experimental_fcm_fix_desc,             false, Category.NOTIFICATION, 0);
-  public final Item fcmFixMode                   = item("fcm_fix_mode",                     R.string.opt_fcm_fix_mode_label,                     R.string.opt_fcm_fix_mode_desc,                     false, Category.NOTIFICATION, 0);
-  public final Item fcmForceRegistration         = item("fcm_force_registration",           R.string.opt_fcm_force_registration_label,           R.string.opt_fcm_force_registration_desc,           false, Category.NOTIFICATION, 0);
-  public final Item lineForegroundKeepAlive      = item("line_foreground_keep_alive",       R.string.opt_line_foreground_keep_alive_label,       R.string.opt_line_foreground_keep_alive_desc,       false, Category.NOTIFICATION, 0);
+  public final Item reactionNotification         = item("reaction_notification",            R.string.opt_reaction_notification_label,            R.string.opt_reaction_notification_desc,            false, Category.NOTIFICATION, R.string.sec_notification_message);
+  public final Item stackMessageNotifications    = item("stack_message_notifications",      R.string.opt_stack_message_notifications_label,      R.string.opt_stack_message_notifications_desc,      false, Category.NOTIFICATION, R.string.sec_notification_message);
+  public final Item notificationMediaPreview     = item("notification_media_preview",       R.string.opt_notification_media_preview_label,       R.string.opt_notification_media_preview_desc,       false, Category.NOTIFICATION, R.string.sec_notification_message);
+  public final Item removeNotificationMuteButton = item("remove_notification_mute_button",  R.string.opt_remove_notification_mute_button_label,  R.string.opt_remove_notification_mute_button_desc,  false, Category.NOTIFICATION, R.string.sec_notification_message);
+  public final Item notificationMarkAsRead       = item("notification_mark_as_read",        R.string.opt_notification_mark_as_read_label,        R.string.opt_notification_mark_as_read_desc,        false, Category.NOTIFICATION, R.string.sec_notification_message);
+  public final Item experimentalFcmFix           = item("experimental_fcm_fix",             R.string.opt_experimental_fcm_fix_label,             R.string.opt_experimental_fcm_fix_desc,             false, Category.NOTIFICATION, R.string.sec_notification_delivery);
+  public final Item fcmFixMode                   = item("fcm_fix_mode",                     R.string.opt_fcm_fix_mode_label,                     R.string.opt_fcm_fix_mode_desc,                     false, Category.NOTIFICATION, R.string.sec_notification_delivery).requires("experimental_fcm_fix");
+  public final Item fcmForceRegistration         = item("fcm_force_registration",           R.string.opt_fcm_force_registration_label,           R.string.opt_fcm_force_registration_desc,           false, Category.NOTIFICATION, R.string.sec_notification_delivery).requires("experimental_fcm_fix");
+  public final Item lineForegroundKeepAlive      = item("line_foreground_keep_alive",       R.string.opt_line_foreground_keep_alive_label,       R.string.opt_line_foreground_keep_alive_desc,       false, Category.NOTIFICATION, R.string.sec_notification_delivery);
   public final Item disableCustomRingback        = item("disable_custom_ringback",          R.string.opt_disable_custom_ringback_label,          R.string.opt_disable_custom_ringback_desc,          false, Category.NOTIFICATION, R.string.sec_call);
   public final Item useCustomRingtone            = item("use_custom_ringtone",              R.string.opt_use_custom_ringtone_label,              R.string.opt_use_custom_ringtone_desc,              false, Category.NOTIFICATION, R.string.sec_call);
   public final Item customRingtonePath           = item("custom_ringtone_path",             R.string.opt_custom_ringtone_path_label,             R.string.opt_custom_ringtone_path_desc,             false, Category.NOTIFICATION, R.string.sec_call);

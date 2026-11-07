@@ -11,7 +11,7 @@ android {
         applicationId 'app.zipper.knot'
         minSdk 26
         targetSdk 35
-        versionName "3.0.0"
+        versionName "3.0.1"
         versionCode versionName.split('-')[0].tokenize('.').inject(0) { code, part -> code * 100 + part.toInteger() }
         multiDexEnabled true
     }

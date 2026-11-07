@@ -36,7 +36,7 @@ public class FcmFixHook implements BaseHook {
   }
 
   private static boolean isFisMode(KnotConfig config) {
-    return MODE_FIS.equals(config.fcmFixMode.value);
+    return !MODE_LEGY.equals(config.fcmFixMode.value);
   }
 
   private static byte[] hexDecode(String hex) {
@@ -276,33 +276,6 @@ public class FcmFixHook implements BaseHook {
   }
 
   /**
-   * Hook to always report GMS as available (success code 0). Even with the signature check
-   * bypassed, the presence check can fail on devices. so force success when microG-RE is in use.
-   */
-  private static void hookGmsAvailability(
-      ClassLoader cl, KnotConfig config, LineVersion.Config.NotificationFix fixCfg) {
-    if (fixCfg.gmsAvailabilityClass == null || fixCfg.gmsAvailabilityClass.isEmpty()) {
-      return;
-    }
-    try {
-      Class<?> availabilityClass = Reflect.findClass(fixCfg.gmsAvailabilityClass, cl);
-      Knot.module
-          .hook(
-              Reflect.findMethodExact(
-                  availabilityClass, fixCfg.gmsAvailabilityMethod, Context.class, int.class))
-          .intercept(
-              chain -> {
-                if (!isEnabled(config)) return chain.proceed();
-                logVerbose("GMS availability check bypassed -> 0");
-                return Integer.valueOf(0);
-              });
-      Knot.log("Knot: GMS availability hook installed on " + fixCfg.gmsAvailabilityClass);
-    } catch (Throwable t) {
-      Knot.log("Knot: GMS availability hook failed: " + t);
-    }
-  }
-
-  /**
    * Hook FirebaseMessaging's token freshness check. When the UI sets forceNextTokenRefresh this
    * returns true so LINE's token fetch path performs a fresh registration instead of returning the
    * cached token.
@@ -401,9 +374,9 @@ public class FcmFixHook implements BaseHook {
                 + cfg.firebaseMessagingClass);
         return false;
       }
-      // 26.13.0 added a "notify listeners on cache hit" flag; false keeps the old behaviour.
+      // true reaches onNewToken even for an unchanged token, so LINE uploads it to its server again.
       boolean takesNotifyFlag = getToken.getParameterTypes().length == 1;
-      final Object[] getTokenArgs = takesNotifyFlag ? new Object[] {Boolean.FALSE} : new Object[0];
+      final Object[] getTokenArgs = takesNotifyFlag ? new Object[] {Boolean.TRUE} : new Object[0];
       forceNextTokenRefresh = true;
       final Object fmRef = fm;
       new Thread(
@@ -438,9 +411,8 @@ public class FcmFixHook implements BaseHook {
 
     lastClassLoader = cl;
 
-    // GMS availability/signature hooks apply to both FIS and Legy modes.
+    // GMS signature hook applies to both FIS and Legy modes.
     hookGmsSignatureCheck(cl, config, fixCfg);
-    hookGmsAvailability(cl, config, fixCfg);
 
     // Install the FirebaseMessaging freshness hook so a UI-triggered token
     // refresh can force a new registration.
