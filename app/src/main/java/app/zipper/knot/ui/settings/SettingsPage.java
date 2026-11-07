@@ -469,14 +469,14 @@ public final class SettingsPage {
   }
 
   private static String fcmFixMode() {
-    return SettingsStore.getString("fcm_fix_mode", FcmFixHook.MODE_LEGY);
+    return SettingsStore.getString("fcm_fix_mode", FcmFixHook.MODE_FIS);
   }
 
   private static String fcmFixModeLabel() {
     return ModuleResources.get(
-        FcmFixHook.MODE_FIS.equals(fcmFixMode())
-            ? R.string.fcm_fix_mode_fis
-            : R.string.fcm_fix_mode_legy);
+        FcmFixHook.MODE_LEGY.equals(fcmFixMode())
+            ? R.string.fcm_fix_mode_legy
+            : R.string.fcm_fix_mode_fis);
   }
 
   private void openFcmFixModePicker(KnotConfig.Item item) {

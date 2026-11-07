@@ -36,7 +36,7 @@ public class FcmFixHook implements BaseHook {
   }
 
   private static boolean isFisMode(KnotConfig config) {
-    return MODE_FIS.equals(config.fcmFixMode.value);
+    return !MODE_LEGY.equals(config.fcmFixMode.value);
   }
 
   private static byte[] hexDecode(String hex) {

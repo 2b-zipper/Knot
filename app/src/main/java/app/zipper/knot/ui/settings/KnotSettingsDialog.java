@@ -230,7 +230,7 @@ public final class KnotSettingsDialog {
 
   private static String effectiveValue(KnotConfig.Item item) {
     if ("fcm_fix_mode".equals(item.key)) {
-      return SettingsStore.getString(item.key, FcmFixHook.MODE_LEGY);
+      return SettingsStore.getString(item.key, FcmFixHook.MODE_FIS);
     }
     return SettingsStore.getString(item.key, item.value != null ? item.value : "");
   }
