@@ -21,7 +21,7 @@
     <string name="cat_privacy">隱私</string>
     <string name="cat_chat">聊天</string>
     <string name="cat_display">畫面顯示</string>
-    <string name="cat_notification">通知</string>
+    <string name="cat_notification">通知與通話</string>
     <string name="cat_storage">儲存位置</string>
     <string name="cat_backup">備份</string>
     <string name="cat_system">系統</string>
@@ -41,6 +41,8 @@
     <string name="sec_header_btn">標題列按鈕</string>
     <string name="sec_font">字型</string>
     <string name="sec_theme">主題</string>
+    <string name="sec_notification_message">訊息通知</string>
+    <string name="sec_notification_delivery">通知接收</string>
     <string name="sec_call">通話</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">需要重新啟動LINE</string>
@@ -199,13 +201,12 @@
     <string name="opt_notification_mark_as_read_desc">在訊息通知中新增按鈕，效果等同於聊天列表中的「標為已讀」，可將聊天標為已讀並清除該通知。即使已開啟避免已讀，仍會傳送已讀標記。</string>
     <string name="opt_remove_notification_mute_button_label">隱藏「關閉通知」按鈕</string>
     <string name="opt_remove_notification_mute_button_desc">移除LINE通知中顯示的「關閉通知」按鈕。</string>
-    <string name="opt_experimental_fcm_fix_desc">將LINE的FCM通知接收處理直接交給服務，以迴避在非root環境下通知約1分鐘後就收不到的問題。</string>
+    <string name="opt_experimental_fcm_fix_desc">迴避在非root環境下收不到通知的問題。</string>
     <string name="opt_fcm_fix_mode_desc">選擇FCM Fix的運作模式。傳統（維持Legy）會維持LINE專屬的串流連線來傳送通知。FIS（偽裝憑證）會在發行FCM權杖時將簽章偽裝為官方憑證。</string>
     <string name="fcm_fix_mode_legy">傳統（維持Legy）</string>
     <string name="fcm_fix_mode_fis">FIS（偽裝憑證）</string>
     <string name="opt_fcm_force_registration_label">重新註冊FCM權杖</string>
     <string name="opt_fcm_force_registration_desc">在收不到通知時，重新取得LINE的FCM權杖。</string>
-    <string name="fcm_force_registration_needs_fix">請先啟用FCM Fix</string>
     <string name="fcm_force_registration_started">已開始重新註冊FCM權杖</string>
     <string name="fcm_force_registration_failed">無法開始重新註冊FCM權杖</string>
     <string name="opt_line_foreground_keep_alive_label">讓LINE常駐為前景服務</string>
