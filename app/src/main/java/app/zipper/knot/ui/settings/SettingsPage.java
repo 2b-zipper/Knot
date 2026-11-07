@@ -339,7 +339,32 @@ public final class SettingsPage {
 
   private void addPickerRow(
       KnotConfig.Item item, CharSequence value, View.OnClickListener onClick) {
-    row().title(item.label()).description(item.description()).value(value).onClick(onClick).add();
+    View row =
+        row()
+            .title(item.label())
+            .description(item.description())
+            .value(value)
+            .onClick(
+                v -> {
+                  if (!isDisabled(item)) onClick.onClick(v);
+                })
+            .add();
+    if (row == null || !hasDependency(item)) return;
+    Runnable refreshState = () -> row.setAlpha(isDisabled(item) ? 0.5f : 1.0f);
+    dialog.addStateRefresher(refreshState);
+    refreshState.run();
+  }
+
+  private static boolean hasDependency(KnotConfig.Item item) {
+    return item.disabledWhenEnabledKey != null || item.requiredEnabledKey != null;
+  }
+
+  private static boolean isDisabled(KnotConfig.Item item) {
+    if (item.disabledWhenEnabledKey != null
+        && SettingsStore.get(item.disabledWhenEnabledKey, false)) {
+      return true;
+    }
+    return item.requiredEnabledKey != null && !SettingsStore.get(item.requiredEnabledKey, false);
   }
 
   private void addToggleRow(KnotConfig.Item item) {
@@ -385,8 +410,8 @@ public final class SettingsPage {
   }
 
   private void applyDisabledState(View row, KnotConfig.Item item, LineVersion.Config cfg) {
-    if (item.disabledWhenEnabledKey == null) return;
-    boolean isDisabled = SettingsStore.get(item.disabledWhenEnabledKey, false);
+    if (!hasDependency(item)) return;
+    boolean isDisabled = isDisabled(item);
     row.setAlpha(isDisabled ? 0.5f : 1.0f);
     if (!isDisabled) return;
 
@@ -396,8 +421,7 @@ public final class SettingsPage {
   }
 
   private void toggleItem(View row, KnotConfig.Item item, LineVersion.Config cfg) {
-    if (item.disabledWhenEnabledKey != null
-        && SettingsStore.get(item.disabledWhenEnabledKey, false)) {
+    if (isDisabled(item)) {
       Reflect.callMethod(row, cfg.settings.methodSetChecked, false);
       return;
     }
@@ -420,10 +444,6 @@ public final class SettingsPage {
   }
 
   private void forceFcmRegistration() {
-    if (!SettingsStore.get("experimental_fcm_fix", false)) {
-      toast(ModuleResources.get(R.string.fcm_force_registration_needs_fix));
-      return;
-    }
     toast(
         FcmFixHook.requestFcmTokenRefresh(ctx.getClassLoader())
             ? ModuleResources.get(R.string.fcm_force_registration_started)

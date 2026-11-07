@@ -25,7 +25,7 @@
     <string name="cat_privacy">Privacy</string>
     <string name="cat_chat">Chat</string>
     <string name="cat_display">Appearance</string>
-    <string name="cat_notification">Notifications</string>
+    <string name="cat_notification">Notifications &amp; Calls</string>
     <string name="cat_storage">Storage</string>
     <string name="cat_backup">Backup</string>
     <string name="cat_system">System</string>
@@ -46,6 +46,8 @@
     <string name="sec_header_btn">Header buttons</string>
     <string name="sec_font">Font</string>
     <string name="sec_theme">Theme</string>
+    <string name="sec_notification_message">Message notifications</string>
+    <string name="sec_notification_delivery">Notification delivery</string>
     <string name="sec_call">Calls</string>
 
     <!-- Restart / warnings -->
@@ -232,14 +234,13 @@
     <string name="opt_remove_notification_mute_button_desc">Removes the \"Mute\" action button from LINE notifications.</string>
 
     <string name="opt_experimental_fcm_fix_label" translatable="false">FCM Fix</string>
-    <string name="opt_experimental_fcm_fix_desc">Hands LINE\'s FCM notification handling directly to the service, working around notifications that stop arriving after about a minute on non-rooted devices.</string>
+    <string name="opt_experimental_fcm_fix_desc">Works around notifications not arriving on non-rooted devices.</string>
     <string name="opt_fcm_fix_mode_label" translatable="false">FCM Fix Mode</string>
     <string name="opt_fcm_fix_mode_desc">Chooses how FCM Fix works. Legacy (keep Legy) keeps LINE\'s own streaming connection alive to deliver notifications. FIS (certificate spoof) spoofs the signature as the official certificate when the FCM token is issued.</string>
     <string name="fcm_fix_mode_legy">Legacy (keep Legy)</string>
     <string name="fcm_fix_mode_fis">FIS (certificate spoof)</string>
     <string name="opt_fcm_force_registration_label">Re-register the FCM token</string>
     <string name="opt_fcm_force_registration_desc">Requests a new FCM token for LINE when notifications are not arriving.</string>
-    <string name="fcm_force_registration_needs_fix">Enable FCM Fix first</string>
     <string name="fcm_force_registration_started">Started re-registering the FCM token</string>
     <string name="fcm_force_registration_failed">Could not start FCM token re-registration</string>
     <string name="opt_line_foreground_keep_alive_label">Always run LINE as a foreground service</string>
