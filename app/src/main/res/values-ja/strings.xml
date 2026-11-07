@@ -21,7 +21,7 @@
     <string name="cat_privacy">プライバシー</string>
     <string name="cat_chat">チャット</string>
     <string name="cat_display">画面表示</string>
-    <string name="cat_notification">通知</string>
+    <string name="cat_notification">通知・通話</string>
     <string name="cat_storage">保存先</string>
     <string name="cat_backup">バックアップ</string>
     <string name="cat_system">システム</string>
@@ -41,6 +41,8 @@
     <string name="sec_header_btn">ヘッダボタン</string>
     <string name="sec_font">フォント</string>
     <string name="sec_theme">テーマ</string>
+    <string name="sec_notification_message">メッセージ通知</string>
+    <string name="sec_notification_delivery">通知の受信</string>
     <string name="sec_call">通話</string>
     <!-- Restart / warnings -->
     <string name="manager_restart_required">LINEの再起動が必要です</string>
@@ -199,13 +201,12 @@
     <string name="opt_notification_mark_as_read_desc">トーク一覧の「既読にする」と同様に、メッセージ通知からトークを既読にして通知を消去するボタンを追加します。既読回避が有効な場合でも既読がつきます。</string>
     <string name="opt_remove_notification_mute_button_label">「通知をオフ」ボタンを非表示</string>
     <string name="opt_remove_notification_mute_button_desc">LINEの通知に表示される「通知をオフ」ボタンを削除します。</string>
-    <string name="opt_experimental_fcm_fix_desc">非root環境で通知が1分程度で届かなくなる問題を回避するため、LINEのFCM通知受信処理を直接サービスに引き渡す挙動を有効にします。</string>
+    <string name="opt_experimental_fcm_fix_desc">非root環境で通知が届かない問題を回避します。</string>
     <string name="opt_fcm_fix_mode_desc">FCM Fixの動作モードを選択します。従来（Legy維持）はLINE独自のストリーミング接続を維持して通知を届けます。FIS（証明書偽装）はFCMトークン発行時の署名を公式証明書に偽装します。</string>
     <string name="fcm_fix_mode_legy">従来（Legy維持）</string>
     <string name="fcm_fix_mode_fis">FIS（証明書偽装）</string>
     <string name="opt_fcm_force_registration_label">FCMトークンを再登録</string>
     <string name="opt_fcm_force_registration_desc">通知が届かない場合に、LINEのFCMトークンを再取得します。</string>
-    <string name="fcm_force_registration_needs_fix">先にFCM Fixを有効にしてください</string>
     <string name="fcm_force_registration_started">FCMトークンの再登録を開始しました</string>
     <string name="fcm_force_registration_failed">FCMトークンの再登録を開始できませんでした</string>
     <string name="opt_line_foreground_keep_alive_label">LINEを常にフォアグラウンドサービス化する</string>
