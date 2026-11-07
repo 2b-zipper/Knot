@@ -86,7 +86,7 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 6. Download and install the latest Knot from the release list on NPatch's home screen.
 7. Tap the `Start Patch` button and choose a patching method.
    > `Download and Patch from Cloud Proxy` is recommended. If you download LINE yourself from APKMirror or a similar site, we recommend downloading and patching a version Knot has been tested on.
-8. Select a LINE version or APK, then tap the `Start Patch` button at the bottom right to start patching.
+8. Select a LINE version or APK. On the `New Patch` screen, make sure `Force enable MicroG support` is turned on, then tap the `Start Patch` button at the bottom right to start patching.
 9. When patching is done, tap the `Install` button at the bottom right to install it.
    > If Shizuku is installed, it is installed automatically.
 
