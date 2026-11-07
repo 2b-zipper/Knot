@@ -374,9 +374,9 @@ public class FcmFixHook implements BaseHook {
                 + cfg.firebaseMessagingClass);
         return false;
       }
-      // 26.13.0 added a "notify listeners on cache hit" flag; false keeps the old behaviour.
+      // true reaches onNewToken even for an unchanged token, so LINE uploads it to its server again.
       boolean takesNotifyFlag = getToken.getParameterTypes().length == 1;
-      final Object[] getTokenArgs = takesNotifyFlag ? new Object[] {Boolean.FALSE} : new Object[0];
+      final Object[] getTokenArgs = takesNotifyFlag ? new Object[] {Boolean.TRUE} : new Object[0];
       forceNextTokenRefresh = true;
       final Object fmRef = fm;
       new Thread(
