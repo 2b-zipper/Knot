@@ -597,24 +597,45 @@ final class Finder {
         return none("no Thrift field " + name + " in " + struct);
       }
       String descriptor = descriptors.get(index).getName();
-      Set<String> written = new LinkedHashSet<>();
-      for (MethodData writer : descriptors.get(index).getReaders()) {
-        boolean next = false;
-        for (UsingFieldData u : writer.getUsingFields()) {
-          FieldData fd = u.getField();
-          if (!fd.getClassName().equals(struct)) continue;
-          if (fd.getName().equals(descriptor)) {
-            next = true;
-          } else if (next && !fd.getTypeName().equals(descriptorType)) {
-            written.add(fd.getName());
-            break;
+      List<MethodData> schemes = new ArrayList<>();
+      for (AnnotationData a : lookup(struct).getAnnotations()) {
+        for (AnnotationElementData e : a.getElements()) {
+          if (e.getValue().getType() != AnnotationEncodeValueType.ArrayValue) continue;
+          for (AnnotationEncodeValue v : e.getValue().arrayValue().getValues()) {
+            if (v.getType() == AnnotationEncodeValueType.TypeValue) {
+              schemes.addAll(v.typeValue().getMethods());
+            }
           }
         }
+      }
+      Set<String> written = thriftWritten(schemes, struct, descriptor, descriptorType);
+      if (written.isEmpty()) {
+        written =
+            thriftWritten(descriptors.get(index).getReaders(), struct, descriptor, descriptorType);
       }
       return oneName(new ArrayList<>(written));
     } catch (Throwable t) {
       return none(t);
     }
+  }
+
+  private static Set<String> thriftWritten(
+      Iterable<MethodData> writers, String struct, String descriptor, String descriptorType) {
+    Set<String> written = new LinkedHashSet<>();
+    for (MethodData writer : writers) {
+      boolean next = false;
+      for (UsingFieldData u : writer.getUsingFields()) {
+        FieldData fd = u.getField();
+        if (!fd.getClassName().equals(struct)) continue;
+        if (fd.getName().equals(descriptor)) {
+          next = true;
+        } else if (next && !fd.getTypeName().equals(descriptorType)) {
+          written.add(fd.getName());
+          break;
+        }
+      }
+    }
+    return written;
   }
 
   // Kotlin's default-argument constructor reads the owner's static defaults in parameter order
@@ -797,6 +818,23 @@ final class Finder {
     Set<String> types = new LinkedHashSet<>();
     for (MethodData callee : invokes(m)) {
       if (callee.isConstructor()) types.add(callee.getClassName());
+    }
+    return new ArrayList<>(types);
+  }
+
+  static List<String> invokedClasses(MethodData m) {
+    Set<String> types = new LinkedHashSet<>();
+    for (MethodData callee : invokes(m)) {
+      types.add(callee.getClassName());
+    }
+    return new ArrayList<>(types);
+  }
+
+  static List<String> fieldOwners(MethodData m) {
+    if (m == null) return new ArrayList<>();
+    Set<String> types = new LinkedHashSet<>();
+    for (UsingFieldData u : m.getUsingFields()) {
+      types.add(u.getField().getClassName());
     }
     return new ArrayList<>(types);
   }

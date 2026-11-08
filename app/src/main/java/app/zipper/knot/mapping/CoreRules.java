@@ -81,21 +81,20 @@ final class CoreRules {
     c.message.processorMetadataClass = f.classUsing("AB", "NT");
     c.message.dataManagerClass = f.classUsing("before_registering_e2ee_public_key");
 
+    c.message.selectionProviderClass =
+        f.returnTypeWhere(
+            CHAT_ACTIVITY,
+            ClassMatcher.create()
+                .modifiers(Modifier.INTERFACE)
+                .addMethod(MethodMatcher.create().name("getCount")));
     c.message.selectionStateClass =
-        f.cls(
+        f.returnTypeWhere(
+            c.message.selectionProviderClass,
             ClassMatcher.create()
                 .modifiers(Modifier.INTERFACE)
                 .addMethod(sig("java.util.Set"))
                 .addMethod(sig("boolean", "java.util.Collection"))
                 .addMethod(sig("boolean", "long")));
-    String state = c.message.selectionStateClass;
-    c.message.selectionProviderClass =
-        f.clsIn(
-            Finder.packageOf(state),
-            ClassMatcher.create()
-                .modifiers(Modifier.INTERFACE)
-                .addMethod(sig(state))
-                .addMethod(MethodMatcher.create().name("getCount")));
   }
 
   private static void thrift(Finder f, LineVersion.Config c) {

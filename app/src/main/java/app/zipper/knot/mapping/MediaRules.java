@@ -245,18 +245,14 @@ final class MediaRules {
                         .addField(FieldMatcher.create().name("DARK"))));
 
     // LINE sets AppCompat's default night mode from its ConfigureNightModeTask
+    MethodMatcher applyNightMode = sig("void", "boolean").modifiers(Modifier.STATIC);
     c.nightMode.nightModeConfiguratorClass =
-        f.cls(
-            ClassMatcher.create()
-                .fieldCount(1)
-                .addMethod(
-                    sig("void", "boolean")
-                        .modifiers(Modifier.STATIC)
-                        .addCaller(
-                            MethodMatcher.create()
-                                .declaredClass(
-                                    ClassMatcher.create()
-                                        .usingEqStrings("ConfigureNightModeTask")))));
+        f.classAmong(
+            Finder.invokedClasses(
+                f.methodData(
+                    f.classUsing("ConfigureNightModeTask"),
+                    MethodMatcher.create().addInvoke(applyNightMode))),
+            ClassMatcher.create().fieldCount(1).addMethod(applyNightMode));
     c.nightMode.fieldSystemDarkMode = f.fieldOf(c.nightMode.nightModeConfiguratorClass, "boolean");
     c.nightMode.methodApplyNightMode =
         f.staticMethodOf(c.nightMode.nightModeConfiguratorClass, "void", "boolean");

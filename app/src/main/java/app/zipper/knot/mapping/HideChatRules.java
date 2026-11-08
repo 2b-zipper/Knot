@@ -204,18 +204,30 @@ final class HideChatRules {
         f.classUsing("ChatSubTabHideConfirmationPopupRequest(mid=");
     String request = c.permanentHideChat.hidePopupRequestClass;
     c.permanentHideChat.hidePopupChatIdField = f.fieldOf(request, "java.lang.String");
-    // Reads the request's chat type; R8 merges it with unrelated lambdas from 26.17.0
-    c.permanentHideChat.hidePopupMessageClass =
-        f.classUsingId(
-            MethodMatcher.create().addUsingField(FieldMatcher.create().declaredClass(request)),
-            "string",
-            "chatlist_hideconfirmdialog_message");
-
     String popups =
         Finder.packageOf(f.classUsing("ChatSubTabDeleteAndReportConfirmationPopupRequest(item="));
-    MethodData popup = f.creatorIn(popups, c.permanentHideChat.hidePopupMessageClass);
+    MethodData popup =
+        f.methodDataIn(
+            popups,
+            sig(
+                    "void",
+                    request,
+                    c.kotlin.function0Class,
+                    c.kotlin.function0Class,
+                    null,
+                    c.compose.composerClass,
+                    "int")
+                .modifiers(Modifier.STATIC));
     c.permanentHideChat.hidePopupClass = Finder.declaring(popup);
     c.permanentHideChat.methodHidePopup = Finder.name(popup);
+    // Reads the request's chat type; R8 merges it with unrelated lambdas from 26.17.0
+    c.permanentHideChat.hidePopupMessageClass =
+        f.classAmong(
+            Finder.constructs(popup),
+            ClassMatcher.create()
+                .addMethod(
+                    MethodMatcher.create()
+                        .addUsingField(FieldMatcher.create().declaredClass(request))));
 
     // By a label's Compose group key (R8 may inline the labels); the confirm label comes first
     c.permanentHideChat.hidePopupLabelsClass =
