@@ -112,6 +112,8 @@
     <string name="opt_record_read_history_desc">Records who read each message and when. Open it from the book icon at the top of the chat screen.</string>
     <string name="opt_enable_scroll_preview_label">Enable scroll preview</string>
     <string name="opt_enable_scroll_preview_desc">Re-enables the scroll preview feature that was removed from LINE Labs. Note: requires LINE 26.15.0 or later.</string>
+    <string name="opt_classic_chat_list_menu_label">Use the classic chat list long-press menu</string>
+    <string name="opt_classic_chat_list_menu_desc">Shows only the menu, without the chat preview, when you long-press a chat in the chat list. Has no effect while \"Enable scroll preview\" is on. Note: requires LINE 26.15.0 or later.</string>
 
     <string name="opt_permanent_hide_chat_label">Permanently hide chats</string>
     <string name="opt_permanent_hide_chat_desc">Keeps hidden chats hidden even when new messages arrive. When it is on, a toggle to temporarily show them is added to the \"+\" menu at the top right of the Chats tab. While they are shown, you can unhide a chat with \"Unhide\" in its long-press menu.</string>
