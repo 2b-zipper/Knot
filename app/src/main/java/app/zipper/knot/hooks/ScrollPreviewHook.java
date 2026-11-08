@@ -14,20 +14,26 @@ public class ScrollPreviewHook implements BaseHook {
 
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
-    if (!config.enableScrollPreview.enabled) return;
+    if (!config.enableScrollPreview.enabled && !config.classicChatListMenu.enabled) return;
     LineVersion.Config version = LineVersion.get();
     if (version == null || version.scrollPreview.availabilityClass.isEmpty()) return;
 
     ClassLoader cl = lpparam.classLoader;
     hookAvailability(cl, version.scrollPreview);
-    hookPlan(cl, version.scrollPreview);
+    if (config.enableScrollPreview.enabled) hookPlan(cl, version.scrollPreview);
   }
 
+  // The chat list long-press shows the preview overlay only while this is true, else the plain menu
   private static void hookAvailability(ClassLoader cl, LineVersion.Config.ScrollPreview cfg) {
     try {
       Knot.module
           .hook(Reflect.findMethodExact(cfg.availabilityClass, cl, cfg.methodIsAvailable))
-          .intercept(chain -> enabled() ? Boolean.TRUE : chain.proceed());
+          .intercept(
+              chain -> {
+                if (enabled()) return Boolean.TRUE;
+                if (Main.options.classicChatListMenu.enabled) return Boolean.FALSE;
+                return chain.proceed();
+              });
       Knot.log("Knot: scroll preview availability hooked on " + cfg.availabilityClass);
     } catch (Throwable t) {
       Knot.log("Knot: scroll preview availability hook failed: " + t);
