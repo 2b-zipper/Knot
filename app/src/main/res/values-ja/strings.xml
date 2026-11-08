@@ -100,6 +100,8 @@
     <string name="opt_record_read_history_desc">誰がいつメッセージを既読にしたかを記録します。チャット画面上部の本アイコンから確認できます。</string>
     <string name="opt_enable_scroll_preview_label">スクロールプレビューを有効化</string>
     <string name="opt_enable_scroll_preview_desc">LINEラボから削除されたスクロールプレビュー機能を有効化します。※LINE 26.15.0以上のみ対応しています。</string>
+    <string name="opt_classic_chat_list_menu_label">トークリストの長押しメニューを従来の表示にする</string>
+    <string name="opt_classic_chat_list_menu_desc">トークリストを長押ししたときにトークのプレビューを出さず、メニューだけを表示します。「スクロールプレビューを有効化」有効時は無効です。※LINE 26.15.0以上のみ対応しています。</string>
     <string name="opt_permanent_hide_chat_label">トークを永久に非表示</string>
     <string name="opt_permanent_hide_chat_desc">新しいメッセージを受信しても非表示にしたトークが再表示されないようにします。有効にすると、トークタブ右上の「+」メニューから非表示トークの一時的な表示/非表示を切り替えられるようになります。表示中の非表示トークは、長押しメニューの「再表示」で非表示を解除できます。</string>
     <string name="label_show_hidden_chats">非表示トークを表示</string>
