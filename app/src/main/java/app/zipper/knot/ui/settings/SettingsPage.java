@@ -360,11 +360,15 @@ public final class SettingsPage {
   }
 
   private static boolean isDisabled(KnotConfig.Item item) {
-    if (item.disabledWhenEnabledKey != null
-        && SettingsStore.get(item.disabledWhenEnabledKey, false)) {
+    if (item.disabledWhenEnabledKey != null && isEnabled(item.disabledWhenEnabledKey)) {
       return true;
     }
-    return item.requiredEnabledKey != null && !SettingsStore.get(item.requiredEnabledKey, false);
+    return item.requiredEnabledKey != null && !isEnabled(item.requiredEnabledKey);
+  }
+
+  private static boolean isEnabled(String key) {
+    KnotConfig.Item item = Main.options.find(key);
+    return SettingsStore.get(key, item != null && item.defaultEnabled());
   }
 
   private void addToggleRow(KnotConfig.Item item) {
@@ -416,7 +420,7 @@ public final class SettingsPage {
     if (!isDisabled) return;
 
     Reflect.callMethod(row, cfg.settings.methodSetChecked, false);
-    if (!SettingsStore.get(item.key, false)) return;
+    if (!isEnabled(item.key)) return;
     saveItem(item.key, false);
   }
 

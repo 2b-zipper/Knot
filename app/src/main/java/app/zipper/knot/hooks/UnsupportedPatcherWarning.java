@@ -25,8 +25,7 @@ public class UnsupportedPatcherWarning implements BaseHook {
   @Override
   public void hook(KnotConfig config, LoadParam lpparam) throws Throwable {
     XposedInterface module = Knot.module;
-    // Root frameworks always report CAP_SYSTEM; NPatch, forked or not, never does
-    if ((module.getFrameworkProperties() & XposedInterface.PROP_CAP_SYSTEM) != 0) return;
+    if (!Knot.isRootless()) return;
     String name = module.getFrameworkName();
     if (FORK_FRAMEWORK_NAME.equals(name)) return;
     String patcher = name + " " + module.getFrameworkVersion();

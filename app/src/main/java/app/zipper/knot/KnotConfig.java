@@ -30,7 +30,8 @@ public class KnotConfig {
     public final String key;
     public final int labelRes;
     public final int descriptionRes;
-    public final boolean defaultEnabled;
+    private final boolean defaultEnabled;
+    private boolean defaultEnabledRootless;
     public boolean enabled;
     public String value = "";
     public final Category category;
@@ -51,6 +52,16 @@ public class KnotConfig {
     Item requires(String key) {
       this.requiredEnabledKey = key;
       return this;
+    }
+
+    Item enabledByDefaultWhenRootless() {
+      this.defaultEnabledRootless = true;
+      return this;
+    }
+
+    // Resolved lazily: the framework is unknown while the config is built
+    public boolean defaultEnabled() {
+      return defaultEnabled || (defaultEnabledRootless && Knot.isRootless());
     }
 
     public String label() {
@@ -134,7 +145,7 @@ public class KnotConfig {
   public final Item notificationMediaPreview     = item("notification_media_preview",       R.string.opt_notification_media_preview_label,       R.string.opt_notification_media_preview_desc,       false, Category.NOTIFICATION, R.string.sec_notification_message);
   public final Item removeNotificationMuteButton = item("remove_notification_mute_button",  R.string.opt_remove_notification_mute_button_label,  R.string.opt_remove_notification_mute_button_desc,  false, Category.NOTIFICATION, R.string.sec_notification_message);
   public final Item notificationMarkAsRead       = item("notification_mark_as_read",        R.string.opt_notification_mark_as_read_label,        R.string.opt_notification_mark_as_read_desc,        false, Category.NOTIFICATION, R.string.sec_notification_message);
-  public final Item experimentalFcmFix           = item("experimental_fcm_fix",             R.string.opt_experimental_fcm_fix_label,             R.string.opt_experimental_fcm_fix_desc,             false, Category.NOTIFICATION, R.string.sec_notification_delivery);
+  public final Item experimentalFcmFix           = item("experimental_fcm_fix",             R.string.opt_experimental_fcm_fix_label,             R.string.opt_experimental_fcm_fix_desc,             false, Category.NOTIFICATION, R.string.sec_notification_delivery).enabledByDefaultWhenRootless();
   public final Item fcmFixMode                   = item("fcm_fix_mode",                     R.string.opt_fcm_fix_mode_label,                     R.string.opt_fcm_fix_mode_desc,                     false, Category.NOTIFICATION, R.string.sec_notification_delivery).requires("experimental_fcm_fix");
   public final Item fcmForceRegistration         = item("fcm_force_registration",           R.string.opt_fcm_force_registration_label,           R.string.opt_fcm_force_registration_desc,           false, Category.NOTIFICATION, R.string.sec_notification_delivery).requires("experimental_fcm_fix");
   public final Item lineForegroundKeepAlive      = item("line_foreground_keep_alive",       R.string.opt_line_foreground_keep_alive_label,       R.string.opt_line_foreground_keep_alive_desc,       false, Category.NOTIFICATION, R.string.sec_notification_delivery);
