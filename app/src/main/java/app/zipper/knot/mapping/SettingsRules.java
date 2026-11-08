@@ -111,14 +111,21 @@ final class SettingsRules {
 
     c.settings.settingsItemClass = f.returnType(helper, c.settings.methodGetItem);
     c.settings.methodProxyGetItemType = f.methodOf(c.settings.settingsItemClass, "int");
+    String listAdapter =
+        f.fieldTypeWhere(
+            "com.linecorp.line.settings.base.LineUserSettingItemListFragment",
+            ClassMatcher.create().superClass(c.settings.settingsAdapterClass));
     c.settings.settingsAdapterWrapperClass =
-        f.cls(
-            ClassMatcher.create()
-                .addInterface(c.settings.settingsItemClass)
-                .addMethod(
+        f.classAmong(
+            Finder.fieldOwners(
+                f.methodData(
+                    listAdapter,
                     MethodMatcher.create()
-                        .name("<init>")
-                        .paramTypes(c.settings.settingsHandlerBaseClass)));
+                        .addInvoke(
+                            MethodMatcher.create()
+                                .declaredClass(c.settings.settingsAdapterClass)
+                                .name(c.settings.methodSetItems)))),
+            ClassMatcher.create().addInterface(c.settings.settingsItemClass));
     c.settings.fieldItemModel =
         f.fieldOf(c.settings.settingsAdapterWrapperClass, c.settings.settingsHandlerBaseClass);
   }

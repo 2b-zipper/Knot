@@ -261,7 +261,8 @@ final class NotificationRules {
   private static void sticon(Finder f, LineVersion.Config c) {
     // runBlocking(context, block) parks with Long.MAX_VALUE; runBlocking(block) forwards to it
     MethodData run =
-        f.methodDataAnywhere(
+        f.methodDataIn(
+            Finder.packageOf(f.classUsing("kotlinx.coroutines.DefaultExecutor")),
             MethodMatcher.create()
                 .modifiers(Modifier.STATIC)
                 .returnType("java.lang.Object")

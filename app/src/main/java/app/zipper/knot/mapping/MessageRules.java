@@ -38,7 +38,8 @@ final class MessageRules {
             "LAB",
             "PREMIUM");
     c.muteMessage.sendModeClass =
-        f.cls(
+        f.clsIn(
+            Finder.packageOf(f.classUsing("MuteMessageUtsLogContext(chatType=")),
             ClassMatcher.create()
                 .addMethod(sig(c.muteMessage.sendModeEnumClass))
                 .methodCount(2)
@@ -58,7 +59,9 @@ final class MessageRules {
             .addUsingField(
                 FieldMatcher.create().declaredClass(c.scrollPreview.planEnumClass).name("LABS"));
     c.scrollPreview.availabilityClass =
-        f.cls(ClassMatcher.create().addMethod(resolvePlan).addMethod(sig("boolean")));
+        f.clsIn(
+            Finder.packageOf(f.classUsing("processNotifyDataChangeEvent")),
+            ClassMatcher.create().addMethod(resolvePlan).addMethod(sig("boolean")));
     c.scrollPreview.methodResolvePlan = f.method(c.scrollPreview.availabilityClass, resolvePlan);
     c.scrollPreview.methodIsAvailable = f.methodOf(c.scrollPreview.availabilityClass, "boolean");
   }
@@ -66,10 +69,7 @@ final class MessageRules {
   private static void readReceipt(Finder f, LineVersion.Config c) {
     // The chat list controller; mark-as-read from its long-press menu runs through it
     c.readReceipt.longPressReadClass =
-        Finder.packageOf(
-            f.cls(
-                ClassMatcher.create()
-                    .usingEqStrings("ChatListLoadingStatLogger", "prefetchMention")));
+        Finder.packageOf(f.classUsing("ChatListLoadingStatLogger", "prefetchMention"));
 
     c.readReceipt.methodReact =
         f.methodOf(c.readReceipt.reactClientClass, null, f.classUsing("ReactRequest(reqSeq:"));

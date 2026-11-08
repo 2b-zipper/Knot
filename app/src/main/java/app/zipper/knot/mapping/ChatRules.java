@@ -122,13 +122,15 @@ final class ChatRules {
     c.chatEditSelectAll.methodIsItemSelected = f.method(state, sig("boolean", item));
     c.chatEditSelectAll.methodGetSelectionState =
         f.methodOf(c.message.selectionProviderClass, state);
+    String providerImpl =
+        f.clsIn(
+            Finder.packageOf(f.classUsing("RangeSelectionMessageInfo(localMessageId=")),
+            ClassMatcher.create().addInterface(c.message.selectionProviderClass));
     // Of the two (int) -> item getters, the one falling back to a placeholder item
     c.chatEditSelectAll.methodGetItem =
-        f.methodNameAnywhere(
-            MethodMatcher.create()
-                .declaredClass(ClassMatcher.create().addInterface(c.message.selectionProviderClass))
-                .returnType(item)
-                .paramTypes("int")
+        f.method(
+            providerImpl,
+            sig(item, "int")
                 .addUsingField(
                     FieldMatcher.create().declaredClass(item + "$", StringMatchType.StartsWith)));
   }

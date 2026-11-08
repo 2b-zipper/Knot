@@ -176,19 +176,22 @@ final class HeaderRules {
         f.getter(
             c.ads.chatTabConfigClass, f.propertyField(c.ads.chatTabConfigClass, "isAdRcEnabled"));
 
+    String keyboardRepoIface =
+        Finder.outer(
+            f.classUsing(
+                "com.linecorp.line.shopdata.keyboard.repository.ShopKeyboardBannerRepositoryFactory"));
     c.ads.keyboardBannerRepoClass =
-        f.cls(
-            ClassMatcher.create()
-                .addInterface(
-                    Finder.outer(
-                        f.classUsing(
-                            "com.linecorp.line.shopdata.keyboard.repository.ShopKeyboardBannerRepositoryFactory"))));
+        f.clsIn(
+            Finder.packageOf(keyboardRepoIface),
+            ClassMatcher.create().addInterface(keyboardRepoIface));
     c.ads.keyboardBannerListMethod = f.methodOf(c.ads.keyboardBannerRepoClass, null, (String) null);
     c.ads.keyboardBannerListParam =
         f.paramType(c.ads.keyboardBannerRepoClass, c.ads.keyboardBannerListMethod, 0);
 
+    String bannerVm = Finder.at(f.ctorParams(f.classUsing("line-chat-entry"), 7), 0);
     MethodData entryBannerTypes =
-        f.methodDataAnywhere(
+        f.methodDataIn(
+            Finder.packageOf(Finder.at(f.ctorParams(bannerVm, 4), 0)),
             sig("java.util.Set").addUsingField(FieldMatcher.create().name("POST_NOTIFICATION")));
     c.ads.entryBannerRepoClass = Finder.declaring(entryBannerTypes);
     c.ads.entryBannerTypesMethod = Finder.name(entryBannerTypes);
@@ -196,28 +199,32 @@ final class HeaderRules {
 
   private static void agentI(Finder f, LineVersion.Config c) {
     c.agentIInChat.toggleComposableClass =
-        f.classUsingIdIn(
-            Finder.packageOf(f.classUsing("sendAiTalkDisplayButtonClickEvent(Z)V")),
+        f.classUsingId(
+            MethodMatcher.create().modifiers(Modifier.STATIC).returnType("void").paramCount(5),
             "string",
             "chat_agentiinchat_toggle_hideagentiinchat");
 
     // From 26.17.0 every reader goes through one getAiButtonShownAfterMillis function reference
-    c.aiIcon.repoClass =
-        f.cls(
-            ClassMatcher.create()
-                .addInterface(c.kotlin.function0Class)
-                .addMethod(
-                    MethodMatcher.create()
-                        .addUsingField(
-                            FieldMatcher.create().name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS"))));
-    if (c.aiIcon.repoClass.isEmpty()) {
-      // From 26.15.0 the green dot view model (name kept) holds the repository
-      String repo =
-          f.fieldTypeWhere(
-              "com.linecorp.line.chat.ui.impl.header.ChatHistoryChatMenuGreenDotViewModel",
+    String aiButtonRef = f.classUsing("getAiButtonShownAfterMillis()J");
+    if (!aiButtonRef.isEmpty()) {
+      c.aiIcon.repoClass =
+          f.clsIn(
+              Finder.packageOf(aiButtonRef),
               ClassMatcher.create()
-                  .modifiers(Modifier.INTERFACE)
-                  .addMethod(sig("boolean", "jp.naver.line.android.db.generalkv.dao.a")));
+                  .addInterface(c.kotlin.function0Class)
+                  .addMethod(
+                      MethodMatcher.create()
+                          .addUsingField(
+                              FieldMatcher.create()
+                                  .name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS"))));
+    } else {
+      String chipsVm =
+          Finder.param(
+              f.methodData(
+                  c.agentIInChat.toggleComposableClass,
+                  sig("void", null, c.kotlin.function1Class, null, null, "int")),
+              2);
+      String repo = Finder.at(f.ctorParams(chipsVm, 3), 1);
       c.aiIcon.repoClass =
           f.clsIn(
               Finder.packageOf(repo),
@@ -241,24 +248,28 @@ final class HeaderRules {
                 .addUsingField(
                     FieldMatcher.create().name("CHATROOM_AI_BUTTON_SHOWN_AFTER_MILLIS")));
 
-    c.searchBarAgentI.chatImageAiButtonClass =
-        f.classUsingId(
-            MethodMatcher.create()
-                .name("<init>")
-                .paramTypes(Finder.leading(7, "android.widget.ImageView")),
-            "dimen",
-            "chat_ui_row_ai_image_edit_side_button_min_image_height");
+    String shareLayout = Finder.outer(f.classUsing("SHARE_CAROUSEL_BUTTON_LAYOUT"));
+    if (f.id("dimen", "chat_ui_row_ai_image_edit_side_button_min_image_height") != 0) {
+      c.searchBarAgentI.chatImageAiButtonClass =
+          f.fieldTypeWhere(
+              shareLayout,
+              ClassMatcher.create()
+                  .addMethod(
+                      MethodMatcher.create()
+                          .name("<init>")
+                          .paramTypes(Finder.leading(7, "android.widget.ImageView"))));
+    }
     c.searchBarAgentI.chatImageAiButtonMethod =
         f.methodOf(c.searchBarAgentI.chatImageAiButtonClass, "void", "java.lang.Integer");
 
-    // Kept its package from 26.15.0 on
+    MethodMatcher commerceHeader =
+        MethodMatcher.create().addUsingField(FieldMatcher.create().name("FALSE"));
     c.searchBarAgentI.commerceHeaderClass =
-        f.classUsingIdIn(
-            "com.linecorp.line.commerce.impl", "string", "shopping_pull_down_wish_list_tittle");
+        f.classUsing(
+            ClassMatcher.create().addMethod(commerceHeader),
+            "onEvent(Lcom/linecorp/line/commerce/impl/CommerceTabUiEvent;)V");
     c.searchBarAgentI.commerceHeaderMethod =
-        f.method(
-            c.searchBarAgentI.commerceHeaderClass,
-            MethodMatcher.create().addUsingField(FieldMatcher.create().name("FALSE")));
+        f.method(c.searchBarAgentI.commerceHeaderClass, commerceHeader);
 
     c.searchBarAgentI.homeAiContainerId = f.id("id", "main_tab_ai_entry_icon_container");
     c.searchBarAgentI.homeGuidelineId = f.id("id", "main_tab_guideline");
