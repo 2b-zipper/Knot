@@ -374,7 +374,8 @@ public class FcmFixHook implements BaseHook {
                 + cfg.firebaseMessagingClass);
         return false;
       }
-      // true reaches onNewToken even for an unchanged token, so LINE uploads it to its server again.
+      // true reaches onNewToken even for an unchanged token, so LINE uploads it to its server
+      // again.
       boolean takesNotifyFlag = getToken.getParameterTypes().length == 1;
       final Object[] getTokenArgs = takesNotifyFlag ? new Object[] {Boolean.TRUE} : new Object[0];
       forceNextTokenRefresh = true;
