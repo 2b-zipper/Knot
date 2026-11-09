@@ -36,25 +36,46 @@ Knot is an Xposed module, currently in development, designed to improve the expe
 
 ## Features
 
-### Privacy & Messages
-- **Read avoidance / Read history**: Read messages without marking them as read, and mark them as read only when you reply. Knot can also record who read each message and when.
-- **Keep unsent messages / Longer unsend limit**: Keeps messages on your device even after the sender unsends them, and extends the time you have to unsend your own messages to 24 hours.
-- **Open links in the default browser**: Opens URLs in your system's default browser instead of the in-app browser.
-- **Lift photo and video sending limits**: Sends at the highest quality by skipping the automatic compression and resizing applied on send, and lets you send videos longer than 5 minutes.
-- **Better in-chat search**: Filter search results by member, and search chats with just one character.
-- **Chat screen tweaks**: Hide the AI icon and add seconds to message timestamps.
+See the [full feature list](https://knot.2ipper.com/#all-features) on the Knot website.
+
+### Privacy
+- **Read avoidance**: Keeps chats unread when you open them. Turn it on and off from the "+" menu, and optionally mark chats as read after sending or reacting.
+- **Read history**: Records who read each message and when.
+- **Scroll preview**: Re-enables scroll preview, which was removed from LINE Labs and is now exclusive to LYP Premium.
+- **Classic long-press menu**: Shows only the menu, without the preview, when you long-press a chat in the chat list.
+- **Edit history**: Saves the previous text of edited messages so you can view it from the long-press menu.
+- **Permanent chat hiding**: Keeps hidden chats hidden even when new messages arrive.
+- **Prevent unsend**: Keeps messages on your device even after the sender unsends them.
+- **24-hour unsend limit**: Brings the unsend time limit back from one hour to 24 hours.
+- **Profile update timestamps**: Shows when a friend was added, favorited, and last updated their profile, from their profile screen.
+
+### Chat
+- **Mute messages**: Re-enables mute messages, which were removed from LINE Labs and are now exclusive to LYP Premium.
+- **High-quality photos & long videos**: Sends photos at maximum quality without automatic compression or resizing, and removes the 5-minute limit on video uploads.
+- **Default camera & silent shutter**: Uses your device's default camera app instead of LINE's built-in camera, or silences the built-in camera's shutter sound.
+- **Enhanced in-chat search**: Search only a specific member's messages and search with a single character, and toggle Search Keyword Assist with a button in the search bar.
+- **Seconds in chat timestamps**: Adds seconds to the time shown next to each message (for example 12:34 → 12:34:56).
+- **Select all in edit mode**: Adds a button to the message deletion screen that selects or deselects every message.
+- **Open links in default browser**: Opens URLs in your system default browser instead of the in-app browser.
+- **Hide AI icons**: Always hides Agent i in the message field, not just for 30 days.
 
 ### Appearance & UI
-- **Hide ads and recommendations**: Hides the ads in the chat list and on the Home screen, as well as recommended content and the service list.
-- **Tab customization**: Hide tabs you don't need (News/Calls, Apps, and more) and the labels under the tab icons, and extend the tab tap area.
-- **Remove unneeded buttons**: Removes the "AI Friends" and "OpenChat" buttons at the top right of the Chats tab, as well as the "Agent i" UI next to the search bar and elsewhere.
-- **Custom font**: Apply a TTF/OTF font file of your choice across the whole app.
+- **Ad removal**: Hides the ads shown at the top of the chat list, on the Home screen, and elsewhere.
+- **Clean home tab**: Hides the recommended content, feed, and service list on the Home screen.
+- **Tab customization**: Hides the News/Calls, Apps, Shopping, and Wallet tabs in the bottom bar, and can also hide tab labels or widen the tap area.
+- **Clean chat header & plus menu**: Hides the "AI Friends", "OpenChat", "Calendar", and "Album" buttons at the top right of the Chats tab, and the "Agent i" button on every tab.
+- **Custom fonts**: Applies the selected font file across the whole app.
+- **Pure Black (AMOLED) theme**: Makes dark mode backgrounds pure black (#000000) and matches menus and dialogs to the same palette.
+- **Themes on secondary devices**: Shows the "Themes" entry that LINE hides when you are signed in on a sub-device.
 
-### Notifications
-- **Reaction notifications**: Get notified when someone reacts to your messages.
-- **Hide the "Mute" notification button**: Removes the "Mute" button shown on LINE notifications.
-- **Custom call ringtones**: Replace the LINE call ringtone with any audio file, or hear the default ringback tone instead of the one the other person set.
-- **Fix delayed or missing notifications (FCM Fix)**: To keep notifications from going missing on non-rooted devices, Knot hands FCM message handling directly to the service and can keep LINE running as a foreground service at all times.
+### Notifications & Calls
+- **Reaction notifications**: Notifies you about reactions to your messages.
+- **Stacked message notifications**: Groups up to seven messages in a single notification instead of replacing the previous one.
+- **Notification media preview**: Previews images, video thumbnails, stickers, and emoji in message notifications.
+- **Mark as read from notification**: Adds a button to message notifications that marks the chat as read and dismisses the notification.
+- **Hide the "Mute" notification button**: Removes the "Mute" action button from LINE notifications.
+- **Fix delayed or missing notifications (FCM Fix)**: Works around notifications not arriving on non-rooted devices (enabled by default on non-rooted devices).
+- **Custom ringtones & ringback tones**: Replace the LINE call ringtone with any audio file, or play the default ringback tone instead of the song set by the person you call.
 
 ## Installation
 
