@@ -57,6 +57,7 @@ public class LineVersion {
     public MessageEditHistory messageEditHistory = new MessageEditHistory();
     public Camera camera = new Camera();
     public CallTone callTone = new CallTone();
+    public CallRecording callRecording = new CallRecording();
     public MuteMessage muteMessage = new MuteMessage();
     public ScrollPreview scrollPreview = new ScrollPreview();
     public Iab iab = new Iab();
@@ -198,6 +199,23 @@ public class LineVersion {
       public String remoteRingbackContextField = "";
       public String remoteRingbackFallbackField = "";
       public String ringtoneWrapperClass = "";
+    }
+
+    public static class CallRecording {
+      @Since("26.16.0")
+      public String stateShareClass = "";
+
+      @Since("26.16.0")
+      public String methodSetState = "";
+
+      @Since("26.16.0")
+      public String voiceGuideClass = "";
+
+      @Since("26.16.0")
+      public String methodGuideA = "";
+
+      @Since("26.16.0")
+      public String methodGuideB = "";
     }
 
     public static class MuteMessage {

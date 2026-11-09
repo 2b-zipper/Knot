@@ -219,6 +219,8 @@
     <string name="opt_use_custom_ringtone_desc">LINE通話の着信音として、選択した音声ファイルを再生します。</string>
     <string name="opt_custom_ringtone_path_label">着信音ファイルを選択</string>
     <string name="opt_custom_ringtone_path_desc">着信音として使用する音声ファイルを選択します。</string>
+    <string name="opt_silent_call_recording_label">通話録音の通知・アナウンスを無効化</string>
+    <string name="opt_silent_call_recording_desc">通話レコーディング時に、相手への録音通知や画面表示、および録音開始・終了の音声ガイダンスを無効化します。※LINE 26.16.0以上のみ対応しています。</string>
     <string name="ringtone_editor_title">着信音</string>
     <string name="ringtone_editor_unsupported">この音声ファイルは使用できません。</string>
     <string name="ringtone_editor_save">保存</string>

@@ -76,6 +76,7 @@ See the [full feature list](https://knot.2ipper.com/#all-features) on the Knot w
 - **Hide the "Mute" notification button**: Removes the "Mute" action button from LINE notifications.
 - **Fix delayed or missing notifications (FCM Fix)**: Works around notifications not arriving on non-rooted devices (enabled by default on non-rooted devices).
 - **Custom ringtones & ringback tones**: Replace the LINE call ringtone with any audio file, or play the default ringback tone instead of the song set by the person you call.
+- **Silent call recording**: Disables notifying the other party, onscreen recording indicators, and audio announcements when recording calls.
 
 ## Installation
 

@@ -219,6 +219,8 @@
     <string name="opt_use_custom_ringtone_desc">將選取的音訊檔作為LINE通話的來電鈴聲。</string>
     <string name="opt_custom_ringtone_path_label">選擇鈴聲檔案</string>
     <string name="opt_custom_ringtone_path_desc">選擇要作為鈴聲的音訊檔。</string>
+    <string name="opt_silent_call_recording_label">通話錄音靜音與通知停用</string>
+    <string name="opt_silent_call_recording_desc">在通話錄音時，停用對方的錄音中通知與畫面提示，以及錄音開始和結束時的語音提示。※僅支援LINE 26.16.0以上版本。</string>
     <string name="ringtone_editor_title">鈴聲</string>
     <string name="ringtone_editor_unsupported">無法使用此音訊檔。</string>
     <string name="ringtone_editor_save">儲存</string>
