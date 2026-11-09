@@ -2,8 +2,10 @@ package app.zipper.knot.hooks;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.Person;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -28,6 +30,9 @@ public class StackMessageNotificationsHook implements BaseHook {
   private static final String MESSAGE_SENDER_PERSON_KEY = "sender_person";
   private static final String MESSAGE_DATA_MIME_TYPE_KEY = "type";
   private static final String MESSAGE_DATA_URI_KEY = "uri";
+  private static final String MESSAGE_EXTRAS_KEY = "extras";
+  // LINE stores the message id in each MessagingStyle message's extras.
+  private static final String LINE_MESSAGE_ID_KEY = "MESSAGE_ID";
   private static final String MEDIA_MESSAGE_ID_EXTRA = "knot.media_message_id";
   private static final String KNOT_REACTION_CHANNEL_ID = "knot_reaction";
   private static final int MAX_STACKED_LINES = 7;
@@ -192,13 +197,25 @@ public class StackMessageNotificationsHook implements BaseHook {
 
   private static Notification.MessagingStyle messagingStyle(
       List<MessageLine> lines, Bundle extras) {
-    Notification.MessagingStyle style = new Notification.MessagingStyle("");
+    Notification.MessagingStyle style = newMessagingStyle(extras);
     CharSequence conversationTitle = conversationTitle(lines, extras);
     if (hasText(conversationTitle)) style.setConversationTitle(conversationTitle);
     for (MessageLine line : lines) {
       style.addMessage(message(line));
     }
     return style;
+  }
+
+  // Keep LINE's own user so direct replies are still drawn with the user's name and icon.
+  private static Notification.MessagingStyle newMessagingStyle(Bundle extras) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      Parcelable user = extras.getParcelable(Notification.EXTRA_MESSAGING_PERSON);
+      if (user instanceof Person && ((Person) user).getName() != null) {
+        return new Notification.MessagingStyle((Person) user);
+      }
+    }
+    CharSequence selfName = extras.getCharSequence(Notification.EXTRA_SELF_DISPLAY_NAME);
+    return new Notification.MessagingStyle(hasText(selfName) ? selfName : "");
   }
 
   static Notification buildMediaMessageNotification(
@@ -359,6 +376,9 @@ public class StackMessageNotificationsHook implements BaseHook {
     Parcelable senderPerson = message.getParcelable(MESSAGE_SENDER_PERSON_KEY);
     CharSequence sender = messageSender(message, senderPerson);
     long timestamp = message.getLong(MESSAGE_TIME_KEY, System.currentTimeMillis());
+    if (!hasText(messageId)) {
+      messageId = stringExtra(message.getBundle(MESSAGE_EXTRAS_KEY), LINE_MESSAGE_ID_KEY);
+    }
     return new MessageLine(
         messageId, text, sender, senderPerson, conversationTitle, timestamp, dataMimeType, dataUri);
   }
@@ -382,6 +402,9 @@ public class StackMessageNotificationsHook implements BaseHook {
       message = new Notification.MessagingStyle.Message(line.text, line.timestamp, line.sender);
     }
     if (line.hasData()) message.setData(line.dataMimeType, line.dataUri);
+    if (hasText(line.messageId)) {
+      message.getExtras().putString(LINE_MESSAGE_ID_KEY, line.messageId);
+    }
     return message;
   }
 
