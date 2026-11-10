@@ -144,7 +144,6 @@ public class ReactionNotification implements BaseHook {
             || curr.has("paidReaction");
     if (!hasReaction) return;
 
-    // Unknown values fall back to TARGET_ALL (notify for every message)
     if (TARGET_OWN.equals(Main.options.reactionNotificationTarget.value)
         && !LineDBUtils.isOwnMessage(messageId)) return;
 

@@ -348,6 +348,7 @@ public final class SettingsPage {
             .title(item.label())
             .description(item.description())
             .value(value)
+            .divider()
             .onClick(
                 v -> {
                   if (!isDisabled(item)) onClick.onClick(v);
