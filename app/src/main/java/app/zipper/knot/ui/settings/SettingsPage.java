@@ -298,7 +298,7 @@ public final class SettingsPage {
           addPickerRow(item, fcmFixModeLabel(), v -> openFcmFixModePicker(item));
           break;
         case "reaction_notification_target":
-          addPickerRow(item, reactionTargetLabel(), v -> openReactionTargetPicker(item), true);
+          addPickerRow(item, reactionTargetLabel(), v -> openReactionTargetPicker(item));
           break;
         case "fcm_force_registration":
           addPickerRow(item, v -> forceFcmRegistration());
@@ -343,17 +343,11 @@ public final class SettingsPage {
 
   private void addPickerRow(
       KnotConfig.Item item, CharSequence value, View.OnClickListener onClick) {
-    addPickerRow(item, value, onClick, false);
-  }
-
-  private void addPickerRow(
-      KnotConfig.Item item, CharSequence value, View.OnClickListener onClick, boolean showDivider) {
     View row =
         row()
             .title(item.label())
             .description(item.description())
             .value(value)
-            .divider(showDivider)
             .onClick(
                 v -> {
                   if (!isDisabled(item)) onClick.onClick(v);
