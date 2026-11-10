@@ -28,17 +28,17 @@
     <string name="cat_other">其他</string>
     <!-- Sections -->
     <string name="sec_privacy_read">已讀</string>
-    <string name="sec_privacy_edit">訊息編輯</string>
-    <string name="sec_privacy_hide">隱藏的聊天室</string>
-    <string name="sec_privacy_unsend">收回訊息</string>
+    <string name="sec_privacy_chat_list">聊天列表</string>
+    <string name="sec_privacy_message">訊息</string>
     <string name="sec_privacy_profile">個人檔案</string>
     <string name="sec_chat_send">傳送</string>
-    <string name="sec_chat_media">媒體</string>
+    <string name="sec_chat_camera">相機</string>
     <string name="sec_chat_search">搜尋</string>
-    <string name="sec_chat_display">顯示</string>
-    <string name="sec_ads">廣告與推薦</string>
+    <string name="sec_chat_room">聊天室</string>
+    <string name="sec_ads_home">廣告與主頁</string>
     <string name="sec_tabs">分頁</string>
     <string name="sec_header_btn">標題列按鈕</string>
+    <string name="sec_ai">AI</string>
     <string name="sec_font">字型</string>
     <string name="sec_theme">主題</string>
     <string name="sec_notification_message">訊息通知</string>

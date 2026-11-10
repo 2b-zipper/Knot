@@ -33,17 +33,17 @@
 
     <!-- Sections -->
     <string name="sec_privacy_read">Read receipts</string>
-    <string name="sec_privacy_edit">Message editing</string>
-    <string name="sec_privacy_hide">Hidden chats</string>
-    <string name="sec_privacy_unsend">Unsend</string>
+    <string name="sec_privacy_chat_list">Chat list</string>
+    <string name="sec_privacy_message">Messages</string>
     <string name="sec_privacy_profile">Profile</string>
     <string name="sec_chat_send">Sending</string>
-    <string name="sec_chat_media">Media</string>
+    <string name="sec_chat_camera">Camera</string>
     <string name="sec_chat_search">Search</string>
-    <string name="sec_chat_display">Display</string>
-    <string name="sec_ads">Ads and recommendations</string>
+    <string name="sec_chat_room">Chat room</string>
+    <string name="sec_ads_home">Ads and Home</string>
     <string name="sec_tabs">Tabs</string>
     <string name="sec_header_btn">Header buttons</string>
+    <string name="sec_ai">AI</string>
     <string name="sec_font">Font</string>
     <string name="sec_theme">Theme</string>
     <string name="sec_notification_message">Message notifications</string>

@@ -28,17 +28,17 @@
     <string name="cat_other">その他</string>
     <!-- Sections -->
     <string name="sec_privacy_read">既読</string>
-    <string name="sec_privacy_edit">メッセージ編集</string>
-    <string name="sec_privacy_hide">非表示トーク</string>
-    <string name="sec_privacy_unsend">送信取り消し</string>
+    <string name="sec_privacy_chat_list">トークリスト</string>
+    <string name="sec_privacy_message">メッセージ</string>
     <string name="sec_privacy_profile">プロフィール</string>
     <string name="sec_chat_send">送信</string>
-    <string name="sec_chat_media">メディア</string>
+    <string name="sec_chat_camera">カメラ</string>
     <string name="sec_chat_search">検索</string>
-    <string name="sec_chat_display">表示</string>
-    <string name="sec_ads">広告・おすすめ</string>
+    <string name="sec_chat_room">トークルーム</string>
+    <string name="sec_ads_home">広告・ホーム</string>
     <string name="sec_tabs">タブ</string>
     <string name="sec_header_btn">ヘッダボタン</string>
+    <string name="sec_ai">AI</string>
     <string name="sec_font">フォント</string>
     <string name="sec_theme">テーマ</string>
     <string name="sec_notification_message">メッセージ通知</string>
