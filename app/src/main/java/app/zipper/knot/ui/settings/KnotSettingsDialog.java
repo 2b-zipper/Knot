@@ -224,9 +224,11 @@ public final class KnotSettingsDialog {
     return sb.toString();
   }
 
-  // Installed unconditionally at startup and evaluated dynamically on each event
+  // Evaluated dynamically on each event, so changing them needs no restart
   private static boolean isImmediateItem(String key) {
-    return "prevent_unsend_message".equals(key) || "debug_menu".equals(key);
+    return "prevent_unsend_message".equals(key)
+        || "debug_menu".equals(key)
+        || "reaction_notification_target".equals(key);
   }
 
   private static String effectiveValue(KnotConfig.Item item) {
