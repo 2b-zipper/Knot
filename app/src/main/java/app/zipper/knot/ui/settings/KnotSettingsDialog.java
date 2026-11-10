@@ -22,6 +22,7 @@ import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.PermanentHideChatHook;
+import app.zipper.knot.hooks.ReactionNotification;
 import app.zipper.knot.hooks.SettingsUIInjector;
 import app.zipper.knot.ui.DebugMenu;
 import app.zipper.knot.utils.ContributorProfiles;
@@ -223,14 +224,19 @@ public final class KnotSettingsDialog {
     return sb.toString();
   }
 
-  // Installed unconditionally at startup and evaluated dynamically on each event
+  // Evaluated dynamically on each event, so changing them needs no restart
   private static boolean isImmediateItem(String key) {
-    return "prevent_unsend_message".equals(key) || "debug_menu".equals(key);
+    return "prevent_unsend_message".equals(key)
+        || "debug_menu".equals(key)
+        || "reaction_notification_target".equals(key);
   }
 
   private static String effectiveValue(KnotConfig.Item item) {
     if ("fcm_fix_mode".equals(item.key)) {
       return SettingsStore.getString(item.key, FcmFixHook.MODE_FIS);
+    }
+    if ("reaction_notification_target".equals(item.key)) {
+      return SettingsStore.getString(item.key, ReactionNotification.TARGET_ALL);
     }
     return SettingsStore.getString(item.key, item.value != null ? item.value : "");
   }

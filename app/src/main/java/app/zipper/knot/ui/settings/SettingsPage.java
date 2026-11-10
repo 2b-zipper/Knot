@@ -20,6 +20,7 @@ import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.BackupRestoreHook;
 import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.HomeTabTypeHook;
+import app.zipper.knot.hooks.ReactionNotification;
 import app.zipper.knot.mapping.Mappings;
 import app.zipper.knot.utils.LineTheme;
 import app.zipper.knot.utils.ModuleResources;
@@ -296,6 +297,9 @@ public final class SettingsPage {
         case "fcm_fix_mode":
           addPickerRow(item, fcmFixModeLabel(), v -> openFcmFixModePicker(item));
           break;
+        case "reaction_notification_target":
+          addPickerRow(item, reactionTargetLabel(), v -> openReactionTargetPicker(item));
+          break;
         case "fcm_force_registration":
           addPickerRow(item, v -> forceFcmRegistration());
           break;
@@ -344,6 +348,7 @@ public final class SettingsPage {
             .title(item.label())
             .description(item.description())
             .value(value)
+            .divider()
             .onClick(
                 v -> {
                   if (!isDisabled(item)) onClick.onClick(v);
@@ -514,6 +519,30 @@ public final class SettingsPage {
     };
 
     showChoicePicker(item, values, labels, fcmFixMode());
+  }
+
+  private static String reactionTarget() {
+    return SettingsStore.getString("reaction_notification_target", ReactionNotification.TARGET_ALL);
+  }
+
+  private static String reactionTargetLabel() {
+    return ModuleResources.get(
+        ReactionNotification.TARGET_OWN.equals(reactionTarget())
+            ? R.string.reaction_notif_target_own
+            : R.string.reaction_notif_target_all);
+  }
+
+  private void openReactionTargetPicker(KnotConfig.Item item) {
+    List<String> values = new ArrayList<>();
+    values.add(ReactionNotification.TARGET_ALL);
+    values.add(ReactionNotification.TARGET_OWN);
+
+    String[] labels = {
+      ModuleResources.get(R.string.reaction_notif_target_all),
+      ModuleResources.get(R.string.reaction_notif_target_own)
+    };
+
+    showChoicePicker(item, values, labels, reactionTarget());
   }
 
   private void openHomeTypePicker(KnotConfig.Item item) {

@@ -195,6 +195,10 @@
     <!-- Notification options -->
     <string name="opt_reaction_notification_label">表情貼通知</string>
     <string name="opt_reaction_notification_desc">通知訊息收到的表情貼。※開啟應用程式時才會送出。若已設為前景服務，即使未開啟LINE也會收到通知。</string>
+    <string name="opt_reaction_notification_target_label">表情貼通知對象</string>
+    <string name="opt_reaction_notification_target_desc">選擇表情貼通知的對象訊息。所有訊息會通知所有收到表情貼的訊息。僅限自己的訊息只會通知自己傳送的訊息。</string>
+    <string name="reaction_notif_target_all">所有訊息</string>
+    <string name="reaction_notif_target_own">僅限自己的訊息</string>
     <string name="opt_stack_message_notifications_label">不覆蓋通知</string>
     <string name="opt_stack_message_notifications_desc">不覆蓋先前的通知，最多將7則訊息合併顯示於同一則通知中。</string>
     <string name="opt_notification_media_preview_label">在通知中顯示媒體預覽</string>
