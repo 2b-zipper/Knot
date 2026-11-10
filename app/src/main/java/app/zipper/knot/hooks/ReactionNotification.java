@@ -35,6 +35,9 @@ import org.json.JSONObject;
 
 public class ReactionNotification implements BaseHook {
 
+  public static final String TARGET_ALL = "all";
+  public static final String TARGET_OWN = "own";
+
   private static final String CHANNEL_ID = "knot_reaction";
   private static final int NOTIFICATION_BASE_ID = 8000;
   private static final String OP_TYPE_REACTION = "NOTIFIED_SEND_REACTION";
@@ -140,6 +143,10 @@ public class ReactionNotification implements BaseHook {
             || curr.has("paidReactionType")
             || curr.has("paidReaction");
     if (!hasReaction) return;
+
+    // Unknown values fall back to TARGET_ALL (notify for every message)
+    if (TARGET_OWN.equals(Main.options.reactionNotificationTarget.value)
+        && !LineDBUtils.isOwnMessage(messageId)) return;
 
     Context context = Knot.currentApplication();
     if (context == null) return;

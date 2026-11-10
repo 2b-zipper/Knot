@@ -22,6 +22,7 @@ import app.zipper.knot.RestartActivity;
 import app.zipper.knot.SettingsStore;
 import app.zipper.knot.hooks.FcmFixHook;
 import app.zipper.knot.hooks.PermanentHideChatHook;
+import app.zipper.knot.hooks.ReactionNotification;
 import app.zipper.knot.hooks.SettingsUIInjector;
 import app.zipper.knot.ui.DebugMenu;
 import app.zipper.knot.utils.ContributorProfiles;
@@ -231,6 +232,9 @@ public final class KnotSettingsDialog {
   private static String effectiveValue(KnotConfig.Item item) {
     if ("fcm_fix_mode".equals(item.key)) {
       return SettingsStore.getString(item.key, FcmFixHook.MODE_FIS);
+    }
+    if ("reaction_notification_target".equals(item.key)) {
+      return SettingsStore.getString(item.key, ReactionNotification.TARGET_ALL);
     }
     return SettingsStore.getString(item.key, item.value != null ? item.value : "");
   }

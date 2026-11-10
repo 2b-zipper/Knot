@@ -224,6 +224,10 @@
     <!-- Notification options -->
     <string name="opt_reaction_notification_label">Reaction notifications</string>
     <string name="opt_reaction_notification_desc">Notifies you about reactions to your messages. Note: they are delivered when you open the app. If LINE is running as a foreground service, they arrive even while LINE is closed.</string>
+    <string name="opt_reaction_notification_target_label">Reaction notification target</string>
+    <string name="opt_reaction_notification_target_desc">Chooses which messages reaction notifications cover. All messages notifies for every message that gets a reaction. My messages only notifies for the messages you sent.</string>
+    <string name="reaction_notif_target_all">All messages</string>
+    <string name="reaction_notif_target_own">My messages only</string>
 
     <string name="opt_stack_message_notifications_label">Do not overwrite notifications</string>
     <string name="opt_stack_message_notifications_desc">Groups up to seven messages in a single notification instead of replacing the previous one.</string>

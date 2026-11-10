@@ -303,6 +303,39 @@ public class LineDBUtils {
     return null;
   }
 
+  public static boolean isOwnMessage(String serverId) {
+    if (serverId == null) return false;
+    try {
+      Context context = Knot.currentApplication();
+      if (context == null) return false;
+      String myMid = getMyMid();
+      File dbFile = context.getDatabasePath("naver_line");
+      if (!dbFile.exists()) return false;
+      SQLiteDatabase db =
+          SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+      try {
+        Cursor cursor =
+            db.rawQuery(
+                "SELECT from_mid FROM chat_history WHERE server_id = ? LIMIT 1",
+                new String[] {serverId});
+        try {
+          // Messages you sent yourself have a NULL from_mid
+          if (!cursor.moveToFirst()) return false;
+          if (cursor.isNull(0)) return true;
+          String fromMid = cursor.getString(0);
+          return fromMid.isEmpty() || fromMid.equals(myMid);
+        } finally {
+          cursor.close();
+        }
+      } finally {
+        db.close();
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: isOwnMessage failed: " + t);
+    }
+    return false;
+  }
+
   public static String resolveMessageText(String content, String parameter) {
     if (content != null && !content.isEmpty() && !"null".equals(content)) {
       return content;
