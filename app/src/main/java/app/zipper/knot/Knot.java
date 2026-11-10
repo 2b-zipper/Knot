@@ -28,6 +28,12 @@ public final class Knot {
 
   private Knot() {}
 
+  // Root frameworks always report CAP_SYSTEM; NPatch, forked or not, never does
+  public static boolean isRootless() {
+    XposedInterface m = module;
+    return m != null && (m.getFrameworkProperties() & XposedInterface.PROP_CAP_SYSTEM) == 0;
+  }
+
   public static void log(String msg) {
     remember("I", msg, null);
     XposedInterface m = module;

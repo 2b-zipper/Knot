@@ -189,6 +189,7 @@ public class BrokenFeatureWarning implements BaseHook {
     add(f, o.lineForegroundKeepAlive, LineForegroundKeepAliveHook.class);
     add(f, o.disableCustomRingback, DisableCustomRingbackHook.class);
     add(f, o.useCustomRingtone, CustomRingtoneHook.class);
+    add(f, o.silentCallRecording, SilentCallRecordingHook.class);
     add(f, o.fixSignatureMismatch, SignatureSpoofHook.class);
     add(f, o.fixDowngradeCrash, RoomDowngradeHook.class);
     return f;

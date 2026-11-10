@@ -120,7 +120,7 @@ public class SettingsStore {
     try {
       JSONObject json = getSettingsJson();
       for (KnotConfig.Item item : config.items) {
-        item.enabled = item.defaultEnabled;
+        item.enabled = item.defaultEnabled();
         item.value = "";
         if (!json.has(item.key)) continue;
         Object val = json.get(item.key);
