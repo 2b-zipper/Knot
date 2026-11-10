@@ -160,6 +160,7 @@ public final class SettingsViews {
     private Integer titleColor;
     private Drawable icon;
     private boolean arrow = true;
+    private boolean divider;
     private String searchTag;
     private View.OnClickListener onClick;
 
@@ -198,6 +199,11 @@ public final class SettingsViews {
       return this;
     }
 
+    public Row divider() {
+      this.divider = true;
+      return this;
+    }
+
     public Row searchTag(String searchTag) {
       this.searchTag = searchTag;
       return this;
@@ -229,7 +235,7 @@ public final class SettingsViews {
       LineTheme.setRowTitle(row, title);
       if (hasDescription()) LineTheme.setRowDescription(row, description);
       LineTheme.setRowArrowVisible(row, arrow);
-      LineTheme.setRowDividerVisible(row, false);
+      LineTheme.setRowDividerVisible(row, divider);
       if (titleColor != null) LineTheme.setRowTitleColor(row, titleColor);
       if (value != null) LineTheme.setRowValue(row, value);
       return row;
