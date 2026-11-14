@@ -695,11 +695,6 @@ public class LineVersion {
       public String stickerOptionClass = "";
       public String stickerStaticOptionField = "STATIC";
       public String stickerMainRequestMethod = "";
-      public String stickerRemoteFetcherClass = "";
-      public String stickerRemoteCompleteMethod = "";
-      public String stickerRemoteCallClass = "";
-      public String stickerRemoteResponseClass = "";
-      public String stickerRemoteTargetFileField = "";
       public String combinationStickerMetadataFileManagerClass = "";
       public String combinationStickerMetadataFileMethod = "";
       public String combinationStickerMetadataWriteMethod = "";

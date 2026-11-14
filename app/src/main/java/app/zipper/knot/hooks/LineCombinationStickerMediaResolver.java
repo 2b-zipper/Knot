@@ -99,8 +99,7 @@ final class LineCombinationStickerMediaResolver {
       LineStickerMediaResolver.StickerPart sticker =
           new LineStickerMediaResolver.StickerPart(
               part.stickerId, part.productId, part.version, part.hash);
-      if (!LineStickerMediaResolver.requestMissingPart(
-          request.context, sticker, request.isNeeded)) {
+      if (!LineStickerMediaResolver.request(request.context, sticker, request.isNeeded)) {
         if (!request.isNeeded.getAsBoolean()) {
           request.completed.set(true);
           return;

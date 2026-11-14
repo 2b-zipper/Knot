@@ -240,30 +240,6 @@ final class NotificationRules {
             c.notification.stickerResourceClass,
             c.notification.stickerOptionClass,
             "boolean");
-
-    // Three classes report Glide progress; the fetcher downloads into a File
-    c.notification.stickerRemoteFetcherClass =
-        f.classUsing(
-            ClassMatcher.create()
-                .addMethod(
-                    MethodMatcher.create()
-                        .name("<init>")
-                        .paramTypes(
-                            Finder.leading(
-                                11,
-                                "android.content.Context",
-                                null,
-                                "android.os.Handler",
-                                "java.io.File",
-                                "java.lang.String"))),
-            "com.linecorp.glide.GlideRequestProgressListener");
-    String fetcher = c.notification.stickerRemoteFetcherClass;
-    c.notification.stickerRemoteTargetFileField = f.fieldOf(fetcher, "java.io.File");
-    c.notification.stickerRemoteResponseClass = f.classUsing("Response{protocol=");
-    c.notification.stickerRemoteCompleteMethod =
-        f.method(fetcher, MethodMatcher.create().addInvoke("Ljava/io/Closeable;->close()V"));
-    c.notification.stickerRemoteCallClass =
-        f.paramType(fetcher, c.notification.stickerRemoteCompleteMethod, 0);
   }
 
   private static void sticon(Finder f, LineVersion.Config c) {

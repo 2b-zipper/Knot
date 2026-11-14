@@ -47,12 +47,6 @@ public class NotificationMediaSourceHook implements BaseHook {
     }
 
     try {
-      hookStickerCacheCompletion(mediaConfig, lpparam);
-    } catch (Throwable t) {
-      Knot.log("Knot: sticker cache completion hook setup failed", t);
-    }
-
-    try {
       hookCombinationMetadataCompletion(mediaConfig, lpparam);
     } catch (Throwable t) {
       Knot.log("Knot: combination sticker metadata cache hook setup failed", t);
@@ -149,61 +143,6 @@ public class NotificationMediaSourceHook implements BaseHook {
                         : null);
               } catch (Throwable t) {
                 Knot.log("Knot: sticon cache completion handling failed", t);
-              }
-              return result;
-            });
-  }
-
-  private static void hookStickerCacheCompletion(
-      LineVersion.Config.Notification config, LoadParam lpparam) throws Throwable {
-    ClassLoader loader = lpparam.classLoader;
-
-    if (hasText(config.stickerFileManagerClass) && hasText(config.stickerMainCacheFileMethod)) {
-      Class<?> managerClass = Reflect.findClass(config.stickerFileManagerClass, loader);
-      Knot.module
-          .hook(
-              Reflect.findMethodExact(
-                  managerClass, config.stickerMainCacheFileMethod, long.class, long.class))
-          .intercept(
-              chain -> {
-                Object result = chain.proceed();
-                if (result instanceof File) {
-                  File file = (File) result;
-                  LineStickerMediaResolver.onLineStickerFetchCompleted(file);
-                }
-                return result;
-              });
-    }
-
-    if (!hasText(config.stickerRemoteFetcherClass)
-        || !hasText(config.stickerRemoteCompleteMethod)
-        || !hasText(config.stickerRemoteCallClass)
-        || !hasText(config.stickerRemoteResponseClass)
-        || !hasText(config.stickerRemoteTargetFileField)) {
-      return;
-    }
-
-    Class<?> fetcherClass = Reflect.findClass(config.stickerRemoteFetcherClass, loader);
-    Knot.module
-        .hook(
-            Reflect.findMethodExact(
-                fetcherClass,
-                config.stickerRemoteCompleteMethod,
-                Reflect.findClass(config.stickerRemoteCallClass, loader),
-                Reflect.findClass(config.stickerRemoteResponseClass, loader)))
-        .intercept(
-            chain -> {
-              Object result = chain.proceed();
-              try {
-                Object receiver = chain.getThisObject();
-                Object value =
-                    Reflect.getObjectField(receiver, config.stickerRemoteTargetFileField);
-                if (value instanceof File) {
-                  File file = (File) value;
-                  LineStickerMediaResolver.onLineStickerFetchCompleted(file);
-                }
-              } catch (Throwable t) {
-                Knot.log("Knot: sticker cache completion handling failed", t);
               }
               return result;
             });
@@ -358,7 +297,11 @@ public class NotificationMediaSourceHook implements BaseHook {
       type = NotificationMediaCaptureStore.TYPE_STICKER;
       parameter =
           metadataJson(
-              objectField(message, config.messageMetadataField), "CSSTKID", "STKID", "STKPKGID");
+              objectField(message, config.messageMetadataField),
+              "CSSTKID",
+              "STKID",
+              "STKPKGID",
+              "STKVER");
     } else if ("NONE".equals(contentTypeName)) {
       parameter = metadataJson(objectField(message, config.messageMetadataField), "REPLACE");
       if (!hasText(parameter)) return;

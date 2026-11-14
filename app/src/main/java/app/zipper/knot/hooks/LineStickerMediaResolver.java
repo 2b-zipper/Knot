@@ -3,42 +3,28 @@ package app.zipper.knot.hooks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.SystemClock;
 import app.zipper.knot.Knot;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.Reflect;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import org.json.JSONObject;
 
 final class LineStickerMediaResolver {
   private static final float MAX_STICKER_WIDTH_DP = 158.4f;
-  private static final int MAX_PENDING = 64;
-  private static final long PENDING_TTL_MS = TimeUnit.SECONDS.toMillis(30);
 
   private static volatile Object stickerFileManager;
-  private static final Object pendingLock = new Object();
-  private static final LinkedHashMap<String, PendingCache> pending = new LinkedHashMap<>();
 
   private LineStickerMediaResolver() {}
 
-  static NotificationMediaFileStore.Attachment acquireCached(
-      Context context, StickerMetadata metadata) {
+  // LINE itself does not fetch the image of a received sticker
+  static NotificationMediaFileStore.Attachment acquireOrRequest(
+      Context context, StickerMetadata metadata, BooleanSupplier isNeeded) {
     if (context == null || metadata == null) return null;
-    return attachmentFromFile(
-        context, lineStickerCacheFile(context, metadata.packageId, metadata.stickerId));
-  }
-
-  static void registerCacheReady(Context context, StickerMetadata metadata, Runnable onReady) {
-    if (context == null || metadata == null || onReady == null) return;
-    registerFileReady(
-        lineStickerCacheFile(context, metadata.packageId, metadata.stickerId), onReady);
+    StickerPart sticker =
+        new StickerPart(metadata.stickerId, metadata.packageId, metadata.version, null);
+    if (!request(context, sticker, isNeeded)) return null;
+    return attachmentFromFile(context, cachedStickerFile(context, sticker));
   }
 
   static File cachedStickerFile(Context context, StickerPart sticker) {
@@ -47,23 +33,21 @@ final class LineStickerMediaResolver {
     return isUsableImage(file) ? file : null;
   }
 
-  static boolean requestMissingPart(
-      Context context, StickerPart sticker, BooleanSupplier isNeeded) {
+  static boolean request(Context context, StickerPart sticker, BooleanSupplier isNeeded) {
     if (context == null || sticker == null || !isNeeded.getAsBoolean()) return false;
     String key = sticker.packageId + ":" + sticker.stickerId;
     if (cachedStickerFile(context, sticker) != null) return true;
     try {
-      Object model = createStaticPartModel(context, sticker);
+      Object model = createStaticModel(context, sticker);
       if (model == null) return false;
       LineGlideRequest.requestFile(context, model, isNeeded);
     } catch (Throwable t) {
-      Knot.log("Knot: combination sticker part request failed (part=" + key + ")", t);
+      Knot.log("Knot: sticker request failed (sticker=" + key + ")", t);
     }
     return cachedStickerFile(context, sticker) != null;
   }
 
-  private static Object createStaticPartModel(Context context, StickerPart sticker)
-      throws Exception {
+  private static Object createStaticModel(Context context, StickerPart sticker) throws Exception {
     LineVersion.Config version = LineVersion.get();
     if (version == null) return null;
     LineVersion.Config.Notification config = version.notification;
@@ -96,66 +80,22 @@ final class LineStickerMediaResolver {
     return Reflect.callMethod(factory, config.stickerMainRequestMethod, resource, option, true);
   }
 
-  static void onLineStickerFetchCompleted(File file) {
-    if (!isUsableImage(file)) return;
-    List<Runnable> callbacks = null;
-    synchronized (pendingLock) {
-      prunePendingLocked();
-      PendingCache item = pending.remove(file.getAbsolutePath());
-      if (item != null && !item.callbacks.isEmpty()) {
-        callbacks = new ArrayList<>(item.callbacks);
-      }
-    }
-    if (callbacks != null) {
-      for (Runnable callback : callbacks) callback.run();
-    }
-  }
-
   static StickerMetadata parse(String parameter) {
     String combinationStickerId = null;
     long stickerId = -1L;
     long packageId = -1L;
+    long version = -1L;
     if (hasText(parameter)) {
       try {
         JSONObject json = new JSONObject(parameter);
         combinationStickerId = stringValue(json, "CSSTKID");
         stickerId = longValue(json, "STKID");
         packageId = longValue(json, "STKPKGID");
+        version = longValue(json, "STKVER");
       } catch (Throwable ignored) {
       }
     }
-    return new StickerMetadata(combinationStickerId, stickerId, packageId);
-  }
-
-  private static void registerFileReady(File cache, Runnable onReady) {
-    if (cache == null || onReady == null) return;
-    if (isUsableImage(cache)) {
-      onReady.run();
-      return;
-    }
-
-    List<Runnable> readyCallbacks = null;
-    synchronized (pendingLock) {
-      prunePendingLocked();
-      String path = cache.getAbsolutePath();
-      PendingCache item = pending.get(path);
-      if (item == null) {
-        item = new PendingCache(SystemClock.elapsedRealtime());
-        pending.put(path, item);
-      }
-      item.callbacks.add(onReady);
-      item.updatedAtMs = SystemClock.elapsedRealtime();
-      trimPendingLocked();
-
-      if (isUsableImage(cache)) {
-        pending.remove(path);
-        readyCallbacks = new ArrayList<>(item.callbacks);
-      }
-    }
-
-    if (readyCallbacks != null) {
-      for (Runnable callback : readyCallbacks) callback.run();
-    }
+    return new StickerMetadata(combinationStickerId, stickerId, packageId, version);
   }
 
   private static File lineStickerCacheFile(Context context, long packageId, long stickerId) {
@@ -251,25 +191,6 @@ final class LineStickerMediaResolver {
     return MediaFileUtils.isImage(MediaFileUtils.sniffMime(file));
   }
 
-  private static void prunePendingLocked() {
-    long now = SystemClock.elapsedRealtime();
-    Iterator<Map.Entry<String, PendingCache>> iterator = pending.entrySet().iterator();
-    while (iterator.hasNext()) {
-      if (now - iterator.next().getValue().updatedAtMs > PENDING_TTL_MS) {
-        iterator.remove();
-      }
-    }
-  }
-
-  private static void trimPendingLocked() {
-    while (pending.size() > MAX_PENDING) {
-      Iterator<Map.Entry<String, PendingCache>> iterator = pending.entrySet().iterator();
-      if (!iterator.hasNext()) break;
-      iterator.next();
-      iterator.remove();
-    }
-  }
-
   private static String stringValue(JSONObject json, String key) {
     Object value = json.opt(key);
     if (value == null || value == JSONObject.NULL) return null;
@@ -295,11 +216,13 @@ final class LineStickerMediaResolver {
     final String combinationStickerId;
     final long stickerId;
     final long packageId;
+    final long version;
 
-    StickerMetadata(String combinationStickerId, long stickerId, long packageId) {
+    StickerMetadata(String combinationStickerId, long stickerId, long packageId, long version) {
       this.combinationStickerId = combinationStickerId;
       this.stickerId = stickerId;
       this.packageId = packageId;
+      this.version = version;
     }
 
     boolean isCombinationSticker() {
@@ -322,15 +245,6 @@ final class LineStickerMediaResolver {
       this.packageId = packageId;
       this.version = Math.max(version, 1L);
       this.hash = hash;
-    }
-  }
-
-  private static final class PendingCache {
-    final List<Runnable> callbacks = new ArrayList<>();
-    long updatedAtMs;
-
-    PendingCache(long updatedAtMs) {
-      this.updatedAtMs = updatedAtMs;
     }
   }
 }

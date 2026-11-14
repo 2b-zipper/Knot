@@ -240,36 +240,14 @@ public class NotificationMediaPreviewHook implements BaseHook {
     }
 
     NotificationMediaFileStore.Attachment attachment =
-        LineStickerMediaResolver.acquireCached(context, sticker);
-    if (attachment != null) {
-      postMedia(context, tag, id, original, messageId, attachment);
-      return;
-    }
-
-    LineStickerMediaResolver.registerCacheReady(
-        context,
-        sticker,
-        () ->
-            mediaExecutor.execute(
-                () -> updateStickerFromLineCache(tag, id, original, messageId, sticker)));
-  }
-
-  private static void updateStickerFromLineCache(
-      String tag,
-      int id,
-      Notification original,
-      String messageId,
-      LineStickerMediaResolver.StickerMetadata sticker) {
-    if (!isNotificationCurrent(tag, id, original, messageId)) return;
-    Context context = Knot.currentApplication();
-    if (context == null) return;
-
-    NotificationMediaFileStore.Attachment attachment =
-        LineStickerMediaResolver.acquireCached(context, sticker);
+        LineStickerMediaResolver.acquireOrRequest(
+            context, sticker, () -> isNotificationCurrent(tag, id, original, messageId));
     if (attachment == null) {
-      logFailure("sticker", messageId, "LINE sticker fetch completed without cache file");
+      if (!isNotificationCurrent(tag, id, original, messageId)) return;
+      logFailure("sticker", messageId, "LINE sticker acquisition failed");
       return;
     }
+
     postMedia(context, tag, id, original, messageId, attachment);
   }
 
