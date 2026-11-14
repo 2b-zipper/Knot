@@ -10,6 +10,7 @@ import java.util.function.BooleanSupplier;
 
 final class LineGlideRequest {
   private static final long REQUEST_TIMEOUT_MS = 3500L;
+  private static final int SIZE_ORIGINAL = Integer.MIN_VALUE;
 
   private LineGlideRequest() {}
 
@@ -33,7 +34,7 @@ final class LineGlideRequest {
       Object builder = Reflect.callMethod(requestManager, config.glideAsFileMethod);
       builder = Reflect.callMethod(builder, config.glideLoadMethod, model);
       if (!isNeeded.getAsBoolean()) return null;
-      target = Reflect.callMethod(builder, config.glideSubmitMethod);
+      target = Reflect.callMethod(builder, config.glideSubmitMethod, SIZE_ORIGINAL, SIZE_ORIGINAL);
       Object result = Reflect.callMethod(target, "get", REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
       return result instanceof File ? (File) result : null;
     } catch (Throwable t) {
