@@ -14,7 +14,11 @@ import org.luckypray.dexkit.result.MethodData;
 final class LibraryRules {
 
   static final Mappings.Section[] SECTIONS = {
-    LibraryRules::kotlin, LibraryRules::compose, LibraryRules::androidx, LibraryRules::room
+    LibraryRules::kotlin,
+    LibraryRules::compose,
+    LibraryRules::androidx,
+    LibraryRules::room,
+    LibraryRules::credentials
   };
 
   private LibraryRules() {}
@@ -213,5 +217,24 @@ final class LibraryRules {
                 .fieldCount(0));
     c.room.methodIsMigrationRequired =
         f.staticMethodOf(c.room.migrationUtilClass, "boolean", null, "int", "int");
+  }
+
+  private static void credentials(Finder f, LineVersion.Config c) {
+    String providerKey = "androidx.credentials.CREDENTIAL_PROVIDER_KEY";
+    c.credentials.providerFactoryClass = f.classUsing(providerKey);
+    c.credentials.methodPlayServicesProvider =
+        f.method(
+            c.credentials.providerFactoryClass,
+            MethodMatcher.create().paramCount(0).usingEqStrings(providerKey));
+    c.credentials.methodBestProvider =
+        f.method(
+            c.credentials.providerFactoryClass,
+            MethodMatcher.create()
+                .usingEqStrings("androidx.credentials.TYPE_CLEAR_RESTORE_CREDENTIAL"));
+    c.credentials.getRequestClass = f.classUsing("credentialOptions should not be empty");
+    c.credentials.getRequestOptionsField =
+        f.fieldOf(c.credentials.getRequestClass, "java.util.List");
+    c.credentials.optionClass = f.classUsing("androidx.credentials.BUNDLE_KEY_TYPE_PRIORITY_VALUE");
+    c.credentials.optionTypeField = f.fieldOf(c.credentials.optionClass, "java.lang.String");
   }
 }

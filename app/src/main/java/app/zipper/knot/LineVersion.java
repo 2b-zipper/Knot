@@ -42,6 +42,7 @@ public class LineVersion {
     public Font font = new Font();
     public Notification notification = new Notification();
     public NotificationFix notificationFix = new NotificationFix();
+    public Credentials credentials = new Credentials();
     public ForegroundKeepAlive foregroundKeepAlive = new ForegroundKeepAlive();
     public TalkTabHeader talkTabHeader = new TalkTabHeader();
     public SearchBarAgentI searchBarAgentI = new SearchBarAgentI();
@@ -766,6 +767,20 @@ public class LineVersion {
       public String gmsSignatureCheckMethod = "";
       public String gmsAvailabilityClass = "";
       public String gmsAvailabilityMethod = "";
+    }
+
+    public static class Credentials {
+      public String providerFactoryClass = "";
+      public String methodBestProvider = "";
+      public String methodPlayServicesProvider = "";
+      public String getRequestClass = "";
+      public String getRequestOptionsField = "";
+      public String optionClass = "";
+      public String optionTypeField = "";
+      public String playServicesProviderClass =
+          "androidx.credentials.playservices.CredentialProviderPlayServicesImpl";
+      public String methodGetCredential = "onGetCredential";
+      public String methodIsAvailableOnDevice = "isAvailableOnDevice";
     }
 
     public static class ForegroundKeepAlive {

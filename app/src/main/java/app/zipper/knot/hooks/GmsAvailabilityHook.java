@@ -15,7 +15,7 @@ public class GmsAvailabilityHook implements BaseHook {
   private static volatile String gmsPackage;
 
   // NPatch answers lookups of GMS with the microG package, whose signature never passes the check
-  private static boolean isRedirected(Context context) {
+  static boolean isRedirected(Context context) {
     String target = gmsPackage;
     if (target == null) {
       try {

@@ -229,6 +229,7 @@ public class Main extends XposedModule {
       applyHook(new LineForegroundKeepAliveHook(), lpparam);
     }
     applyHook(new GmsAvailabilityHook(), lpparam);
+    applyHook(new GoogleSignInRedirectHook(), lpparam);
     if (options.experimentalFcmFix.enabled) applyHook(new FcmFixHook(), lpparam);
     if (options.disableCustomRingback.enabled) applyHook(new DisableCustomRingbackHook(), lpparam);
     if (options.useCustomRingtone.enabled) applyHook(new CustomRingtoneHook(), lpparam);
