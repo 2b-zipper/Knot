@@ -20,12 +20,14 @@ public class SilentCallRecordingHook implements BaseHook {
     if (!rec.methodSetState.isEmpty()) {
       for (Method m :
           Reflect.findMethodsByName(rec.stateShareClass, lpparam.classLoader, rec.methodSetState)) {
-        if (m.getParameterCount() != 1) continue;
+        boolean recordOnly = m.getParameterCount() == 0;
+        if (!recordOnly && m.getParameterCount() != 1) continue;
         Knot.module
             .hook(m)
             .intercept(
                 chain ->
-                    Main.options.silentCallRecording.enabled && isRecordState(chain.getArg(0))
+                    Main.options.silentCallRecording.enabled
+                            && (recordOnly || isRecordState(chain.getArg(0)))
                         ? null
                         : chain.proceed());
       }

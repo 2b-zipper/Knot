@@ -83,15 +83,27 @@ final class MediaRules {
         }
       }
     }
-    c.callRecording.methodSetState =
-        f.method(
-            c.callRecording.stateShareClass,
-            MethodMatcher.create()
+    String share = c.callRecording.stateShareClass;
+    // R8 drops the state argument from 26.18.2, leaving a setter for "record" only
+    List<MethodData> recordOnly =
+        f.declaredMethods(
+            share,
+            sig("void")
                 .modifiers(Modifier.PUBLIC)
-                .returnType("void")
-                .paramCount(1)
-                .addUsingString("modelImpl")
-                .addInvoke(MethodMatcher.create().name("getName").returnType("java.lang.String")));
+                .usingEqStrings("record", "modelImpl")
+                .addInvoke(MethodMatcher.create().declaredClass("java.util.Map").name("put")));
+    c.callRecording.methodSetState =
+        recordOnly.size() == 1
+            ? recordOnly.get(0).getName()
+            : f.method(
+                share,
+                MethodMatcher.create()
+                    .modifiers(Modifier.PUBLIC)
+                    .returnType("void")
+                    .paramCount(1)
+                    .addUsingString("modelImpl")
+                    .addInvoke(
+                        MethodMatcher.create().name("getName").returnType("java.lang.String")));
 
     String player =
         f.classUsingId(
