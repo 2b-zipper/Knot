@@ -180,21 +180,11 @@ public class RemoveHomeContents implements BaseHook {
     return (String) Reflect.callMethod(body, cfg.home.home26ModuleTypeMethod);
   }
 
-  // 26.15.0 appended a parameter, so only the leading ones are matched.
+  // Parameters after isLoadingMore change between versions (26.18 added contentVersion)
   private static Constructor<?> findPageDataConstructor(Class<?> dataCls)
       throws NoSuchMethodException {
     Class<?>[] leading = {
-      List.class,
-      Boolean.TYPE,
-      Boolean.TYPE,
-      Boolean.TYPE,
-      Boolean.TYPE,
-      Boolean.TYPE,
-      String.class,
-      Long.class,
-      Long.class,
-      Integer.TYPE,
-      Boolean.TYPE
+      List.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE
     };
     Constructor<?> match = null;
     for (Constructor<?> ctor : dataCls.getDeclaredConstructors()) {
