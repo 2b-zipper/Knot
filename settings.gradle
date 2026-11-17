@@ -17,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LineXposed"
+rootProject.name = "Knot"
 include 'app'
