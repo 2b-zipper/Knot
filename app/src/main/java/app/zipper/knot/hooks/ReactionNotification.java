@@ -6,8 +6,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
@@ -174,11 +177,6 @@ public class ReactionNotification implements BaseHook {
   private Bitmap resolveReactionIcon(Context context, JSONObject curr) {
     if (curr == null) return null;
 
-    int reactionType = curr.optInt("predefinedReactionType");
-    String resName = getReactionResourceName(reactionType);
-    Bitmap bitmap = loadBitmapFromResource(context, resName);
-    if (bitmap != null) return bitmap;
-
     String productId = curr.optString("productId");
     String sticonId = curr.optString("sticonId", curr.optString("emojiId"));
 
@@ -191,16 +189,23 @@ public class ReactionNotification implements BaseHook {
     }
 
     if (!productId.isEmpty() && !sticonId.isEmpty()) {
-      return loadSticonBitmap(context, productId, sticonId);
+      Bitmap sticon = loadSticonBitmap(context, productId, sticonId);
+      if (sticon != null) return sticon;
     }
 
     String external = curr.optString("externalReactionType");
     if (external != null && external.startsWith("PAID_")) {
       String[] parts = external.split("_");
-      if (parts.length >= 3) return loadSticonBitmap(context, parts[1], parts[2]);
+      if (parts.length >= 3) {
+        Bitmap sticon = loadSticonBitmap(context, parts[1], parts[2]);
+        if (sticon != null) return sticon;
+      }
     }
 
-    return null;
+    int reactionType = curr.optInt("predefinedReactionType");
+    Bitmap bitmap = loadRawBitmapFromResource(context, getReactionRawResourceName(reactionType));
+    if (bitmap != null) return bitmap;
+    return loadBitmapFromResource(context, getReactionResourceName(reactionType));
   }
 
   private Bitmap loadSticonBitmap(Context context, String productId, String sticonId) {
@@ -278,31 +283,77 @@ public class ReactionNotification implements BaseHook {
     return null;
   }
 
-  private Bitmap loadBitmapFromResource(Context context, String resName) {
+  private Bitmap loadRawBitmapFromResource(Context context, String resName) {
     if (resName == null) return null;
     try {
       Context lineCtx = context.createPackageContext(PKG_LINE, Context.CONTEXT_RESTRICTED);
-      int resId = lineCtx.getResources().getIdentifier(resName, "drawable", PKG_LINE);
-      if (resId != 0) return BitmapFactory.decodeResource(lineCtx.getResources(), resId);
+      Resources res = lineCtx.getResources();
+      int resId = res.getIdentifier(resName, "raw", PKG_LINE);
+      if (resId == 0) return null;
+      try (InputStream is = res.openRawResource(resId)) {
+        return BitmapFactory.decodeStream(is);
+      }
     } catch (Exception ignored) {
     }
     return null;
   }
 
+  private Bitmap loadBitmapFromResource(Context context, String resName) {
+    if (resName == null) return null;
+    try {
+      Context lineCtx = context.createPackageContext(PKG_LINE, Context.CONTEXT_RESTRICTED);
+      Resources res = lineCtx.getResources();
+      int resId = res.getIdentifier(resName, "drawable", PKG_LINE);
+      if (resId == 0) return null;
+      Bitmap bitmap = BitmapFactory.decodeResource(res, resId);
+      if (bitmap != null) return bitmap;
+      Drawable drawable = res.getDrawable(resId, lineCtx.getTheme());
+      if (drawable == null) return null;
+      int w = drawable.getIntrinsicWidth() > 0 ? drawable.getIntrinsicWidth() : 96;
+      int h = drawable.getIntrinsicHeight() > 0 ? drawable.getIntrinsicHeight() : 96;
+      Bitmap rendered = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+      Canvas canvas = new Canvas(rendered);
+      drawable.setBounds(0, 0, w, h);
+      drawable.draw(canvas);
+      return rendered;
+    } catch (Exception ignored) {
+    }
+    return null;
+  }
+
+  private String getReactionRawResourceName(int type) {
+    switch (type) {
+      case 2:
+        return "great";
+      case 3:
+        return "favourite";
+      case 4:
+        return "hilarious";
+      case 5:
+        return "envious";
+      case 6:
+        return "sad";
+      case 7:
+        return "shocked";
+      default:
+        return null;
+    }
+  }
+
   private String getReactionResourceName(int type) {
     switch (type) {
       case 2:
-        return "shop_predefined_reaction_nice";
+        return "chat_ui_reaction_sheet_like";
       case 3:
-        return "shop_predefined_reaction_love";
+        return "chat_ui_reaction_sheet_love";
       case 4:
-        return "shop_predefined_reaction_fun";
+        return "chat_ui_reaction_sheet_fun";
       case 5:
-        return "shop_predefined_reaction_amazing";
+        return "chat_ui_reaction_sheet_envy";
       case 6:
-        return "shop_predefined_reaction_sad";
+        return "chat_ui_reaction_sheet_sad";
       case 7:
-        return "shop_predefined_reaction_omg";
+        return "chat_ui_reaction_sheet_surprise";
       default:
         return null;
     }
