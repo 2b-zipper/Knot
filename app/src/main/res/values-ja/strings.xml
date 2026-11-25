@@ -97,6 +97,8 @@
     <string name="msg_file">[ファイル]</string>
     <string name="msg_location">[位置情報]</string>
     <string name="msg_contact">[連絡先]</string>
+    <string name="msg_album">[アルバム]</string>
+    <string name="msg_post">[投稿]</string>
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">プラスメニューに「既読回避」を追加</string>
     <string name="opt_prevent_mark_as_read_desc">トークタブ右上の「+」メニューから既読回避をON/OFFできるようになります。ONにすると「送信後既読」「リアクション後既読」オプションも表示されます。</string>

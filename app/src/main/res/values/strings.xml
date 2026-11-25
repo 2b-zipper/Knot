@@ -108,6 +108,8 @@
     <string name="msg_file">[File]</string>
     <string name="msg_location">[Location]</string>
     <string name="msg_contact">[Contact]</string>
+    <string name="msg_album">[Album]</string>
+    <string name="msg_post">[Post]</string>
 
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">Add \"Read avoidance\" to the plus menu</string>

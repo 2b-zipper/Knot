@@ -30,6 +30,7 @@ public class LineDBUtils {
   private static final int ATTACHMENT_CONTACT = 13;
   private static final int ATTACHMENT_FILE = 14;
   private static final int ATTACHMENT_LOCATION = 15;
+  private static final int ATTACHMENT_POST = 16;
   private static final int ATTACHMENT_EXTIMAGE = 21;
 
   private static volatile String cachedMyMid;
@@ -399,13 +400,39 @@ public class LineDBUtils {
     return resolveMessageText(content, parameter, 0);
   }
 
+  public static boolean isUnresolvedContent(String content) {
+    return content == null
+        || content.trim().isEmpty()
+        || "null".equals(content)
+        || "POSTNOTIFICATION".equals(content);
+  }
+
   public static String resolveMessageText(String content, String parameter, int attachmentType) {
-    if (content != null && !content.isEmpty() && !"null".equals(content)) {
+    if (attachmentType == ATTACHMENT_POST || "POSTNOTIFICATION".equals(content)) {
+      return resolvePostNotificationLabel(content, parameter);
+    }
+    if (!isUnresolvedContent(content)) {
       return content;
     }
     String byType = resolveAttachmentLabel(attachmentType, parameter);
     if (byType != null) return byType;
     return resolveParameterLabel(parameter);
+  }
+
+  private static String resolvePostNotificationLabel(String content, String parameter) {
+    String albumName = extractParameterValue(parameter, "albumName");
+    String serviceType = extractParameterValue(parameter, "serviceType");
+    String serviceName = extractParameterValue(parameter, "serviceName");
+    if (albumName != null || "AB".equals(serviceType) || "Album".equalsIgnoreCase(serviceName)) {
+      String label = ModuleResources.get(R.string.msg_album);
+      return albumName != null ? label + " " + albumName : label;
+    }
+    String postText = extractParameterValue(parameter, "text");
+    if (postText == null && !isUnresolvedContent(content)) {
+      postText = content;
+    }
+    String label = ModuleResources.get(R.string.msg_post);
+    return postText != null ? label + " " + postText : label;
   }
 
   private static String resolveAttachmentLabel(int attachmentType, String parameter) {

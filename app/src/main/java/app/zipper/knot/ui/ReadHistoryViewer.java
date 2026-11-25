@@ -181,7 +181,7 @@ public class ReadHistoryViewer {
     List<MessageEntry> missing = new ArrayList<>();
     List<String> missingIds = new ArrayList<>();
     for (MessageEntry entry : entries) {
-      if (entry.text == null || entry.text.isEmpty()) {
+      if (LineDBUtils.isUnresolvedContent(entry.text)) {
         missing.add(entry);
         missingIds.add(entry.msgId);
       }
