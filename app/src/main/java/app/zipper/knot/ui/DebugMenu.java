@@ -210,7 +210,14 @@ public final class DebugMenu {
     line(
         sb,
         "Storage",
-        () -> SettingsStore.isConfigured() ? SettingsStore.getSettingsDir() : "not set");
+        () -> {
+          SettingsStore.StorageState state = SettingsStore.storageState();
+          if (state == SettingsStore.StorageState.UNSET) return "not set";
+          String dir = SettingsStore.getSettingsDir();
+          return state == SettingsStore.StorageState.PERMISSION_LOST
+              ? dir + " (permission lost)"
+              : dir;
+        });
     line(
         sb,
         "Language",

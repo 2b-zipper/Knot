@@ -151,18 +151,21 @@ public final class SettingsPage {
   private void addStorageSection() {
     sectionHeader(ModuleResources.get(R.string.cat_storage));
 
+    SettingsStore.StorageState state = SettingsStore.storageState();
     String activePath = SettingsStore.getSettingsDir();
+    boolean permissionLost = state == SettingsStore.StorageState.PERMISSION_LOST;
+    String description =
+        ModuleResources.get(
+            permissionLost ? R.string.desc_path_permission_lost : R.string.desc_path_row);
     row()
         .title(
             activePath == null
                 ? ModuleResources.get(R.string.settings_path_picker_hint)
                 : activePath)
-        .description(ModuleResources.get(R.string.desc_path_row))
-        .titleColor(activePath == null ? Color.RED : LineTheme.accentGreen(ctx))
-        .searchTag(
-            SettingsViews.searchTag(
-                ModuleResources.get(R.string.cat_storage),
-                ModuleResources.get(R.string.desc_path_row)))
+        .description(description)
+        .titleColor(
+            state == SettingsStore.StorageState.READY ? LineTheme.accentGreen(ctx) : Color.RED)
+        .searchTag(SettingsViews.searchTag(ModuleResources.get(R.string.cat_storage), description))
         .onClick(v -> SettingsFilePickers.openFolderPicker(ctx))
         .add();
   }

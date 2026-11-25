@@ -2,6 +2,7 @@ package app.zipper.knot;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.UriPermission;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
@@ -34,6 +35,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SettingsStore {
+
+  public enum StorageState {
+    UNSET,
+    PERMISSION_LOST,
+    READY
+  }
 
   private static final String SETTINGS_FILE = "knot_settings.bin";
   private static final String UNSEND_HISTORY_FILE = "knot_unsend_history.bin";
@@ -82,7 +89,29 @@ public class SettingsStore {
   }
 
   public static boolean isConfigured() {
-    return ensureTreeUri() != null;
+    return storageState() == StorageState.READY;
+  }
+
+  public static StorageState storageState() {
+    Uri tree = ensureTreeUri();
+    if (tree == null) return StorageState.UNSET;
+    Context ctx = appContext;
+    if (ctx == null) return StorageState.READY;
+    return hasPersistedPermission(ctx, tree) ? StorageState.READY : StorageState.PERMISSION_LOST;
+  }
+
+  private static boolean hasPersistedPermission(Context ctx, Uri tree) {
+    try {
+      for (UriPermission perm : ctx.getContentResolver().getPersistedUriPermissions()) {
+        if (tree.equals(perm.getUri()) && perm.isReadPermission() && perm.isWritePermission()) {
+          return true;
+        }
+      }
+      return false;
+    } catch (Throwable t) {
+      Knot.log("Knot: Failed to check persisted URI permissions: " + t);
+      return true;
+    }
   }
 
   public static String getSettingsDir() {

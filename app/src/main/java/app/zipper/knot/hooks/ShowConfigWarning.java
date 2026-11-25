@@ -17,6 +17,7 @@ import app.zipper.knot.LoadParam;
 import app.zipper.knot.R;
 import app.zipper.knot.Reflect;
 import app.zipper.knot.SettingsStore;
+import app.zipper.knot.ui.settings.SettingsFilePickers;
 import app.zipper.knot.utils.ModuleResources;
 
 public class ShowConfigWarning implements BaseHook {
@@ -37,17 +38,7 @@ public class ShowConfigWarning implements BaseHook {
               Object result = chain.proceed();
               Activity host = (Activity) chain.getThisObject();
               loadSettings(config, host);
-
-              ViewGroup layoutRoot = host.findViewById(android.R.id.content);
-              if (layoutRoot == null) return result;
-
-              if (SettingsStore.isConfigured()) {
-                dismissBanner(layoutRoot);
-              } else {
-                if (layoutRoot.findViewWithTag(WARNING_BANNER_TAG) == null) {
-                  layoutRoot.addView(constructWarningBanner(host));
-                }
-              }
+              updateBanner(host);
               return result;
             });
 
@@ -68,23 +59,8 @@ public class ShowConfigWarning implements BaseHook {
               if (treeUri == null) return null;
 
               Activity host = (Activity) chain.getThisObject();
-              try {
-                host.getContentResolver()
-                    .takePersistableUriPermission(
-                        treeUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-              } catch (Throwable ignored) {
-              }
-              SettingsStore.setSettingsDir(treeUri.toString());
-              SettingsStore.load(config);
-              ModuleResources.invalidate();
-
-              host.runOnUiThread(
-                  () -> {
-                    ViewGroup root = host.findViewById(android.R.id.content);
-                    if (root != null) dismissBanner(root);
-                  });
+              SettingsFilePickers.applyPickedDirectory(host, treeUri, config);
+              host.runOnUiThread(() -> updateBanner(host));
               return null;
             });
   }
@@ -94,15 +70,39 @@ public class ShowConfigWarning implements BaseHook {
     SettingsStore.load(config);
   }
 
+  private void updateBanner(Activity host) {
+    ViewGroup layoutRoot = host.findViewById(android.R.id.content);
+    if (layoutRoot == null) return;
+
+    SettingsStore.StorageState state = SettingsStore.storageState();
+    if (state == SettingsStore.StorageState.READY) {
+      dismissBanner(layoutRoot);
+      return;
+    }
+
+    String message =
+        ModuleResources.get(
+            state == SettingsStore.StorageState.PERMISSION_LOST
+                ? R.string.warn_storage_permission_lost
+                : R.string.warn_storage_unset);
+    View existing = layoutRoot.findViewWithTag(WARNING_BANNER_TAG);
+    if (existing instanceof TextView) {
+      ((TextView) existing).setText(message);
+    } else {
+      if (existing != null) layoutRoot.removeView(existing);
+      layoutRoot.addView(constructWarningBanner(host, message));
+    }
+  }
+
   private static void dismissBanner(ViewGroup root) {
     View banner = root.findViewWithTag(WARNING_BANNER_TAG);
     if (banner != null) root.removeView(banner);
   }
 
-  private View constructWarningBanner(Activity host) {
+  private View constructWarningBanner(Activity host, String message) {
     TextView label = new TextView(host);
     label.setTag(WARNING_BANNER_TAG);
-    label.setText(ModuleResources.get(R.string.warn_storage_unset));
+    label.setText(message);
     label.setTextColor(Color.WHITE);
     label.setTextSize(12);
     label.setTypeface(null, Typeface.BOLD);
@@ -114,12 +114,9 @@ public class ShowConfigWarning implements BaseHook {
     label.setPadding(padding, padding, padding, padding);
     label.setClickable(true);
     label.setOnClickListener(
-        v -> {
-          Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-          intent.addFlags(
-              Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-          host.startActivityForResult(intent, BROWSE_DIR_REQUEST);
-        });
+        v ->
+            host.startActivityForResult(
+                SettingsFilePickers.createFolderPickerIntent(), BROWSE_DIR_REQUEST));
 
     int statusH = 0, actionH = 0;
     try {

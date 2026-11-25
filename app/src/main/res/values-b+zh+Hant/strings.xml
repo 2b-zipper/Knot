@@ -58,6 +58,7 @@
     <string name="restart_later">稍後</string>
     <string name="release_notes_open">在GitHub上檢視</string>
     <string name="warn_storage_unset">⚠ Knot：尚未設定儲存位置。請點擊此處進行設定。</string>
+    <string name="warn_storage_permission_lost">⚠ Knot：已設定資料夾的儲存空間權限已失效。請點擊此處重新設定。</string>
     <string name="unsupported_version_msg">不支援此版本的LINE。</string>
     <string name="broken_features_title">部分功能將無法運作</string>
     <string name="broken_features_msg">在LINE %1$s 中找不到下列功能的Hook位置，因此將無法運作：</string>
@@ -241,6 +242,7 @@
     <string name="opt_debug_menu_desc">搖動裝置即可開啟偵錯選單，查看記錄檔與 Hook 狀態。</string>
     <!-- Storage / backup rows -->
     <string name="desc_path_row">選擇模組用來存放設定檔等資料的目錄。</string>
+    <string name="desc_path_permission_lost">此資料夾的儲存空間權限已失效。請點擊以重新選擇資料夾。</string>
     <string name="desc_reset_row">將所有模組設定恢復為預設狀態。</string>
     <string name="opt_backup_label">備份聊天記錄</string>
     <string name="opt_backup_desc">將目前的聊天記錄備份至儲存位置。</string>

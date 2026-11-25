@@ -12,6 +12,7 @@ import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import androidx.documentfile.provider.DocumentFile;
 import app.zipper.knot.Knot;
+import app.zipper.knot.KnotConfig;
 import app.zipper.knot.Main;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
@@ -66,9 +67,30 @@ public final class SettingsFilePickers {
   public static void openFolderPicker(Context ctx) {
     Activity host = SettingsViews.activityOf(ctx);
     if (host == null) return;
+    host.startActivityForResult(createFolderPickerIntent(), PICK_DIRECTORY_CODE);
+  }
+
+  public static Intent createFolderPickerIntent() {
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-    host.startActivityForResult(intent, PICK_DIRECTORY_CODE);
+    intent.addFlags(
+        Intent.FLAG_GRANT_READ_URI_PERMISSION
+            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+    Uri initialUri = currentFolderUri();
+    if (initialUri != null) intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
+    return intent;
+  }
+
+  private static Uri currentFolderUri() {
+    String dirUriStr = SettingsStore.getSettingsDirUri();
+    if (dirUriStr == null) return null;
+    try {
+      Uri treeUri = Uri.parse(dirUriStr);
+      String treeId = DocumentsContract.getTreeDocumentId(treeUri);
+      return treeId != null ? DocumentsContract.buildDocumentUriUsingTree(treeUri, treeId) : null;
+    } catch (Throwable ignored) {
+      return null;
+    }
   }
 
   public static void openFontPicker(Context ctx) {
@@ -124,7 +146,7 @@ public final class SettingsFilePickers {
     }
   }
 
-  private static void onDirectoryPicked(Activity host, Uri treeUri) {
+  public static void applyPickedDirectory(Activity host, Uri treeUri, KnotConfig config) {
     try {
       host.getContentResolver()
           .takePersistableUriPermission(
@@ -133,9 +155,13 @@ public final class SettingsFilePickers {
     } catch (Throwable ignored) {
     }
     SettingsStore.setSettingsDir(treeUri.toString());
-    SettingsStore.load(Main.options);
+    SettingsStore.load(config);
     // The new directory carries its own settings file, language included
     ModuleResources.invalidate();
+  }
+
+  private static void onDirectoryPicked(Activity host, Uri treeUri) {
+    applyPickedDirectory(host, treeUri, Main.options);
     KnotSettingsDialog.notifyConfigChanged();
   }
 

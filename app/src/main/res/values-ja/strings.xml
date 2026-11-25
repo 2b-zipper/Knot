@@ -58,6 +58,7 @@
     <string name="restart_later">後で</string>
     <string name="release_notes_open">GitHubで見る</string>
     <string name="warn_storage_unset">⚠ Knot: 保存先が未設定です。タップして設定してください。</string>
+    <string name="warn_storage_permission_lost">⚠ Knot: 設定済みフォルダのストレージ権限が失われています。タップして再設定してください。</string>
     <string name="unsupported_version_msg">このバージョンのLINEはサポートされていません。</string>
     <string name="broken_features_title">一部の機能が動作しません</string>
     <string name="broken_features_msg">LINE %1$s では、次の機能のフック先が見つからないため動作しません。</string>
@@ -241,6 +242,7 @@
     <string name="opt_debug_menu_desc">端末を振ると、ログやフックの状態を確認できるデバッグメニューを開きます。</string>
     <!-- Storage / backup rows -->
     <string name="desc_path_row">モジュールの設定ファイルなどが保存されるディレクトリを選択します。</string>
+    <string name="desc_path_permission_lost">このフォルダへのストレージ権限が失われています。タップしてフォルダを再選択してください。</string>
     <string name="desc_reset_row">すべてのモジュール設定をデフォルト状態に戻します。</string>
     <string name="opt_backup_label">トーク履歴のバックアップ</string>
     <string name="opt_backup_desc">現在のトーク履歴を保存先にバックアップします。</string>
