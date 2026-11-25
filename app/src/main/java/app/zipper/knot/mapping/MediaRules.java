@@ -136,15 +136,16 @@ final class MediaRules {
 
     c.camera.cameraLauncherClass =
         f.classUsingIdIn("com.linecorp.line.media.picker", "string", "gallery_camera_error_access");
-    c.camera.methodLaunchCamera =
-        f.method(
+    MethodData launch =
+        f.methodData(
             c.camera.cameraLauncherClass,
             MethodMatcher.create().addUsingField(FieldMatcher.create().name("URL_SCHEME")));
-    c.camera.launchModeClass =
-        f.paramType(c.camera.cameraLauncherClass, c.camera.methodLaunchCamera, 1);
-    c.camera.launchCallbackClass =
-        f.paramType(c.camera.cameraLauncherClass, c.camera.methodLaunchCamera, 3);
+    c.camera.methodLaunchCamera = Finder.name(launch);
     c.camera.launchSourceClass = f.classUsing("PROFILE_FOR_SETTING");
+    // 26.19.0 inlines the 5-arg overload into the 3-arg (Activity, callback, source) wrapper
+    List<String> launchParams = Finder.params(launch);
+    c.camera.launchCallbackClass =
+        launchParams.size() == 3 ? Finder.at(launchParams, 1) : Finder.at(launchParams, 3);
     c.camera.captureChoiceClass =
         f.clsIn(
             "com.linecorp.line.media.picker",
@@ -215,7 +216,11 @@ final class MediaRules {
                 .anyOf(FieldMatcher.create().type("long"), FieldMatcher.create().type("int")));
     c.media.mediaPickerParamsClass = f.classUsing(", isPopupErrorToastOriginalOption=");
     c.media.fieldMediaPickerMaxVideoDuration =
-        f.ctorField(c.media.mediaPickerParamsClass, 73, "long");
+        f.field(
+            c.media.mediaPickerParamsClass,
+            FieldMatcher.create()
+                .type("long")
+                .addNoneOf(FieldMatcher.create().modifiers(Modifier.FINAL)));
 
     c.media.selectionValidatorClass =
         f.classUsing("\n     applyTrimmingData:\n     startPointInUs : ");

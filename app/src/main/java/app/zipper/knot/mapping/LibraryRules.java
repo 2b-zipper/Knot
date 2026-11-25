@@ -208,15 +208,32 @@ final class LibraryRules {
   }
 
   private static void room(Finder f, LineVersion.Config c) {
-    c.room.migrationUtilClass =
-        f.clsIn(
-            Finder.packageOf(f.classUsing("SELECT * FROM sqlite_master WHERE `name` = '")),
+    String migration = "A migration from ";
+    String room2 =
+        f.classUsing(
+            ClassMatcher.create().addMethod(sig("void", null, "int", "int")),
+            migration,
+            "PRAGMA busy_timeout");
+    c.room.databaseConfigClass =
+        f.returnTypeWhere(
+            room2,
             ClassMatcher.create()
-                .addMethod(sig("java.util.List", null, "int", "int"))
-                .methodCount(2)
-                .fieldCount(0));
-    c.room.methodIsMigrationRequired =
-        f.staticMethodOf(c.room.migrationUtilClass, "boolean", null, "int", "int");
+                .addField(
+                    FieldMatcher.create().type("androidx.sqlite.db.SupportSQLiteOpenHelper$b")));
+
+    String room3 =
+        f.classUsing(
+            ClassMatcher.create()
+                .addMethod(
+                    MethodMatcher.create()
+                        .modifiers(Modifier.STATIC)
+                        .usingEqStrings(
+                            "call to 'resume' before 'invoke' with coroutine", migration)),
+            migration);
+    c.room.room3DatabaseConfigClass =
+        f.returnTypeWhere(
+            room3,
+            ClassMatcher.create().addField(FieldMatcher.create().type("android.content.Context")));
   }
 
   private static void credentials(Finder f, LineVersion.Config c) {

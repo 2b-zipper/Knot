@@ -136,7 +136,10 @@ final class MessageRules {
             "chat_ui_row_carousel_image_check_box");
 
     c.unsend.chatMessageViewHolderClass =
-        f.classUsing("Total message count should not less than 10");
+        f.classUsing(
+            ClassMatcher.create()
+                .addMethod(sig("boolean", c.message.selectionProviderClass, null, null)),
+            "System message type shouldn't be passed in ChatHistoryMessageViewHolderFactory");
     String holder = c.unsend.chatMessageViewHolderClass;
     c.unsend.methodGetItemView =
         f.method(

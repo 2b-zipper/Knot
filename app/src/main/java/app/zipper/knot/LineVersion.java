@@ -124,8 +124,8 @@ public class LineVersion {
     }
 
     public static class Room {
-      public String migrationUtilClass = "";
-      public String methodIsMigrationRequired = "";
+      public String databaseConfigClass = "";
+      public String room3DatabaseConfigClass = "";
     }
 
     public static class Kotlin {
@@ -182,7 +182,6 @@ public class LineVersion {
       public String methodUseExternalCamera = "";
       public String cameraLauncherClass = "";
       public String methodLaunchCamera = "";
-      public String launchModeClass = "";
       public String launchSourceClass = "";
       public String launchCallbackClass = "";
       public String captureChoiceClass = "";

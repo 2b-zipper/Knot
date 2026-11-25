@@ -45,9 +45,9 @@ final class HideChatRules {
         f.methodOf(creator, c.permanentHideChat.chatListMenuItemClass);
 
     String item = f.fieldType(creator, c.permanentHideChat.chatListHideItemField);
-    c.permanentHideChat.methodChatListItemInfo = f.methodOf(item, null);
-    c.permanentHideChat.chatListItemChatIdField =
-        f.propertyField(f.returnType(item, c.permanentHideChat.methodChatListItemInfo), "chatId");
+    String common = f.classUsing("ChatCommonItem(chatId=");
+    c.permanentHideChat.methodChatListItemInfo = f.methodOf(item, common);
+    c.permanentHideChat.chatListItemChatIdField = f.propertyField(common, "chatId");
     c.permanentHideChat.chatListHideConfirmClass =
         f.clsIn(
             Finder.packageOf(

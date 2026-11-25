@@ -155,14 +155,12 @@ final class HeaderRules {
             "int");
 
     c.homeTab.mainTabEnumClass = f.classUsing("commercetwtab", "chatlist");
-    c.homeTab.tabListProviderClass =
-        f.clsIn(
+    MethodData buildTabList =
+        f.methodDataIn(
             Finder.packageOf(f.classUsing("NEW_SQUARE_JOIN_REQUEST")),
-            ClassMatcher.create().addMethod(sig("int", c.homeTab.mainTabEnumClass)));
-    c.homeTab.methodBuildTabList =
-        f.method(
-            c.homeTab.tabListProviderClass,
-            MethodMatcher.create().addUsingField(FieldMatcher.create().name("LIMITED_NETWORK")));
+            sig("java.util.List").addUsingField(FieldMatcher.create().name("LIMITED_NETWORK")));
+    c.homeTab.tabListProviderClass = Finder.declaring(buildTabList);
+    c.homeTab.methodBuildTabList = Finder.name(buildTabList);
   }
 
   // HomeTabConfiguration and ChatTabConfiguration each have their own isAdRcEnabled

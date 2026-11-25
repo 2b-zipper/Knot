@@ -1,13 +1,13 @@
 package app.zipper.knot.hooks;
 
 import android.app.Activity;
-import android.net.Uri;
 import app.zipper.knot.Knot;
 import app.zipper.knot.KnotConfig;
 import app.zipper.knot.LineVersion;
 import app.zipper.knot.LoadParam;
 import app.zipper.knot.Main;
 import app.zipper.knot.Reflect;
+import java.lang.reflect.Method;
 
 public class UseDefaultCameraHook implements BaseHook {
 
@@ -27,21 +27,33 @@ public class UseDefaultCameraHook implements BaseHook {
     // Skipped for the scheme service activity, which finishes on return and would dismiss it.
     Class<?> chooserClass = Reflect.findClass(camera.captureChooserClass, cl);
     Class<?> choiceClass = Reflect.findClass(camera.captureChoiceClass, cl);
+    Class<?> sourceClass = Reflect.findClass(camera.launchSourceClass, cl);
+    Class<?> callbackClass = Reflect.findClass(camera.launchCallbackClass, cl);
+    Method launchMethod = null;
+    int sourceIndex = -1;
+    int callbackIndex = -1;
+    for (Method m :
+        Reflect.findMethodsByName(camera.cameraLauncherClass, cl, camera.methodLaunchCamera)) {
+      int si = Reflect.paramIndex(m, sourceClass);
+      int ci = Reflect.paramIndex(m, callbackClass);
+      if (Reflect.paramIndex(m, Activity.class) == 0 && si >= 0 && ci >= 0) {
+        launchMethod = m;
+        sourceIndex = si;
+        callbackIndex = ci;
+        break;
+      }
+    }
+    if (launchMethod == null) {
+      throw new NoSuchMethodException(camera.cameraLauncherClass + "#" + camera.methodLaunchCamera);
+    }
+    final int srcIdx = sourceIndex;
+    final int cbIdx = callbackIndex;
     Knot.module
-        .hook(
-            Reflect.findMethodExact(
-                camera.cameraLauncherClass,
-                cl,
-                camera.methodLaunchCamera,
-                Activity.class,
-                camera.launchModeClass,
-                camera.launchSourceClass,
-                camera.launchCallbackClass,
-                Uri.class))
+        .hook(launchMethod)
         .intercept(
             chain -> {
               Activity activity = (Activity) chain.getArg(0);
-              Enum<?> source = (Enum<?>) chain.getArg(2);
+              Enum<?> source = (Enum<?>) chain.getArg(srcIdx);
               if (!Main.options.useDefaultCamera.enabled
                   || source == null
                   || !source.name().equals("URL_SCHEME")
@@ -52,7 +64,7 @@ public class UseDefaultCameraHook implements BaseHook {
                   chooserClass,
                   camera.methodShowCaptureChooser,
                   activity,
-                  Reflect.newInstance(choiceClass, activity, chain.getArg(3), source));
+                  Reflect.newInstance(choiceClass, activity, chain.getArg(cbIdx), source));
               return Boolean.FALSE;
             });
   }
