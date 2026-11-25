@@ -244,7 +244,7 @@ public class FontUnlockHook implements BaseHook {
             Reflect.findMethodExact(
                 cfg.font.fontManagerClass,
                 lpparam.classLoader,
-                "c",
+                cfg.font.methodGetFontSettings,
                 android.content.Context.class,
                 java.util.List.class,
                 int.class,
