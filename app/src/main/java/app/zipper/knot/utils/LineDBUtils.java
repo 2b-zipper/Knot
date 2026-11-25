@@ -64,6 +64,45 @@ public class LineDBUtils {
     return null;
   }
 
+  public static class MemberProfile {
+    public final String name;
+    public final String picturePath;
+
+    public MemberProfile(String name, String picturePath) {
+      this.name = name;
+      this.picturePath = picturePath;
+    }
+  }
+
+  public static Map<String, MemberProfile> resolveMemberProfiles(Collection<String> mids) {
+    Map<String, MemberProfile> results = new HashMap<>();
+    List<String> ids = collectNonEmptyIds(mids);
+    if (ids.isEmpty()) return results;
+    try (SQLiteDatabase db = openReadOnlyDatabase("contact")) {
+      if (db == null) return results;
+      for (int start = 0; start < ids.size(); start += SQLITE_IN_BATCH_SIZE) {
+        List<String> batch = ids.subList(start, Math.min(start + SQLITE_IN_BATCH_SIZE, ids.size()));
+        String placeholders = String.join(",", Collections.nCopies(batch.size(), "?"));
+        String sql =
+            "SELECT mid, coalesce(overridden_name, address_book_name, profile_name),"
+                + " coalesce(picture_path, picture_status) FROM contacts WHERE mid IN ("
+                + placeholders
+                + ")";
+        try (Cursor cursor = db.rawQuery(sql, batch.toArray(new String[0]))) {
+          while (cursor.moveToNext()) {
+            String mid = cursor.getString(0);
+            if (mid != null && !mid.isEmpty()) {
+              results.put(mid, new MemberProfile(cursor.getString(1), cursor.getString(2)));
+            }
+          }
+        }
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: resolveMemberProfiles failed: " + t);
+    }
+    return results;
+  }
+
   public static class ContactTimes {
     public Long friendCreated;
     public Long favorite;

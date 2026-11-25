@@ -207,6 +207,8 @@ final class ChatRules {
         f.propertyField(message, "chatMessageCommonViewData");
     String data = f.fieldType(message, c.messageEditHistory.menuMessageDataField);
     c.messageEditHistory.menuMessageIdField = f.propertyField(data, "serverMessageId");
+    c.messageEditHistory.menuMessageChatIdField = f.propertyField(data, "chatId");
+    c.messageEditHistory.menuIsMyMessageField = f.propertyField(data, "isMyMessage");
     c.messageEditHistory.menuEditedFlagField = f.propertyField(data, "isEditedMessage");
   }
 

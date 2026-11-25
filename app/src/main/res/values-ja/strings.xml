@@ -88,6 +88,8 @@
     <string name="read_history_unknown_msg">(不明なメッセージ)</string>
     <string name="read_history_show_all">残り%1$d人を表示 ▼</string>
     <string name="read_history_collapse">折りたたむ ▲</string>
+    <string name="read_receipt_sheet_title">既読(%1$d)</string>
+    <string name="read_receipt_sheet_empty">まだ既読はありません</string>
     <!-- Message type placeholders -->
     <string name="msg_sticker">[スタンプ]</string>
     <string name="msg_combination_sticker">[アレンジスタンプ]</string>

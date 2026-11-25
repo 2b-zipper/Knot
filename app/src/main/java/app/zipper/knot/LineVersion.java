@@ -270,6 +270,8 @@ public class LineVersion {
       public String menuContextMessageField = "";
       public String menuMessageDataField = "";
       public String menuMessageIdField = "";
+      public String menuMessageChatIdField = "";
+      public String menuIsMyMessageField = "";
       public String menuEditedFlagField = "";
     }
 
@@ -428,6 +430,13 @@ public class LineVersion {
       public String methodReact = "";
       public String reactRequestMessageIdField = "";
       public String reactSuccessResultClass = "";
+      public String bottomSheetDialogClass = "";
+      public String profileAvatarUsageEnumClass = "";
+      public String profileAvatarBinderClass = "";
+      public String profileAvatarBinderMethod = "";
+      public String profileAvatarFacadeClass = "";
+      public String profileAvatarFacadeKeyField = "";
+      public String profileAvatarLoaderFactoryMethod = "";
     }
 
     public static class Unsend {

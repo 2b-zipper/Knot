@@ -88,6 +88,8 @@
     <string name="read_history_unknown_msg">(未知的訊息)</string>
     <string name="read_history_show_all">顯示其餘%1$d人 ▼</string>
     <string name="read_history_collapse">收合 ▲</string>
+    <string name="read_receipt_sheet_title">已讀(%1$d)</string>
+    <string name="read_receipt_sheet_empty">目前沒有已讀成員</string>
     <!-- Message type placeholders -->
     <string name="msg_sticker">[貼圖]</string>
     <string name="msg_combination_sticker">[排列貼圖]</string>

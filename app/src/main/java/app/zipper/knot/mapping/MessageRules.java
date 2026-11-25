@@ -101,6 +101,63 @@ final class MessageRules {
         f.method(
             manager,
             MethodMatcher.create().addUsingField(FieldMatcher.create().name("PROCESSING")));
+
+    c.readReceipt.bottomSheetDialogClass =
+        f.clsIn(
+            "com.google.android.material.bottomsheet",
+            ClassMatcher.create()
+                .addMethod(
+                    MethodMatcher.create().name("setContentView").paramTypes("android.view.View")));
+
+    String usageEnum =
+        f.cls(
+            ClassMatcher.create()
+                .fieldCount(7)
+                .addField(FieldMatcher.create().name("MENTION_SUGGEST"))
+                .addField(FieldMatcher.create().name("SENDER_PROFILE"))
+                .addField(FieldMatcher.create().name("CONTACT_MESSAGE"))
+                .addField(FieldMatcher.create().name("FRIEND_LIST"))
+                .addField(FieldMatcher.create().name("TALK_MEMBER")));
+    c.readReceipt.profileAvatarUsageEnumClass = usageEnum;
+    String binder =
+        f.cls(
+            ClassMatcher.create()
+                .fieldCount(1)
+                .interfaceCount(0)
+                .addMethod(
+                    sig(
+                        "void",
+                        "android.widget.ImageView",
+                        "java.lang.String",
+                        "java.lang.String",
+                        usageEnum)));
+    c.readReceipt.profileAvatarBinderClass = binder;
+    c.readReceipt.profileAvatarBinderMethod =
+        f.methodOf(
+            binder,
+            "void",
+            "android.widget.ImageView",
+            "java.lang.String",
+            "java.lang.String",
+            usageEnum);
+    String loaderInterface = f.fieldType(binder, f.field(binder, FieldMatcher.create()));
+    String loaderImpl = f.cls(ClassMatcher.create().addInterface(loaderInterface));
+    String glideManager =
+        f.returnType(c.notification.glideClass, c.notification.glideWithContextMethod);
+    FieldMatcher facadeKey =
+        FieldMatcher.create()
+            .modifiers(Modifier.STATIC)
+            .type(ClassMatcher.create().superClass(c.services.keyClass));
+    MethodMatcher loaderFactory = sig(loaderImpl, glideManager);
+    String facade =
+        f.cls(
+            ClassMatcher.create()
+                .modifiers(Modifier.INTERFACE)
+                .addField(facadeKey)
+                .addMethod(loaderFactory));
+    c.readReceipt.profileAvatarFacadeClass = facade;
+    c.readReceipt.profileAvatarFacadeKeyField = f.field(facade, facadeKey);
+    c.readReceipt.profileAvatarLoaderFactoryMethod = f.method(facade, loaderFactory);
   }
 
   private static void userAgent(Finder f, LineVersion.Config c) {

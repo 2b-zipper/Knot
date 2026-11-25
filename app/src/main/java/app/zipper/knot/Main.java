@@ -154,7 +154,10 @@ public class Main extends XposedModule {
       applyHook(new PlusMenuHook(), lpparam);
       applyHook(new ChatListMoreMenuHook(), lpparam);
     }
-    if (options.recordReadHistory.enabled) applyHook(new HeaderButtonInjector(), lpparam);
+    if (options.recordReadHistory.enabled) {
+      applyHook(new HeaderButtonInjector(), lpparam);
+      applyHook(new MessageReadHistoryHook(), lpparam);
+    }
     if (options.hideAiIconPermanently.enabled) applyHook(new HideAiIconPermanently(), lpparam);
     if (options.openUrlInDefaultBrowser.enabled) {
       applyHook(new OpenInExternalBrowserHook(), lpparam);

@@ -98,6 +98,8 @@
     <string name="read_history_unknown_msg">(unknown message)</string>
     <string name="read_history_show_all">Show %1$d more ▼</string>
     <string name="read_history_collapse">Collapse ▲</string>
+    <string name="read_receipt_sheet_title">Read (%1$d)</string>
+    <string name="read_receipt_sheet_empty">No one has read this message yet</string>
 
     <!-- Message type placeholders -->
     <string name="msg_sticker">[Sticker]</string>
