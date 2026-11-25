@@ -64,7 +64,6 @@
     <string name="restart_later">Later</string>
     <string name="release_notes_open">View on GitHub</string>
     <string name="warn_storage_unset">⚠ Knot: no storage location is set. Tap here to choose one.</string>
-    <string name="warn_storage_permission_lost">⚠ Knot: storage permission for the selected folder was lost. Tap here to select it again.</string>
     <string name="unsupported_version_title" translatable="false">Knot: Unsupported Version</string>
     <string name="unsupported_version_msg">This version of LINE is not supported.</string>
     <string name="broken_features_title">Some features will not work</string>
@@ -98,20 +97,13 @@
     <string name="read_history_unknown_msg">(unknown message)</string>
     <string name="read_history_show_all">Show %1$d more ▼</string>
     <string name="read_history_collapse">Collapse ▲</string>
-    <string name="read_receipt_sheet_title">Read (%1$d)</string>
-    <string name="read_receipt_sheet_empty">No one has read this message yet</string>
 
     <!-- Message type placeholders -->
     <string name="msg_sticker">[Sticker]</string>
-    <string name="msg_combination_sticker">[Arranged sticker]</string>
     <string name="msg_image">[Photo]</string>
     <string name="msg_video">[Video]</string>
-    <string name="msg_audio">[Voice message]</string>
     <string name="msg_file">[File]</string>
     <string name="msg_location">[Location]</string>
-    <string name="msg_contact">[Contact]</string>
-    <string name="msg_album">[Album]</string>
-    <string name="msg_post">[Post]</string>
 
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">Add \"Read avoidance\" to the plus menu</string>
@@ -285,7 +277,6 @@
 
     <!-- Storage / backup rows -->
     <string name="desc_path_row">Choose the directory where the module keeps its settings and other files.</string>
-    <string name="desc_path_permission_lost">Storage permission for this folder was lost. Tap to select the folder again.</string>
     <string name="desc_reset_row">Restores every module setting to its default state.</string>
     <string name="opt_backup_label">Back up chat history</string>
     <string name="opt_backup_desc">Backs up your current chat history to the storage location.</string>
