@@ -100,6 +100,7 @@
 
     <!-- Message type placeholders -->
     <string name="msg_sticker">[Sticker]</string>
+    <string name="msg_combination_sticker">[Arranged sticker]</string>
     <string name="msg_image">[Photo]</string>
     <string name="msg_video">[Video]</string>
     <string name="msg_file">[File]</string>

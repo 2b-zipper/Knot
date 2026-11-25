@@ -89,6 +89,7 @@
     <string name="read_history_collapse">收合 ▲</string>
     <!-- Message type placeholders -->
     <string name="msg_sticker">[貼圖]</string>
+    <string name="msg_combination_sticker">[排列貼圖]</string>
     <string name="msg_image">[照片]</string>
     <string name="msg_video">[影片]</string>
     <string name="msg_file">[檔案]</string>

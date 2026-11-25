@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.json.JSONObject;
 
 public class ReadHistoryViewer {
@@ -46,7 +47,7 @@ public class ReadHistoryViewer {
     final String msgId;
     final long sortKey;
     final boolean numericId;
-    final String text;
+    String text;
     final List<ReaderEntry> readers;
     boolean expanded;
 
@@ -172,7 +173,30 @@ public class ReadHistoryViewer {
         }
       }
     }
+    fillMissingTexts(entries);
     return entries;
+  }
+
+  private static void fillMissingTexts(List<MessageEntry> entries) {
+    List<MessageEntry> missing = new ArrayList<>();
+    List<String> missingIds = new ArrayList<>();
+    for (MessageEntry entry : entries) {
+      if (entry.text == null || entry.text.isEmpty()) {
+        missing.add(entry);
+        missingIds.add(entry.msgId);
+      }
+    }
+    if (missing.isEmpty()) return;
+
+    Map<String, String> resolved = LineDBUtils.resolveMessageContents(missingIds);
+    if (resolved.isEmpty()) return;
+
+    for (MessageEntry entry : missing) {
+      String text = resolved.get(entry.msgId);
+      if (text != null && !text.isEmpty()) {
+        entry.text = text;
+      }
+    }
   }
 
   private static void collectChatEntries(

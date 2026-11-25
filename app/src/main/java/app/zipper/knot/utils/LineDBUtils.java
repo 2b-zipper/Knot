@@ -9,14 +9,20 @@ import app.zipper.knot.R;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class LineDBUtils {
 
+  private static final int SQLITE_IN_BATCH_SIZE = 500;
   private static volatile String cachedMyMid;
 
   public static String resolveMemberName(String mid) {
@@ -200,32 +206,54 @@ public class LineDBUtils {
   }
 
   public static String resolveMessageContent(String serverId) {
-    if (serverId == null) return null;
-    try {
-      Context context = Knot.currentApplication();
-      if (context == null) return null;
-      File dbFile = context.getDatabasePath("naver_line");
-      if (dbFile.exists()) {
-        SQLiteDatabase db =
-            SQLiteDatabase.openDatabase(
-                dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
-        Cursor cursor =
-            db.rawQuery(
-                "SELECT content, parameter FROM chat_history WHERE server_id = ?",
-                new String[] {serverId});
-        if (cursor.moveToFirst()) {
-          String content = cursor.getString(0);
-          String parameter = cursor.getString(1);
-          cursor.close();
-          db.close();
-          return resolveMessageText(content, parameter);
+    if (serverId == null || serverId.isEmpty()) return null;
+    return resolveMessageContents(Collections.singletonList(serverId)).get(serverId);
+  }
+
+  public static Map<String, String> resolveMessageContents(Collection<String> serverIds) {
+    Map<String, String> results = new HashMap<>();
+    List<String> ids = collectNonEmptyIds(serverIds);
+    if (ids.isEmpty()) return results;
+    try (SQLiteDatabase db = openReadOnlyDatabase("naver_line")) {
+      if (db == null) return results;
+      for (int start = 0; start < ids.size(); start += SQLITE_IN_BATCH_SIZE) {
+        List<String> batch = ids.subList(start, Math.min(start + SQLITE_IN_BATCH_SIZE, ids.size()));
+        String placeholders = String.join(",", Collections.nCopies(batch.size(), "?"));
+        String sql =
+            "SELECT server_id, content, parameter FROM chat_history WHERE server_id IN ("
+                + placeholders
+                + ")";
+        try (Cursor cursor = db.rawQuery(sql, batch.toArray(new String[0]))) {
+          while (cursor.moveToNext()) {
+            String serverId = cursor.getString(0);
+            String text = resolveMessageText(cursor.getString(1), cursor.getString(2));
+            if (serverId != null && text != null && !text.isEmpty()) {
+              results.put(serverId, text);
+            }
+          }
         }
-        cursor.close();
-        db.close();
       }
     } catch (Throwable ignored) {
     }
-    return null;
+    return results;
+  }
+
+  private static SQLiteDatabase openReadOnlyDatabase(String dbName) {
+    Context context = Knot.currentApplication();
+    if (context == null) return null;
+    File dbFile = context.getDatabasePath(dbName);
+    if (!dbFile.exists()) return null;
+    return SQLiteDatabase.openDatabase(
+        dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+  }
+
+  private static List<String> collectNonEmptyIds(Collection<String> serverIds) {
+    if (serverIds == null || serverIds.isEmpty()) return Collections.emptyList();
+    Set<String> unique = new LinkedHashSet<>();
+    for (String id : serverIds) {
+      if (id != null && !id.isEmpty()) unique.add(id);
+    }
+    return unique.isEmpty() ? Collections.emptyList() : new ArrayList<>(unique);
   }
 
   public static long resolveMessageCreatedTime(String serverId) {
@@ -340,19 +368,24 @@ public class LineDBUtils {
     if (content != null && !content.isEmpty() && !"null".equals(content)) {
       return content;
     }
-
-    if (parameter != null) {
-      if (parameter.contains("STKPKGID")) {
-        return ModuleResources.get(R.string.msg_sticker);
-      } else if (parameter.contains("IMAGE") || parameter.contains("image")) {
-        return ModuleResources.get(R.string.msg_image);
-      } else if (parameter.contains("VIDEO") || parameter.contains("video")) {
-        return ModuleResources.get(R.string.msg_video);
-      } else if (parameter.contains("FILE") || parameter.contains("file")) {
-        return ModuleResources.get(R.string.msg_file);
-      } else if (parameter.contains("LOCATION") || parameter.contains("location")) {
-        return ModuleResources.get(R.string.msg_location);
-      }
+    if (parameter == null) return null;
+    if (parameter.contains("CSSTKID")) {
+      return ModuleResources.get(R.string.msg_combination_sticker);
+    }
+    if (parameter.contains("STKPKGID") || parameter.contains("STKID")) {
+      return ModuleResources.get(R.string.msg_sticker);
+    }
+    if (parameter.contains("IMAGE") || parameter.contains("image")) {
+      return ModuleResources.get(R.string.msg_image);
+    }
+    if (parameter.contains("VIDEO") || parameter.contains("video")) {
+      return ModuleResources.get(R.string.msg_video);
+    }
+    if (parameter.contains("FILE") || parameter.contains("file")) {
+      return ModuleResources.get(R.string.msg_file);
+    }
+    if (parameter.contains("LOCATION") || parameter.contains("location")) {
+      return ModuleResources.get(R.string.msg_location);
     }
     return null;
   }

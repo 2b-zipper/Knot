@@ -89,6 +89,7 @@
     <string name="read_history_collapse">折りたたむ ▲</string>
     <!-- Message type placeholders -->
     <string name="msg_sticker">[スタンプ]</string>
+    <string name="msg_combination_sticker">[アレンジスタンプ]</string>
     <string name="msg_image">[画像]</string>
     <string name="msg_video">[動画]</string>
     <string name="msg_file">[ファイル]</string>
