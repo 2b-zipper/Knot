@@ -5,6 +5,7 @@ import static app.zipper.knot.mapping.Finder.sig;
 import app.zipper.knot.LineVersion;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.enums.UsingType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
@@ -83,22 +84,18 @@ final class LibraryRules {
     // NodeCoordinator.localToWindow calls localToRoot, which checks isAttached
     String attached = "LayoutCoordinate operations are only valid when isAttached is true";
     String coordinator =
-        f.clsIn(
-            "androidx.compose.ui.node",
+        f.classUsing(
             ClassMatcher.create()
-                .addInterface(c.compose.layoutCoordinatesClass)
-                .usingEqStrings(attached));
+                .className("androidx.compose.ui.node.", StringMatchType.StartsWith)
+                .addInterface(c.compose.layoutCoordinatesClass),
+            attached);
     c.compose.methodLocalToWindow =
         f.method(
             coordinator,
             sig("long", "long")
                 .addNoneOf(MethodMatcher.create().usingEqStrings(attached))
                 .addInvoke(
-                    MethodMatcher.create()
-                        .declaredClass(coordinator)
-                        .returnType("long")
-                        .paramTypes("long")
-                        .usingEqStrings(attached)));
+                    sig("long", "long").declaredClass(coordinator).usingEqStrings(attached)));
 
     // OnGloballyPositionedNode, its element and Modifier.onGloballyPositioned share a package
     String layout = Finder.packageOf(c.compose.layoutCoordinatesClass);
@@ -121,7 +118,7 @@ final class LibraryRules {
                         MethodMatcher.create().name("<init>").paramTypes(c.kotlin.function1Class))),
             ClassMatcher.create()
                 .addMethod(
-                    MethodMatcher.create()
+                    sig("void", (String) null)
                         .addUsingField(
                             FieldMatcher.create().declaredClass(node), UsingType.Write)));
     MethodData positioned =

@@ -95,10 +95,7 @@ public final class MessageReadSheet {
       if (rr.profileAvatarBinderClass.isEmpty()
           || rr.profileAvatarBinderMethod.isEmpty()
           || rr.profileAvatarUsageEnumClass.isEmpty()
-          || rr.profileAvatarFacadeClass.isEmpty()
-          || rr.profileAvatarFacadeKeyField.isEmpty()
-          || rr.profileAvatarLoaderFactoryMethod.isEmpty()
-          || cfg.services.locatorClass.isEmpty()
+          || rr.profileAvatarLoaderClass.isEmpty()
           || cfg.notification.glideClass.isEmpty()) {
         return null;
       }
@@ -107,24 +104,17 @@ public final class MessageReadSheet {
         Object usage =
             Reflect.getStaticObjectField(
                 Reflect.findClass(rr.profileAvatarUsageEnumClass, cl), "FRIEND_LIST");
-        Class<?> facadeCls = Reflect.findClass(rr.profileAvatarFacadeClass, cl);
-        Object key = Reflect.getStaticObjectField(facadeCls, rr.profileAvatarFacadeKeyField);
-        Object facade =
-            Reflect.callStaticMethod(
-                Reflect.findClass(cfg.services.locatorClass, cl),
-                cfg.services.methodLocate,
-                context,
-                key);
-        if (usage == null || facade == null) return null;
+        if (usage == null) return null;
 
         Class<?> glideCls = Reflect.findClass(cfg.notification.glideClass, cl);
         Object requestManager =
             Reflect.callStaticMethod(glideCls, cfg.notification.glideWithContextMethod, context);
         if (requestManager == null) return null;
 
-        Object glideLoader =
-            Reflect.callMethod(facade, rr.profileAvatarLoaderFactoryMethod, requestManager);
-        if (glideLoader == null) return null;
+        Class<?> loaderCls = Reflect.findClass(rr.profileAvatarLoaderClass, cl);
+        Constructor<?> loaderCtor = loaderCls.getDeclaredConstructors()[0];
+        loaderCtor.setAccessible(true);
+        Object glideLoader = loaderCtor.newInstance(requestManager);
 
         Class<?> binderCls = Reflect.findClass(rr.profileAvatarBinderClass, cl);
         Constructor<?> ctor = binderCls.getDeclaredConstructors()[0];

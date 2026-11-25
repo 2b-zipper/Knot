@@ -4,10 +4,13 @@ import static app.zipper.knot.mapping.Finder.sig;
 
 import app.zipper.knot.LineVersion;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
+import org.luckypray.dexkit.result.FieldData;
+import org.luckypray.dexkit.result.MethodData;
 
 final class MessageRules {
 
@@ -110,54 +113,52 @@ final class MessageRules {
                     MethodMatcher.create().name("setContentView").paramTypes("android.view.View")));
 
     String usageEnum =
-        f.cls(
-            ClassMatcher.create()
-                .fieldCount(7)
-                .addField(FieldMatcher.create().name("MENTION_SUGGEST"))
-                .addField(FieldMatcher.create().name("SENDER_PROFILE"))
-                .addField(FieldMatcher.create().name("CONTACT_MESSAGE"))
-                .addField(FieldMatcher.create().name("FRIEND_LIST"))
-                .addField(FieldMatcher.create().name("TALK_MEMBER")));
+        f.classUsing(
+            ClassMatcher.create().fieldCount(7),
+            "MENTION_SUGGEST",
+            "SENDER_PROFILE",
+            "CONTACT_MESSAGE",
+            "FRIEND_LIST",
+            "TALK_MEMBER");
     c.readReceipt.profileAvatarUsageEnumClass = usageEnum;
-    String binder =
-        f.cls(
-            ClassMatcher.create()
-                .fieldCount(1)
-                .interfaceCount(0)
-                .addMethod(
-                    sig(
-                        "void",
-                        "android.widget.ImageView",
-                        "java.lang.String",
-                        "java.lang.String",
-                        usageEnum)));
-    c.readReceipt.profileAvatarBinderClass = binder;
-    c.readReceipt.profileAvatarBinderMethod =
-        f.methodOf(
-            binder,
-            "void",
-            "android.widget.ImageView",
-            "java.lang.String",
-            "java.lang.String",
-            usageEnum);
+    List<String> bindParams =
+        Arrays.asList(
+            "android.widget.ImageView", "java.lang.String", "java.lang.String", usageEnum);
+    MethodData cautiousViewCreated =
+        f.methodData(
+            "com.linecorp.line.chat.ui.impl.header.contact.dialog.CautiousContactHandleDialogFragmentImpl",
+            MethodMatcher.create().name("onViewCreated"));
+    for (MethodData callee : Finder.invokes(cautiousViewCreated)) {
+      if (callee.isMethod()
+          && "void".equals(callee.getReturnTypeName())
+          && callee.getParamTypeNames().equals(bindParams)) {
+        c.readReceipt.profileAvatarBinderClass = callee.getClassName();
+        c.readReceipt.profileAvatarBinderMethod = callee.getName();
+        break;
+      }
+    }
+    if (c.readReceipt.profileAvatarBinderClass.isEmpty()) {
+      FieldData friendList = f.fieldData(usageEnum, FieldMatcher.create().name("FRIEND_LIST"));
+      if (friendList != null) {
+        for (MethodData reader : friendList.getReaders()) {
+          for (MethodData callee : Finder.invokes(reader)) {
+            if (callee.isMethod()
+                && "void".equals(callee.getReturnTypeName())
+                && callee.getParamTypeNames().equals(bindParams)) {
+              c.readReceipt.profileAvatarBinderClass = callee.getClassName();
+              c.readReceipt.profileAvatarBinderMethod = callee.getName();
+              break;
+            }
+          }
+          if (!c.readReceipt.profileAvatarBinderClass.isEmpty()) break;
+        }
+      }
+    }
+    String binder = c.readReceipt.profileAvatarBinderClass;
     String loaderInterface = f.fieldType(binder, f.field(binder, FieldMatcher.create()));
-    String loaderImpl = f.cls(ClassMatcher.create().addInterface(loaderInterface));
-    String glideManager =
-        f.returnType(c.notification.glideClass, c.notification.glideWithContextMethod);
-    FieldMatcher facadeKey =
-        FieldMatcher.create()
-            .modifiers(Modifier.STATIC)
-            .type(ClassMatcher.create().superClass(c.services.keyClass));
-    MethodMatcher loaderFactory = sig(loaderImpl, glideManager);
-    String facade =
-        f.cls(
-            ClassMatcher.create()
-                .modifiers(Modifier.INTERFACE)
-                .addField(facadeKey)
-                .addMethod(loaderFactory));
-    c.readReceipt.profileAvatarFacadeClass = facade;
-    c.readReceipt.profileAvatarFacadeKeyField = f.field(facade, facadeKey);
-    c.readReceipt.profileAvatarLoaderFactoryMethod = f.method(facade, loaderFactory);
+    c.readReceipt.profileAvatarLoaderClass =
+        f.clsIn(
+            Finder.packageOf(loaderInterface), ClassMatcher.create().addInterface(loaderInterface));
   }
 
   private static void userAgent(Finder f, LineVersion.Config c) {

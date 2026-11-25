@@ -50,6 +50,7 @@ final class Finder {
   private final Map<List<String>, List<String>> stringHits = new HashMap<>();
   private final Map<String, ClassData> classes = new HashMap<>();
   private final Map<String, List<ClassData>> packages = new HashMap<>();
+  private final Map<String, List<Set<String>>> annotationStrings = new HashMap<>();
   private final LocalMatch local = new LocalMatch(this::lookup);
 
   // Only the debug harness sets this
@@ -254,12 +255,11 @@ final class Finder {
   String classAnnotatedIn(String scope, String... strings) {
     if (!planning && !scope.isEmpty()) {
       try {
+        List<String> wanted = Arrays.asList(strings);
         List<String> found = new ArrayList<>();
         for (ClassData c : packageClasses(scope)) {
-          for (AnnotationData a : c.getAnnotations()) {
-            Set<String> used = new HashSet<>();
-            collectStrings(a, used);
-            if (used.containsAll(Arrays.asList(strings))) {
+          for (Set<String> used : annotationStrings(c)) {
+            if (used.containsAll(wanted)) {
               found.add(c.getName());
               break;
             }
@@ -271,6 +271,20 @@ final class Finder {
       }
     }
     return classAnnotated(strings);
+  }
+
+  private List<Set<String>> annotationStrings(ClassData c) {
+    return annotationStrings.computeIfAbsent(
+        c.getName(),
+        k -> {
+          List<Set<String>> all = new ArrayList<>();
+          for (AnnotationData a : c.getAnnotations()) {
+            Set<String> used = new HashSet<>();
+            collectStrings(a, used);
+            if (!used.isEmpty()) all.add(used);
+          }
+          return all;
+        });
   }
 
   // Costs more than a query in the package, so only the annotation scans use it
@@ -884,7 +898,7 @@ final class Finder {
   }
 
   int id(String type, String name) {
-    if (!ready(name)) return 0;
+    if (planning || !ready(name)) return 0;
     int id = res.getIdentifier(name, type, pkg);
     if (id == 0) fail("no resource " + type + "/" + name);
     return id;

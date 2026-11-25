@@ -171,7 +171,8 @@ final class ChatRules {
     String action = f.fieldType(presentation, "buttonAction");
     c.messageEditHistory.methodMenuActionAccessor = f.method(presentation, sig(action));
     c.messageEditHistory.menuActionLambdaClass =
-        f.cls(
+        f.clsIn(
+            Finder.packageOf(f.classUsing("ButtonUiModel(buttonColor=")),
             ClassMatcher.create()
                 .superClass(action)
                 .addField(
@@ -262,7 +263,8 @@ final class ChatRules {
 
     // R8 keeps the setters of View subclasses
     c.keywordAssist.toggleViewClass =
-        f.cls(
+        f.clsIn(
+            Finder.packageOf(c.chat.searchHeaderHelperClass),
             ClassMatcher.create()
                 .superClass("android.widget.FrameLayout")
                 .addMethod(MethodMatcher.create().name("setOnPopupAction")));

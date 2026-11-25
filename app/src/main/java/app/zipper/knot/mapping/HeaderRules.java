@@ -132,27 +132,25 @@ final class HeaderRules {
     c.home26NavIcon.agentDrawableId = f.id("drawable", "home26_navi_top_agent");
     c.home26NavIcon.settingsDrawableId = f.id("drawable", "navi_top_setting");
     String subTabs = Finder.packageOf(f.classUsing("UnselectedSubTabButtonScope"));
-    // The renderer's class also builds the NEW badge
-    c.home26NavIcon.rendererClass =
-        Finder.declaring(
-            f.creatorIn(
-                subTabs,
-                f.classUsingIdIn(subTabs, "drawable", "grand_ui_top_navigation_badge_new")));
     // (drawableId, text, onClick, modifier, ..., composer, changed, defaults)
-    c.home26NavIcon.rendererMethod =
-        f.staticMethodOf(
-            c.home26NavIcon.rendererClass,
-            "void",
-            "int",
-            "java.lang.String",
-            c.kotlin.function0Class,
-            null,
-            null,
-            null,
-            null,
-            c.compose.composerClass,
-            "int",
-            "int");
+    MethodData renderer =
+        f.methodDataIn(
+            subTabs,
+            sig(
+                    "void",
+                    "int",
+                    "java.lang.String",
+                    c.kotlin.function0Class,
+                    null,
+                    null,
+                    null,
+                    null,
+                    c.compose.composerClass,
+                    "int",
+                    "int")
+                .modifiers(Modifier.STATIC));
+    c.home26NavIcon.rendererClass = Finder.declaring(renderer);
+    c.home26NavIcon.rendererMethod = Finder.name(renderer);
 
     c.homeTab.mainTabEnumClass = f.classUsing("commercetwtab", "chatlist");
     MethodData buildTabList =

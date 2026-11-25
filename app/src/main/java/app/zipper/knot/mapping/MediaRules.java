@@ -9,7 +9,6 @@ import org.luckypray.dexkit.query.enums.UsingType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.FieldMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
-import org.luckypray.dexkit.result.FieldData;
 import org.luckypray.dexkit.result.MethodData;
 
 final class MediaRules {
@@ -73,16 +72,14 @@ final class MediaRules {
   private static void callRecording(Finder f, LineVersion.Config c) {
     if (f.id("raw", "recording_jp_start") == 0) return;
 
-    String features = f.classUsing("FEATURE_STATE_SHARE");
-    FieldData stateShare = f.fieldData(features, FieldMatcher.create().name("FEATURE_STATE_SHARE"));
-    if (stateShare != null) {
-      for (MethodData reader : stateShare.getReaders()) {
-        if (reader.isConstructor() && !reader.getClassName().equals(features)) {
-          c.callRecording.stateShareClass = reader.getClassName();
-          break;
-        }
-      }
-    }
+    c.callRecording.stateShareClass =
+        f.classUsing(
+            ClassMatcher.create()
+                .addMethod(
+                    MethodMatcher.create()
+                        .name("<init>")
+                        .addUsingField(FieldMatcher.create().name("FEATURE_STATE_SHARE"))),
+            "modelImpl");
     String share = c.callRecording.stateShareClass;
     // R8 drops the state argument from 26.18.2, leaving a setter for "record" only
     List<MethodData> recordOnly =

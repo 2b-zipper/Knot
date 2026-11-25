@@ -434,9 +434,7 @@ public class LineVersion {
       public String profileAvatarUsageEnumClass = "";
       public String profileAvatarBinderClass = "";
       public String profileAvatarBinderMethod = "";
-      public String profileAvatarFacadeClass = "";
-      public String profileAvatarFacadeKeyField = "";
-      public String profileAvatarLoaderFactoryMethod = "";
+      public String profileAvatarLoaderClass = "";
     }
 
     public static class Unsend {
