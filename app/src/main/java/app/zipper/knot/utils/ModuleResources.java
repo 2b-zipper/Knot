@@ -13,7 +13,10 @@ import app.zipper.knot.Knot;
 import app.zipper.knot.R;
 import app.zipper.knot.SettingsStore;
 import io.github.libxposed.api.XposedInterface;
+import java.io.File;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public final class ModuleResources {
 
@@ -30,6 +33,8 @@ public final class ModuleResources {
   // Locales the module ships, in picker order; en is served by the default values folder
   public static final String[] SUPPORTED_LANGUAGES = {"en", "ja", "zh-Hant"};
 
+  private static final Map<String, Resources> cachedByKey = new HashMap<>();
+
   private static volatile Context hostContext;
   private static volatile String language;
   private static volatile Resources cached;
@@ -43,6 +48,7 @@ public final class ModuleResources {
     if (context == null || hostContext != null) return;
     Context app = context.getApplicationContext();
     hostContext = app != null ? app : context;
+    warmup();
   }
 
   public static String get(int resId) {
@@ -139,10 +145,16 @@ public final class ModuleResources {
     }
   }
 
+  // Opens the module APK at startup before an in-place update can unlink its startup path
+  private static void warmup() {
+    resourcesFor(LANGUAGE_SYSTEM);
+    for (String tag : SUPPORTED_LANGUAGES) resourcesFor(tag);
+  }
+
   // Each translation names itself; Locale.getDisplayName would render zh-Hant as "中文 (繁體)"
   public static String displayName(String tag) {
     try {
-      Resources res = build(tag);
+      Resources res = resourcesFor(tag);
       if (res != null) return res.getString(R.string.language_name);
     } catch (Throwable ignored) {
     }
@@ -154,20 +166,40 @@ public final class ModuleResources {
     return Locale.forLanguageTag(tag.replace('_', '-'));
   }
 
+  private static String keyOf(String lang) {
+    return lang.isEmpty() ? "system:" + Locale.getDefault().toLanguageTag() : lang;
+  }
+
+  private static Resources resourcesFor(String tag) {
+    String lang = tag != null ? tag : LANGUAGE_SYSTEM;
+    String key = keyOf(lang);
+    synchronized (ModuleResources.class) {
+      Resources existing = cachedByKey.get(key);
+      if (existing != null) return existing;
+      Resources built = build(lang);
+      if (built != null) {
+        cachedByKey.put(key, built);
+        return built;
+      }
+      if (cached != null) return cached;
+      return cachedByKey.isEmpty() ? null : cachedByKey.values().iterator().next();
+    }
+  }
+
   private static Resources resources() {
     String lang = language();
-    String key = lang.isEmpty() ? "system:" + Locale.getDefault().toLanguageTag() : lang;
+    String key = keyOf(lang);
 
     Resources current = cached;
     if (current != null && key.equals(cachedKey)) return current;
 
     synchronized (ModuleResources.class) {
       if (cached != null && key.equals(cachedKey)) return cached;
-      Resources built = build(lang);
-      if (built == null) return cached;
-      cached = built;
+      Resources resolved = resourcesFor(lang);
+      if (resolved == null) return cached;
+      cached = resolved;
       cachedKey = key;
-      return built;
+      return resolved;
     }
   }
 
@@ -211,8 +243,8 @@ public final class ModuleResources {
     XposedInterface module = Knot.module;
     if (module != null) {
       try {
-        ApplicationInfo info = module.getModuleApplicationInfo();
-        if (info != null) return withPublicSourceDir(info);
+        ApplicationInfo info = withPublicSourceDir(module.getModuleApplicationInfo());
+        if (hasSourceFile(info)) return info;
       } catch (Throwable ignored) {
       }
     }
@@ -220,15 +252,22 @@ public final class ModuleResources {
     Context base = host != null ? host : baseContext();
     if (base == null) return null;
     try {
-      return base.getPackageManager().getApplicationInfo(MODULE_PACKAGE, 0);
+      ApplicationInfo info =
+          withPublicSourceDir(base.getPackageManager().getApplicationInfo(MODULE_PACKAGE, 0));
+      if (hasSourceFile(info)) return info;
     } catch (Throwable t) {
       logResolveFailure(t);
-      return null;
     }
+    return null;
+  }
+
+  private static boolean hasSourceFile(ApplicationInfo info) {
+    return info != null && info.publicSourceDir != null && new File(info.publicSourceDir).isFile();
   }
 
   // Another uid's resources are read from publicSourceDir, which the framework may leave unset.
   private static ApplicationInfo withPublicSourceDir(ApplicationInfo info) {
+    if (info == null) return null;
     if (info.publicSourceDir != null && !info.publicSourceDir.isEmpty()) return info;
     if (info.sourceDir == null || info.sourceDir.isEmpty()) return info;
     ApplicationInfo copy = new ApplicationInfo(info);
