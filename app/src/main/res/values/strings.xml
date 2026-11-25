@@ -104,8 +104,10 @@
     <string name="msg_combination_sticker">[Arranged sticker]</string>
     <string name="msg_image">[Photo]</string>
     <string name="msg_video">[Video]</string>
+    <string name="msg_audio">[Voice message]</string>
     <string name="msg_file">[File]</string>
     <string name="msg_location">[Location]</string>
+    <string name="msg_contact">[Contact]</string>
 
     <!-- Privacy options -->
     <string name="opt_prevent_mark_as_read_label">Add \"Read avoidance\" to the plus menu</string>

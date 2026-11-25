@@ -23,6 +23,15 @@ import java.util.Set;
 public class LineDBUtils {
 
   private static final int SQLITE_IN_BATCH_SIZE = 500;
+  private static final int ATTACHMENT_IMAGE = 1;
+  private static final int ATTACHMENT_VIDEO = 2;
+  private static final int ATTACHMENT_AUDIO = 3;
+  private static final int ATTACHMENT_STICKER = 7;
+  private static final int ATTACHMENT_CONTACT = 13;
+  private static final int ATTACHMENT_FILE = 14;
+  private static final int ATTACHMENT_LOCATION = 15;
+  private static final int ATTACHMENT_EXTIMAGE = 21;
+
   private static volatile String cachedMyMid;
 
   public static String resolveMemberName(String mid) {
@@ -210,6 +219,20 @@ public class LineDBUtils {
     return resolveMessageContents(Collections.singletonList(serverId)).get(serverId);
   }
 
+  public static String resolveMessageContentByLocalId(long localId) {
+    try (SQLiteDatabase db = openReadOnlyDatabase("naver_line")) {
+      if (db == null) return null;
+      try (Cursor cursor =
+          db.rawQuery(
+              "SELECT content, parameter, attachement_type FROM chat_history WHERE id = ? LIMIT 1",
+              new String[] {String.valueOf(localId)})) {
+        if (cursor.moveToFirst()) return resolveMessageText(cursor, 0, 1, 2);
+      }
+    } catch (Throwable ignored) {
+    }
+    return null;
+  }
+
   public static Map<String, String> resolveMessageContents(Collection<String> serverIds) {
     Map<String, String> results = new HashMap<>();
     List<String> ids = collectNonEmptyIds(serverIds);
@@ -220,13 +243,14 @@ public class LineDBUtils {
         List<String> batch = ids.subList(start, Math.min(start + SQLITE_IN_BATCH_SIZE, ids.size()));
         String placeholders = String.join(",", Collections.nCopies(batch.size(), "?"));
         String sql =
-            "SELECT server_id, content, parameter FROM chat_history WHERE server_id IN ("
+            "SELECT server_id, content, parameter, attachement_type FROM chat_history"
+                + " WHERE server_id IN ("
                 + placeholders
                 + ")";
         try (Cursor cursor = db.rawQuery(sql, batch.toArray(new String[0]))) {
           while (cursor.moveToNext()) {
             String serverId = cursor.getString(0);
-            String text = resolveMessageText(cursor.getString(1), cursor.getString(2));
+            String text = resolveMessageText(cursor, 1, 2, 3);
             if (serverId != null && text != null && !text.isEmpty()) {
               results.put(serverId, text);
             }
@@ -364,10 +388,51 @@ public class LineDBUtils {
     return false;
   }
 
+  private static String resolveMessageText(
+      Cursor cursor, int contentCol, int paramCol, int attachmentTypeCol) {
+    int attachmentType = cursor.isNull(attachmentTypeCol) ? 0 : cursor.getInt(attachmentTypeCol);
+    return resolveMessageText(
+        cursor.getString(contentCol), cursor.getString(paramCol), attachmentType);
+  }
+
   public static String resolveMessageText(String content, String parameter) {
+    return resolveMessageText(content, parameter, 0);
+  }
+
+  public static String resolveMessageText(String content, String parameter, int attachmentType) {
     if (content != null && !content.isEmpty() && !"null".equals(content)) {
       return content;
     }
+    String byType = resolveAttachmentLabel(attachmentType, parameter);
+    if (byType != null) return byType;
+    return resolveParameterLabel(parameter);
+  }
+
+  private static String resolveAttachmentLabel(int attachmentType, String parameter) {
+    switch (attachmentType) {
+      case ATTACHMENT_IMAGE:
+      case ATTACHMENT_EXTIMAGE:
+        return ModuleResources.get(R.string.msg_image);
+      case ATTACHMENT_VIDEO:
+        return ModuleResources.get(R.string.msg_video);
+      case ATTACHMENT_AUDIO:
+        return ModuleResources.get(R.string.msg_audio);
+      case ATTACHMENT_STICKER:
+        return parameter != null && parameter.contains("CSSTKID")
+            ? ModuleResources.get(R.string.msg_combination_sticker)
+            : ModuleResources.get(R.string.msg_sticker);
+      case ATTACHMENT_CONTACT:
+        return ModuleResources.get(R.string.msg_contact);
+      case ATTACHMENT_FILE:
+        return ModuleResources.get(R.string.msg_file);
+      case ATTACHMENT_LOCATION:
+        return ModuleResources.get(R.string.msg_location);
+      default:
+        return null;
+    }
+  }
+
+  private static String resolveParameterLabel(String parameter) {
     if (parameter == null) return null;
     if (parameter.contains("CSSTKID")) {
       return ModuleResources.get(R.string.msg_combination_sticker);
@@ -386,6 +451,17 @@ public class LineDBUtils {
     }
     if (parameter.contains("LOCATION") || parameter.contains("location")) {
       return ModuleResources.get(R.string.msg_location);
+    }
+    return extractParameterValue(parameter, "ALT_TEXT");
+  }
+
+  private static String extractParameterValue(String parameter, String key) {
+    if (parameter == null || parameter.isEmpty()) return null;
+    String[] parts = parameter.split("\t");
+    for (int i = 0; i + 1 < parts.length; i += 2) {
+      if (key.equals(parts[i]) && !parts[i + 1].isEmpty()) {
+        return parts[i + 1];
+      }
     }
     return null;
   }
@@ -466,20 +542,21 @@ public class LineDBUtils {
         String[] args;
         if (keyword == null || keyword.isEmpty()) {
           sql =
-              "SELECT server_id, content, parameter, created_time FROM chat_history"
-                  + " WHERE chat_id = ? AND from_mid = ? ORDER BY created_time DESC LIMIT 200";
+              "SELECT server_id, content, parameter, created_time, attachement_type"
+                  + " FROM chat_history WHERE chat_id = ? AND from_mid = ?"
+                  + " ORDER BY created_time DESC LIMIT 200";
           args = new String[] {chatId, senderMid};
         } else {
           sql =
-              "SELECT server_id, content, parameter, created_time FROM chat_history"
-                  + " WHERE chat_id = ? AND from_mid = ? AND content LIKE ?"
+              "SELECT server_id, content, parameter, created_time, attachement_type"
+                  + " FROM chat_history WHERE chat_id = ? AND from_mid = ? AND content LIKE ?"
                   + " ORDER BY created_time DESC LIMIT 100";
           args = new String[] {chatId, senderMid, "%" + keyword + "%"};
         }
         Cursor cursor = db.rawQuery(sql, args);
         try {
           while (cursor.moveToNext()) {
-            String text = resolveMessageText(cursor.getString(1), cursor.getString(2));
+            String text = resolveMessageText(cursor, 1, 2, 4);
             if (text == null || text.isEmpty()) continue;
             String ts = fmt.format(new Date(cursor.getLong(3)));
             results.add(
@@ -601,7 +678,7 @@ public class LineDBUtils {
 
       try {
         String sql =
-            "SELECT server_id, content, parameter, from_mid, created_time "
+            "SELECT server_id, content, parameter, from_mid, created_time, attachement_type "
                 + "FROM chat_history WHERE chat_id = ? "
                 + "AND CAST(server_id AS INTEGER) > ? "
                 + "AND CAST(server_id AS INTEGER) <= ? "
@@ -621,8 +698,6 @@ public class LineDBUtils {
 
           while (cursor.moveToNext()) {
             String mId = cursor.getString(0);
-            String rawContent = cursor.getString(1);
-            String rawParam = cursor.getString(2);
             String fromMid = cursor.getString(3);
             long timeLong = cursor.getLong(4);
 
@@ -637,7 +712,7 @@ public class LineDBUtils {
               senderName = resolvedSenderName != null ? resolvedSenderName : "Unknown";
             }
 
-            String resolvedText = resolveMessageText(rawContent, rawParam);
+            String resolvedText = resolveMessageText(cursor, 1, 2, 5);
             String formattedTime = dateFormat.format(new Date(timeLong));
 
             results.add(

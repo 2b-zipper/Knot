@@ -32,6 +32,7 @@ import app.zipper.knot.utils.ModuleResources;
 import app.zipper.knot.utils.SearchResultLayout;
 import io.github.libxposed.api.XposedInterface;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -53,6 +54,8 @@ public class SearchByMemberHook implements BaseHook {
   private static final String TOOLTIP_KEY = "knot_search_member_tooltip_shown";
   private static final String LINE_PKG = "jp.naver.line.android";
   private static final String LINE_DB = "naver_line";
+  private static final String SEARCHED_MESSAGE_ITEM_CLASS =
+      "com.linecorp.line.search.api.model.message.SearchedMessageItem";
   private static final int FILTER_ACTIVE_TINT = 0xFF2196F3;
 
   private static final Map<String, String> chatMemberFilter = new ConcurrentHashMap<>();
@@ -61,6 +64,7 @@ public class SearchByMemberHook implements BaseHook {
   private static final Set<String> pendingFetchAll = ConcurrentHashMap.newKeySet();
   private static final Map<String, List<Long>> cachedResults = new ConcurrentHashMap<>();
   private static final Map<String, String> cachedKeywords = new ConcurrentHashMap<>();
+  private static final Map<Long, String> cachedFallbackLabels = new ConcurrentHashMap<>();
   private static final Map<String, Long> forcedKeywordRefreshes = new ConcurrentHashMap<>();
   private static final WeakHashMap<EditText, Boolean> watchedEditTexts = new WeakHashMap<>();
   private static final ThreadLocal<Boolean> creatingResult = new ThreadLocal<>();
@@ -96,6 +100,7 @@ public class SearchByMemberHook implements BaseHook {
     setupSearchResultHook(config, lpparam.classLoader);
     setupSearchResultWrapperHook(config, lpparam.classLoader);
     setupKeywordTypeHook(config, lpparam.classLoader);
+    setupSearchedMessageItemHook(lpparam.classLoader);
   }
 
   private boolean isValidConfig(LineVersion.Config config) {
@@ -294,6 +299,40 @@ public class SearchByMemberHook implements BaseHook {
     }
   }
 
+  private void setupSearchedMessageItemHook(ClassLoader classLoader) {
+    try {
+      Class<?> itemCls = Reflect.findClass(SEARCHED_MESSAGE_ITEM_CLASS, classLoader);
+      for (Constructor<?> ctor : itemCls.getDeclaredConstructors()) {
+        Class<?>[] params = ctor.getParameterTypes();
+        if (params.length < 3 || params[0] != long.class || params[2] != String.class) continue;
+        Knot.module
+            .hook(ctor)
+            .intercept(
+                chain -> {
+                  if (!hasActiveFilter()) return chain.proceed();
+                  String content = (String) chain.getArg(2);
+                  if (content != null && !content.trim().isEmpty()) return chain.proceed();
+                  String label = resolveFallbackLabel((Long) chain.getArg(0));
+                  if (label == null) return chain.proceed();
+                  Object[] args = chain.getArgs().toArray();
+                  args[2] = label;
+                  return chain.proceed(args);
+                });
+      }
+    } catch (Throwable t) {
+      Knot.log("Knot: setupSearchedMessageItemHook error: " + t);
+    }
+  }
+
+  private static String resolveFallbackLabel(long localId) {
+    String cached = cachedFallbackLabels.get(localId);
+    if (cached != null) return cached;
+    String resolved = LineDBUtils.resolveMessageContentByLocalId(localId);
+    if (resolved == null || resolved.isEmpty()) return null;
+    cachedFallbackLabels.put(localId, resolved);
+    return resolved;
+  }
+
   private void setupSearchResultHook(LineVersion.Config config, ClassLoader classLoader) {
     try {
       SearchResultLayout layout = SearchResultLayout.of(config.chat, classLoader);
@@ -455,7 +494,7 @@ public class SearchByMemberHook implements BaseHook {
     if (dbFile == null) return new ArrayList<>();
     try {
       String sql =
-          "SELECT id FROM chat_history WHERE chat_id = ? AND "
+          "SELECT id, content, parameter, attachement_type FROM chat_history WHERE chat_id = ? AND "
               + senderMidPredicate(isOwnMid(senderMid))
               + " ORDER BY id DESC";
       try (SQLiteDatabase db =
@@ -463,7 +502,19 @@ public class SearchByMemberHook implements BaseHook {
                   dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
           Cursor cursor = db.rawQuery(sql, new String[] {chatId, senderMid})) {
         List<Long> result = new ArrayList<>();
-        while (cursor.moveToNext()) result.add(cursor.getLong(0));
+        while (cursor.moveToNext()) {
+          long id = cursor.getLong(0);
+          result.add(id);
+          String content = cursor.getString(1);
+          if (content == null || content.trim().isEmpty()) {
+            int attachmentType = cursor.isNull(3) ? 0 : cursor.getInt(3);
+            String label =
+                LineDBUtils.resolveMessageText(content, cursor.getString(2), attachmentType);
+            if (label != null && !label.isEmpty()) {
+              cachedFallbackLabels.put(id, label);
+            }
+          }
+        }
         return result;
       }
     } catch (Throwable t) {
@@ -496,6 +547,7 @@ public class SearchByMemberHook implements BaseHook {
     pendingFetchAll.remove(chatId);
     cachedResults.remove(chatId);
     cachedKeywords.remove(chatId);
+    if (chatMemberFilter.size() <= 1) cachedFallbackLabels.clear();
   }
 
   private static void tintFilterActive(ImageView icon) {
@@ -532,9 +584,9 @@ public class SearchByMemberHook implements BaseHook {
   }
 
   private void clearMemberFilter(Activity activity, String chatId, ImageView icon) {
-    clearFilterCaches(chatId);
     chatMemberFilterName.remove(chatId);
     chatMemberFilter.remove(chatId);
+    clearFilterCaches(chatId);
     icon.clearColorFilter();
     EditText et = getSearchEditText(activity);
     if (et != null) et.setHint("");
